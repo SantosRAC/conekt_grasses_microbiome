@@ -1,0 +1,5 @@
+id	name	defn
+ENVO:00000001	bedding-plane cave	A cavity developed along a bedding-plane and elongate in cross-section as a result.
+ENVO:00000005	first-order administrative region	A primary administrative division of a country, such as a state in the United States.
+ENVO:00000011	garden	An enclosure for displaying selected plant or animal life.
+ENVO:00001998	soil	An environmental material which is primarily composed of minerals, varying proportions of sand, silt, and clay, organic material such as humus, interstitial gases, liquids, and a broad range of resident micro- and macroorganisms.

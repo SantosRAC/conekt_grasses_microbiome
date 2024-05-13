@@ -1,0 +1,4 @@
+RunID	SampleID	DOI	Layout	Strandness	SequencingPlatform
+micro_run1	spl00001	10.1094/PBIOMES-02-18-0008-R	paired-end	unstranded	illumina
+micro_run2	spl00002	10.1094/PBIOMES-02-18-0008-R	paired-end	unstranded	illumina
+micro_run3	spl00003	10.1094/PBIOMES-02-18-0008-R	paired-end	unstranded	illumina

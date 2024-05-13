@@ -1,0 +1,74 @@
+{% extends 'admin/my_base.html' %}
+
+{% block body %}
+{% if form %}
+<h1>Add Taxonomy</h1>
+<div class="row">
+    <div class="col-lg-8 col-md-8 col-sm-6 col-xs-12">
+        <p>Use the panel below to add new taxonomy data</p>
+
+        <form method="POST"  action="{{ url_for('admin_controls.add_taxonomy') }}"  role="form" enctype="multipart/form-data">
+            {{ form.csrf_token }}
+            <div class="form-group">
+                <label>{{ form.ncbi_release.label }}</label>
+                {{form.ncbi_release(class_="form-control", placeholder="NCBI Release") }}
+            </div>
+
+            <br />
+            <div class="form-group">
+                <p>Add txt file containing NCBI Taxonomy information.</p>
+                <label class="btn btn-default" for="ncbi_taxonomy_file" id="my-file-button-ncbi-taxonomy">
+                    {{ form.ncbi_taxonomy_file(style="display:none;", onchange="")}}
+                    <span id="file-selector-text-ncbi-taxonomy">Select NCBI Taxonomy File</span>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>{{ form.silva_release.label }}</label>
+                {{form.silva_release(class_="form-control", placeholder="SILVA Release") }}
+            </div>
+
+            <br />
+            <div class="form-group">
+                <p>Add txt file containing SILVA Taxonomy information.</p>
+                <label class="btn btn-default" for="silva_taxonomy_file" id="my-file-button-silva-taxonomy">
+                    {{ form.silva_taxonomy_file(style="display:none;", onchange="")}}
+                    <span id="file-selector-text-silva-taxonomy">Select SILVA Taxonomy File</span>
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-success pull-right">Add Taxonomy</button>
+
+        </form>
+    </div>
+    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-heading"><strong>Help</strong></div>
+            <div class="panel-body">
+                Adds a new taxonomy data to the database.
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block tail %}
+<script src="{{ url_for('static', filename='js/jscolor.min.js') }}"></script>
+<script>
+    
+$(function() {
+    $("#ncbi_taxonomy_file").change(function() {
+        $('#file-selector-text-ncbi-taxonomy').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#my-file-button-ncbi-taxonomy').toggleClass('btn-default btn-success');
+    });
+});
+
+$(function() {
+    $("#silva_taxonomy_file").change(function() {
+        $('#file-selector-text-silva-taxonomy').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#my-file-button-silva-taxonomy').toggleClass('btn-default btn-success');
+    });
+});
+
+</script>
+{% endblock %}

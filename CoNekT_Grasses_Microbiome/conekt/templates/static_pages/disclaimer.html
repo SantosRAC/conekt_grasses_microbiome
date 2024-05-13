@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    CoNekT Grasses Microbiome - Disclaimer
+{% endblock %}
+
+{% block container %}
+<div class="top-pad">
+    <ol class="breadcrumb">
+        <li><a href="{{ url_for('main.screen') }}">Home</a></li>
+        <li class="active"><strong>Disclaimer</strong></li>
+    </ol>
+    <h1>Disclaimer</h1>
+
+    <p><a href="{{ url_for('main.screen') }}">CoNekT Grasses Microbiome</a> derives from <a href="https://conekt.sbs.ntu.edu.sg/">CoNekT</a>.
+        All source code used as basis to develop CoNekT Grasses Microbiome was obtained from the <a href="https://github.com/sepro/CoNekT">CoNekT GitHub repository</a>,
+        which is available under the <a href="https://github.com/sepro/CoNekT/blob/master/LICENSE.md">MIT license</a>.</p>
+
+    <p>All CoNekT Grasses Microbiome source code, including new features, will be publicly available
+        upon publication on the CoNekT Grasses Microbiome GitHub repository,
+        under the <a href="https://github.com/labbces">Laboratory of Computational, Evolutionary and Systems Biology (LabBCES) organization</a>.</p>
+
+    <p>By using this site, you agree to the <a href="{{ url_for('main.privacy_policy') }}" class="text-muted">Privacy policy</a>.</p>
+</p>
+</div>
+
+</div>
+{% endblock %}

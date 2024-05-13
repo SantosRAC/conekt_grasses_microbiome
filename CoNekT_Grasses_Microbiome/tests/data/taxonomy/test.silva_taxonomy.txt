@@ -1,0 +1,50 @@
+Archaea;	2	domain		
+Archaea;Aenigmarchaeota;	11084	phylum		123
+Archaea;Aenigmarchaeota;Aenigmarchaeia;	42913	class		138
+Archaea;Aenigmarchaeota;Aenigmarchaeia;Aenigmarchaeales;	42914	order		138
+Archaea;Aenigmarchaeota;Aenigmarchaeia;Aenigmarchaeales;Candidatus Aenigmarchaeum;	42915	genus		138
+Archaea;Aenigmarchaeota;Deep Sea Euryarchaeotic Group(DSEG);	11089	class		123
+Archaea;Altiarchaeota;	24228	phylum		132
+Archaea;Altiarchaeota;Altiarchaeia;	24229	class		132
+Archaea;Altiarchaeota;Altiarchaeia;Altiarchaeales;	42916	order		138
+Archaea;Altiarchaeota;Altiarchaeia;Altiarchaeales;Altiarchaeaceae;	42917	family		138
+Archaea;Altiarchaeota;Altiarchaeia;Altiarchaeales;Altiarchaeaceae;Candidatus Altiarchaeum;	42918	genus		138
+Archaea;Asgardarchaeota;	42919	phylum		138
+Archaea;Asgardarchaeota;Heimdallarchaeia;	42920	class		138
+Archaea;Asgardarchaeota;Lokiarchaeia;	42921	class		138
+Archaea;Asgardarchaeota;Odinarchaeia;	42922	class		138
+Archaea;Crenarchaeota;	6	phylum		119
+Archaea;Crenarchaeota;Bathyarchaeia;	24234	class		132
+Archaea;Crenarchaeota;Methanomethylicia;	42923	class		138
+Archaea;Crenarchaeota;Methanomethylicia;Methanomethyliales;	42924	order		138
+Archaea;Crenarchaeota;Methanomethylicia;Methanomethyliales;Methanomethyliaceae;	42925	family		138
+Archaea;Crenarchaeota;Methanomethylicia;Methanomethyliales;Methanomethyliaceae;Candidatus Methanomethylicus;	42926	genus		138
+Archaea;Crenarchaeota;Nitrososphaeria;	42927	class		138
+Archaea;Crenarchaeota;Nitrososphaeria;Caldiarchaeales;	42928	order		138
+Archaea;Crenarchaeota;Nitrososphaeria;Caldiarchaeales;Caldiarchaeaceae;	42929	family		138
+Archaea;Crenarchaeota;Nitrososphaeria;Caldiarchaeales;Caldiarchaeaceae;Candidatus Caldiarchaeum;	42930	genus		138
+Archaea;Crenarchaeota;Nitrososphaeria;Caldiarchaeales;Geothermarchaeaceae;	42931	family		138
+Archaea;Crenarchaeota;Nitrososphaeria;Caldiarchaeales;Terrestrial Hot Spring Gp(THSCG);	42932	family		138
+Archaea;Crenarchaeota;Nitrososphaeria;Group 1.1c;	42933	order		138
+Archaea;Crenarchaeota;Nitrososphaeria;Marine Benthic Group A;	42934	order		138
+Archaea;Crenarchaeota;Nitrososphaeria;Nitrosocaldales;	42935	order		138
+Archaea;Crenarchaeota;Nitrososphaeria;Nitrosocaldales;Nitrosocaldaceae;	42936	family		138
+Archaea;Crenarchaeota;Nitrososphaeria;Nitrosocaldales;Nitrosocaldaceae;Candidatus Nitrosocaldus;	42937	genus		138
+Archaea;Crenarchaeota;Nitrososphaeria;Nitrosocaldales;Nitrosocaldaceae;uncultured;	42938	genus		138
+Archaea;Crenarchaeota;Nitrososphaeria;Nitrosopumilales;	42939	order		138
+Archaea;Crenarchaeota;Nitrososphaeria;Nitrosopumilales;Nitrosopumilaceae;	42940	family		138
+Archaea;Crenarchaeota;Nitrososphaeria;Nitrosopumilales;Nitrosopumilaceae;Candidatus Nitrosopelagicus;	42941	genus		138
+Archaea;Crenarchaeota;Nitrososphaeria;Nitrosopumilales;Nitrosopumilaceae;Candidatus Nitrosopumilus;	42942	genus		138
+Archaea;Crenarchaeota;Nitrososphaeria;Nitrosopumilales;Nitrosopumilaceae;Candidatus Nitrosotenuis;	42943	genus		138
+Archaea;Crenarchaeota;Nitrososphaeria;Nitrosopumilales;Nitrosopumilaceae;Cenarchaeum;	42944	genus		138
+Archaea;Crenarchaeota;Nitrososphaeria;Nitrosopumilales;Nitrosopumilaceae;Nitrosarchaeum;	42945	genus		138
+Archaea;Crenarchaeota;Nitrososphaeria;Nitrososphaerales;	42946	order		138
+Archaea;Crenarchaeota;Nitrososphaeria;Nitrososphaerales;Nitrososphaeraceae;	42947	family		138
+Archaea;Crenarchaeota;Nitrososphaeria;Nitrososphaerales;Nitrososphaeraceae;Candidatus Nitrocosmicus;	42948	genus		138
+Archaea;Crenarchaeota;Nitrososphaeria;Nitrososphaerales;Nitrososphaeraceae;Candidatus Nitrososphaera;	42949	genus		138
+Archaea;Crenarchaeota;Nitrososphaeria;Nitrosotaleales;	42950	order		138
+Archaea;Crenarchaeota;Nitrososphaeria;Nitrosotaleales;Nitrosotaleaceae;	42951	family		138
+Archaea;Crenarchaeota;Nitrososphaeria;Nitrosotaleales;Nitrosotaleaceae;Candidatus Nitrosotalea;	42952	genus		138
+Archaea;Crenarchaeota;Nitrososphaeria;SCGC AB-179-E04;	42953	order		138
+Archaea;Crenarchaeota;Nitrososphaeria;uncultured;	42954	order		138
+Archaea;Crenarchaeota;Thermoprotei;	7	class		119

@@ -1,0 +1,65 @@
+{% extends 'admin/my_base.html' %}
+
+{% block body %}
+{% if form %}
+<h1>Add Expression Profile</h1>
+<div class="row">
+    <div class="col-lg-8 col-md-8 col-sm-6 col-xs-12">
+        <form method="POST"  action="{{ url_for('admin_controls.add_expression_profiles') }}"  role="form" enctype="multipart/form-data">
+            {{ form.csrf_token }}
+            <div class="form-group">
+                {{ form.species_id.label }}
+                {{ form.species_id(class_="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.source.label }}
+                {{ form.source(class_="form-control") }}
+            </div>
+            <div class="form-group">
+                <label>The normalized matrix file</label>
+                <p>Normalized expression matrix generated using LSTrAP, sequence names should match the names in the database</p>
+                <label class="btn btn-default" for="matrix_file" id="matrix-file-button">
+                    {{ form.matrix_file(style="display:none;", onchange="")}}
+                    <span id="matrix-file-selector-text">Select File</span>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>Annotation file</label>
+                <p>Text file with tab-delimited columns with one line header. The first is the sample name, the second a
+                condition, the third is the Plant Ontology (PO) term. Optionally, a fourth column with the Plant
+                Experimental Conditions Ontology (PECO) can be included.</p>
+                <label class="btn btn-default" for="annotation_file" id="annotation-file-button">
+                    {{ form.annotation_file(style="display:none;", onchange="")}}
+                    <span id="annotation-file-selector-text">Select File</span>
+                </label>
+            </div>
+            <button type="submit" class="btn btn-success pull-right">Add Expression Profiles</button>
+        </form>
+    </div>
+    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-heading"><strong>Help</strong></div>
+            <div class="panel-body">
+                ADD DESCRIPTION.
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block tail %}
+<script>
+    $(function() {
+        $("#matrix_file").change(function() {
+            $('#matrix-file-selector-text').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#matrix-file-button').toggleClass('btn-default btn-success');
+        });
+        $("#annotation_file").change(function() {
+            $('#annotation-file-selector-text').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#annotation-file-button').toggleClass('btn-default btn-success');
+        });
+    });
+</script>
+{{ super() }}
+{% endblock%}

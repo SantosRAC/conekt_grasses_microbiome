@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    CoNekT Grasses Microbiome - Contact
+{% endblock %}
+
+{% block container %}
+<div class="top-pad">
+    <ol class="breadcrumb">
+        <li><a href="{{ url_for('main.screen') }}">Home</a></li>
+        <li class="active"><strong>Contact</strong></li>
+    </ol>
+    <h1>Contact Us<br /></h1>
+
+    <div class="row">
+        <div class="col-lg-3 col-md-3 col-sm-4 hidden-xs"><img alt="renato picture" class="img-rounded" style="width: 80%; height: auto;margin-top: 20px" src="{{ url_for('static', filename='img/contact/renato_santos_red_200.png') }}"></div>
+            <div class="col-lg-9 col-md-9 col-sm-8 col-xs-12"><h3 class="banner-green">Dr. Renato A. Corrêa dos Santos</h3>
+                <p><strong>Main Researcher and Developer</strong></p>
+                <br />
+                <p><i class="fa fa-globe text-muted"></i> <a href="https://labbces.netlify.app/author/renato-augusto-correa-dos-santos/">LabBCES/renato-augusto-correa-dos-santos</a></p>
+                <p><i class="fa fa-envelope text-muted"></i> <a href="mailto:renatoacsantos@gmail.com">renatoacsantos@gmail.com</a></p>
+            </div>
+        </div>
+    <div class="row">
+    <div class="col-lg-3 col-md-3 col-sm-4 hidden-xs"><img alt="diego picture" class="img-rounded" style="width: 80%; height: auto;margin-top: 20px" src="{{ url_for('static', filename='img/contact/diego_riano_red_200.png') }}"></div>
+        <div class="col-lg-9 col-md-9 col-sm-8 col-xs-12"><h3 class="banner-green">Professor Dr. rer. nat. Diego M. Riaño-Pachón</h3>
+            <p><strong>Group Leader (LabBCES, Brazil)</strong></p>
+            <br />
+            <p><i class="fa fa-globe text-muted"></i> <a href="https://labbces.netlify.app/author/diego-mauricio-riano-pachon/">LabBCES/diego-mauricio-riano-pachon</a></p>
+            <p><i class="fa fa-envelope text-muted"></i> <a href="mailto:diego.riano@cena.usp.br">diego.riano@cena.usp.br</a></p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-3 col-md-3 col-sm-4 hidden-xs"><img alt="jason picture" class="img-rounded" style="width: 80%; height: auto;margin-top: 20px" src="{{ url_for('static', filename='img/contact/jason_wallace_red.jpg') }}"></div>
+            <div class="col-lg-9 col-md-9 col-sm-8 col-xs-12"><h3 class="banner-green">Professor Dr. Jason Wallace</h3>
+                <p><strong>Group Leader (Wallace Lab, GA, USA)</strong></p>
+                <br />
+                <p><i class="fa fa-globe text-muted"></i> <a href="https://wallacelab.uga.edu/">jason-wallace</a></p>
+                <p><i class="fa fa-envelope text-muted"></i> <a href="mailto:jason.wallace@uga.edu">jason.wallace@uga.edu</a></p>
+            </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-3 col-md-3 col-sm-4 hidden-xs"><img alt="guilherme picture" class="img-rounded" style="width: 80%; height: auto;margin-top: 20px" src="{{ url_for('static', filename='img/contact/guilherme_furlan_red_200.png') }}"></div>
+            <div class="col-lg-9 col-md-9 col-sm-8 col-xs-12"><h3 class="banner-green">Guilherme Furlan</h3>
+                <p><strong>Dev Web</strong></p>
+                <br />
+                <p><i class="fa fa-globe text-muted"></i> <a href="https://labbces.netlify.app/author/guilherme-furlan/">LabBCES/guilherme-furlan</a></p>
+                <p><i class="fa fa-envelope text-muted"></i> <a href="mailto:gfurlan@cena.usp.br">gfurlan@cena.usp.br</a></p>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,4 @@
+RunID	SampleID	DOI	Layout	Strandness	SequencingPlatform
+micro_run4	spl00004	10.3390/microorganisms8101482	paired-end	unstranded	illumina
+micro_run5	spl00005	10.3390/microorganisms8101482	paired-end	unstranded	illumina
+micro_run6	spl00006	10.3390/microorganisms8101482	paired-end	unstranded	illumina
