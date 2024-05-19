@@ -2,14 +2,13 @@
 
 CoNekT_Grasses_Microbiome/migrations
 CoNekT_Grasses_Microbiome/docs/build
+CoNekT_Grasses_Microbiome/config.py
 
 tmp
 bin
 lib
 include
 pip-selfcheck.json
-
-/CoNekT/config.py
 
 /ftp
 
