@@ -40,8 +40,7 @@ WTF_CSRF_TIME_LIMIT = None
 # Minify pages when debug is off
 MINIFY_PAGE = not DEBUG
 
-# Solr settings
-TODO: add Solr settings
+# TODO: Solr settings
 
 # temp dir
 TMP_DIR = tempfile.mkdtemp()
