@@ -27,7 +27,7 @@
                 <p>Add NCBI Taxonomy names file.</p>
                 <label class="btn btn-default" for="ncbi_taxonomy_names_file" id="my-file-button-ncbi-taxonomy-names">
                     {{ form.ncbi_taxonomy_names_file(style="display:none;", onchange="")}}
-                    <span id="file-selector-text-ncbi-taxonomy-names">Select NCBI Taxonomy Nodes File</span>
+                    <span id="file-selector-text-ncbi-taxonomy-names">Select NCBI Taxonomy Names File</span>
                 </label>
             </div>
 
@@ -38,7 +38,8 @@
 
             <br />
             <div class="form-group">
-                <p>Add txt file containing SILVA Taxonomy information.</p>
+                <p>Add file containing SILVA Taxonomy information (e.g. tax_slv_ssu_138.1.txt).</p>
+                <p>File has five columns (path, taxid, rank, remark and release - only first three are used).</p>
                 <label class="btn btn-default" for="silva_taxonomy_file" id="my-file-button-silva-taxonomy">
                     {{ form.silva_taxonomy_file(style="display:none;", onchange="")}}
                     <span id="file-selector-text-silva-taxonomy">Select SILVA Taxonomy File</span>

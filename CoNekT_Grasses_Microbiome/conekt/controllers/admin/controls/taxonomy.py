@@ -38,21 +38,42 @@ def add_taxonomy():
         if not ncbi_taxonomy_nodes\
              or not ncbi_taxonomy_names\
              or not silva_taxonomy_data:
-            flash('Missing File. Please, upload both Taxonomy Files before submission.', 'danger')
+            flash('Missing File. Please, upload both NCBI and SILVA taxonomy Files before submission.', 'danger')
             return redirect(url_for('admin.add.taxonomy.index'))
 
-        # Add NCBI information
+        # Add SILVA information
         fd, temp_path = mkstemp()
 
         with open(temp_path, 'wb') as file_writer:
-            file_writer.write(ncbi_taxonomy_nodes)
+            file_writer.write(silva_taxonomy_data)
 
         silva_taxon_count = SILVATaxon.add_silva_taxonomy(temp_path)
 
         os.close(fd)
         os.remove(temp_path)
 
+        # Add NCBI information
+        fd_nodes, temp_path_nodes = mkstemp()
+        fd_names, temp_path_names = mkstemp()
+
+        with open(temp_path_nodes, 'wb') as file_writer:
+            file_writer.write(ncbi_taxonomy_nodes)
+        
+        with open(temp_path_names, 'wb') as file_writer:
+            file_writer.write(ncbi_taxonomy_names)
+
+        ncbi_taxon_count = NCBITaxon.add_ncbi_taxonomy(temp_path_nodes,
+                                                       temp_path_names)
+
+        os.close(fd_nodes)
+        os.remove(temp_path_nodes)
+
+        os.close(fd_names)
+        os.remove(temp_path_names)
+
+
         flash('Added %s taxon records from SILVA' % (silva_taxon_count), 'success')
+        flash('Added %s taxon records from NCBI' % (ncbi_taxon_count), 'success')
         return redirect(url_for('admin.index'))
     else:
         if not form.validate():
