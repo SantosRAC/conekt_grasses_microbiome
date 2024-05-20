@@ -41,7 +41,7 @@ class ExpMicroCorrelation(db.Model):
         return str(self.id)
     
     @staticmethod
-    def calculate_expression_asvs_correlations(study_id):
+    def calculate_expression_metataxonomic_correlations(study_id):
 
         #TODO: implement this method 
 
