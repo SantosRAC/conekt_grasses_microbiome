@@ -16,10 +16,18 @@
 
             <br />
             <div class="form-group">
-                <p>Add txt file containing NCBI Taxonomy information.</p>
-                <label class="btn btn-default" for="ncbi_taxonomy_file" id="my-file-button-ncbi-taxonomy">
-                    {{ form.ncbi_taxonomy_file(style="display:none;", onchange="")}}
-                    <span id="file-selector-text-ncbi-taxonomy">Select NCBI Taxonomy File</span>
+                <p>Add NCBI Taxonomy nodes file.</p>
+                <label class="btn btn-default" for="ncbi_taxonomy_nodes_file" id="my-file-button-ncbi-taxonomy-nodes">
+                    {{ form.ncbi_taxonomy_nodes_file(style="display:none;", onchange="")}}
+                    <span id="file-selector-text-ncbi-taxonomy-nodes">Select NCBI Taxonomy Nodes File</span>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <p>Add NCBI Taxonomy names file.</p>
+                <label class="btn btn-default" for="ncbi_taxonomy_names_file" id="my-file-button-ncbi-taxonomy-names">
+                    {{ form.ncbi_taxonomy_names_file(style="display:none;", onchange="")}}
+                    <span id="file-selector-text-ncbi-taxonomy-names">Select NCBI Taxonomy Nodes File</span>
                 </label>
             </div>
 
@@ -59,8 +67,14 @@
 <script>
     
 $(function() {
-    $("#ncbi_taxonomy_file").change(function() {
-        $('#file-selector-text-ncbi-taxonomy').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#my-file-button-ncbi-taxonomy').toggleClass('btn-default btn-success');
+    $("#ncbi_taxonomy_nodes_file").change(function() {
+        $('#file-selector-text-ncbi-taxonomy-nodes').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#my-file-button-ncbi-taxonomy-nodes').toggleClass('btn-default btn-success');
+    });
+});
+
+$(function() {
+    $("#ncbi_taxonomy_names_file").change(function() {
+        $('#file-selector-text-ncbi-taxonomy-names').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#my-file-button-ncbi-taxonomy-names').toggleClass('btn-default btn-success');
     });
 });
 
