@@ -2,6 +2,12 @@ from conekt import db
 
 SQL_COLLATION = 'NOCASE' if db.engine.name == 'sqlite' else ''
 
+from utils.parser.fasta import Fasta
+
+import operator
+
+from conekt.models.literature import LiteratureItem
+
 
 class OperationalTaxonomicUnitMethod(db.Model):
     __tablename__ = 'otu_methods'
@@ -46,6 +52,60 @@ class OperationalTaxonomicUnit(db.Model):
         return str(self.id) + ". " + self.method_id
 
     @staticmethod
-    def add_otus_from_fasta():
+    def add_otus_from_fasta(otus_fasta,
+                            otu_method_description,
+                            otu_source_method,
+                            amplicon_marker,
+                            primer_pair, literature_doi):
         
-        #TODO: implement function
+        """
+        Function to add OTU representative sequences to the database
+
+        :param otus_fasta: path to the file with OTU representative sequences
+        :param otu_method_description: description of the OTU method
+        :param otu_source_method: currently qiime1
+        :param amplicon_marker: marker (currently 16S or ITS)
+        :param primer_pair: primer pair used to generate amplicons
+        :param literature_doi: DOI of the publication describing the method
+        """
+
+        fasta_data = Fasta()
+        fasta_data.readfile(otus_fasta)
+
+        literature_id = LiteratureItem.add(doi=literature_doi)
+
+        # Add ASV method
+        new_otu_method = OperationalTaxonomicUnitMethod(**{"description": otu_method_description,
+                                                     "name": otu_source_method,
+                                                     "amplicon_marker": amplicon_marker,
+                                                     "primer_pair": primer_pair,
+                                                     "literature_id": literature_id})
+
+        db.session.add(new_otu_method)
+        db.session.commit()
+
+        added_otus = []
+        new_otus = []
+
+        # Loop over asvs and add to db
+        for name, sequence in sorted(fasta_data.sequences.items(), key=operator.itemgetter(0)):
+            
+            if name not in added_otus:
+                added_otus.append(name)
+            
+            new_otu = OperationalTaxonomicUnit(**{"original_id": name,
+                                              "representative_sequence": sequence,
+                                              "method_id": new_otu_method.id})
+
+            db.session.add(new_otu)
+            new_otus.append(new_otu)
+
+            # add 400 sequences at the time, more can cause problems with some database engines
+            if len(new_otus) > 400:
+                db.session.commit()
+                new_otus = []
+
+        # add the last set of sequences
+        db.session.commit()
+
+        return len(fasta_data.sequences.keys()), new_otu_method.id
