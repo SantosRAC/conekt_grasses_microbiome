@@ -1,6 +1,7 @@
 from .blueprint import admin_controls
 
 from .asvs import add_asvs
+from .otus import add_otus
 from .blast import build_blast_db
 from .cache import clear_cache
 from .clades import update_clades, add_clades

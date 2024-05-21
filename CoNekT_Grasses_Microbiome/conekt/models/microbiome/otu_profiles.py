@@ -9,21 +9,15 @@ class OTUProfileMethod(db.Model):
     __tablename__ = 'otu_profile_methods'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255, collation=SQL_COLLATION), unique=True)
-    
+    normalization = db.Column(db.Enum('counts', 'cpm', 'tpm', name='Normalization'), default='counts')
 
-    __table_args__ = (
-        db.Index("idx_asv_profiles_asv_id_asv_method_id", asv_id, asv_method_id, unique=True),
-        db.UniqueConstraint(asv_id, asv_method_id, name='u_asv_profiles_asv_id_asv_method_id'),
-    )
-
-    def __init__(self, asv_id, asv_method_id, profile):
-        self.asv_id = asv_id
-        self.asv_method_id = asv_method_id
-        self.profile = profile
+    def __init__(self, otu_id, name, normalization):
+        self.otu_id = otu_id
+        self.name = name
+        self.normalization = normalization
 
     def __repr__(self):
-        return str(self.id) + ". " + str(self.asv_id) + "(ASV Creation Method ID: " + str(self.asv_method_id) + ")"
-
+        return str(self.id) + ". " + str(self.name)
 
 
 class OTUProfile(db.Model):
@@ -33,15 +27,10 @@ class OTUProfile(db.Model):
     otu_profile_method_id = db.Column(db.Integer, db.ForeignKey('otu_profile_methods.id', ondelete='CASCADE'), index=True)
     profile = db.deferred(db.Column(db.Text))
 
-    __table_args__ = (
-        db.Index("idx_asv_profiles_asv_id_asv_method_id", asv_id, asv_method_id, unique=True),
-        db.UniqueConstraint(asv_id, asv_method_id, name='u_asv_profiles_asv_id_asv_method_id'),
-    )
-
-    def __init__(self, asv_id, asv_method_id, profile):
-        self.asv_id = asv_id
-        self.asv_method_id = asv_method_id
+    def __init__(self, otu_id, otu_profile_method_id, profile):
+        self.otu_id = otu_id
+        self.otu_profile_method_id = otu_profile_method_id
         self.profile = profile
 
     def __repr__(self):
-        return str(self.id) + ". " + str(self.asv_id) + "(ASV Creation Method ID: " + str(self.asv_method_id) + ")"
+        return str(self.id) + ". " + str(self.otu_id) + "(OTU Profile Method ID: " + str(self.otu_profile_method_id) + ")"
