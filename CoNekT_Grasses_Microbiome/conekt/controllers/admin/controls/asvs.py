@@ -32,7 +32,7 @@ def add_asvs():
         asv_method_description = request.form.get('asv_method_description')
         asv_source_method = request.form.get('asv_source_method')
         amplicon_marker = request.form.get('amplicon_marker')
-        primer_pair = request.form.get('asv_source_method')
+        primer_pair = request.form.get('primer_pair')
 
         fasta_data_asvs = request.files[form.asvs_file.name].read()
 
