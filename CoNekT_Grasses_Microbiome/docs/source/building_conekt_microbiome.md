@@ -9,6 +9,7 @@ TODO: Add a description of the taxonomy
  * NCBI Taxonomy (not implemented yet; under implementation)
  * SILVA Taxonomy
  * RDP Taxonomy (not implemented yet)
+ * GreenGenes Taxonomy (not implemented yet)
 
 ### Add Species
 
