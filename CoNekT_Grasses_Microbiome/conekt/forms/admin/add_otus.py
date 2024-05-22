@@ -47,10 +47,9 @@ class AddOTUSForm(FlaskForm):
     classifier_version = StringField('Classifier version', [InputRequired()])
     ref_db_release = StringField('Reference Database version (currently only SILVA and GreenGenes are accepted)', [InputRequired()])
 
-    asv_classification_file = FileField()
+    otu_classification_file = FileField()
 
     def populate_species(self):
         # Get distinct species ids from sample table
         species_ids = [species_id[0] for species_id in Sample.query.with_entities(Sample.species_id).distinct().all()]
-        print("species_ids: ", species_ids, "\n\n\n\n\n\n\n\n")
         self.species_id.choices = [(s.id, s.name) for s in Species.query.filter(Species.id.in_(species_ids)).all()]
