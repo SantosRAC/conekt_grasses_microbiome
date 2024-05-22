@@ -11,3 +11,6 @@ class AddTaxonomyForm(FlaskForm):
 
     silva_release = StringField('SILVA Release', [InputRequired()])
     silva_taxonomy_file = FileField('SILVA Taxonomy File')
+    
+    gg_release = StringField('GreenGenes Release', [InputRequired()])
+    gg_taxonomy_file = FileField('GreenGenes Taxonomy File')

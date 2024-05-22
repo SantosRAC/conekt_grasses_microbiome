@@ -7,12 +7,12 @@ class SILVATaxon(db.Model):
     __tablename__ = 'silva_taxonomy'
     id = db.Column(db.Integer, primary_key=True)
     ncbi_taxid = db.Column(db.Integer, default=0)
-    taxon = db.Column(db.String(255), default='')
+    taxon_path = db.Column(db.String(255), default='')
     rank = db.Column(db.String(255), default='')
 
-    def __init__(self, ncbi_taxid, taxon, rank):
+    def __init__(self, ncbi_taxid, taxon_path, rank):
         self.ncbi_taxid = ncbi_taxid
-        self.taxon = taxon
+        self.taxon_path = taxon_path
         self.rank = rank
     
     def __repr__(self):
@@ -51,7 +51,7 @@ class SILVATaxon(db.Model):
                 line = line.strip().split('\t')
 
                 # add the taxonomy information to the database
-                new_taxon = SILVATaxon(**{"taxon": line[0],
+                new_taxon = SILVATaxon(**{"taxon_path": line[0],
                                           "ncbi_taxid": line[1],
                                           "rank": line[2]})
 
@@ -201,4 +201,71 @@ class NCBITaxon(db.Model):
     def update_counts():
         """
         TODO: implement update counts for NCBI taxonomy
+        """
+
+class GGTaxon(db.Model):
+    __tablename__ = 'gg_taxonomy'
+    id = db.Column(db.Integer, primary_key=True)
+    gg_id = db.Column(db.Integer, default=0)
+    taxon_path = db.Column(db.String(255), default='')
+
+    def __init__(self, gg_id, taxon_path):
+        self.gg_id = gg_id
+        self.taxon_path = taxon_path
+    
+    def __repr__(self):
+        return str(self.id) + ". " + self.taxon_path
+
+    @staticmethod
+    def add_gg_taxonomy(gg_taxonomy_data, empty=True):
+        """
+        Adds GreenGenes taxonomy information to the database.
+
+        :param taxonomy_data: GG taxonomy data (e.g., gg_13_5_taxonomy.txt)
+        :param empty: Empty the database first when true (default: True)
+        :return: 
+        """
+
+        # If required empty the table first
+        if empty:
+            try:
+                db.session.query(GGTaxon).delete()
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                print(e)
+
+        new_taxons = []
+        taxon_count = 0
+
+        # read the taxonomy file
+        with open(gg_taxonomy_data, 'r') as file:
+            lines = file.readlines()
+
+            for line in lines:
+
+                # split the line into the taxonomy information
+                line = line.strip().split('\t')
+
+                # add the taxonomy information to the database
+                new_taxon = GGTaxon(**{"gg_id": line[0], "taxon_path": line[1]})
+
+                db.session.add(new_taxon)
+                new_taxons.append(new_taxon)
+                taxon_count += 1
+
+            # add 400 taxons at the time, more can cause problems with some database engines
+            if len(new_taxons) > 400:
+                db.session.commit()
+                new_taxons = []
+
+        # add the last set of sequences
+        db.session.commit()
+
+        return taxon_count
+
+    @staticmethod
+    def update_counts():
+        """
+        TODO: implement update counts for GreenGenes taxonomy
         """
