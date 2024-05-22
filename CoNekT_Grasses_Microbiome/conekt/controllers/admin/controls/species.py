@@ -11,6 +11,7 @@ from conekt.forms.admin.add_species import AddSpeciesForm
 from conekt.models.sequences import Sequence
 from conekt.models.species import Species
 from conekt.models.literature import LiteratureItem
+from conekt.models.taxonomy import NCBITaxon
 
 @admin_controls.route('/add/species', methods=['POST'])
 @admin_required
@@ -31,7 +32,7 @@ def add_species():
 
         if not fasta_data_cds or not fasta_data_rna:
             flash('Missing File. Please, upload both Fasta Files before submission.', 'danger')
-            return redirect(url_for('admin.add.species.index'))
+            return redirect(url_for('admin_add_species.index'))
 
         # verify if literature option was inserted or not
         literature_answer = request.form.get('literature')
@@ -42,6 +43,12 @@ def add_species():
             doi=request.form.get('doi')
             # Add literature (or return id of existing literature)
             literature_id = LiteratureItem.add(doi=doi)
+
+        # Make sure species scientific name exists in NCBI taxonomic
+        species_name = request.form.get('name')
+        if not NCBITaxon.query.filter_by(taxonomic_name=species_name).first():
+            flash(f'There is not a NCBI taxid associated with species \"{species_name}\"', 'danger')
+            return redirect(url_for('admin_add_species.index'))
 
         # Add species (or return id of existing species)
         species_id = Species.add(request.form.get('code'),
