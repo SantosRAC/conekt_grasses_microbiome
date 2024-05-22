@@ -52,6 +52,7 @@ def add_expression_profiles():
             os.remove(temp_matrix_path)
 
             flash('Added expression profiles for species %d' % species_id, 'success')
+            flash('Added %d runs' % added_runs_count, 'success')
         else:
             flash('Empty file or no file provided, cannot add expression profiles for species', 'warning')
         return redirect(url_for('admin.index'))
