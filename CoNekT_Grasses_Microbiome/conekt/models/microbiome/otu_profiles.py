@@ -4,6 +4,11 @@ from sqlalchemy.orm import joinedload, undefer
 
 SQL_COLLATION = 'NOCASE' if db.engine.name == 'sqlite' else ''
 
+import json
+
+from conekt.models.microbiome.operational_taxonomic_unit import OperationalTaxonomicUnit
+from conekt.models.seq_run import SeqRun
+from conekt.models.relationships_microbiome.otu_profile_run import OTUProfileRunAssociation
 
 class OTUProfileMethod(db.Model):
     __tablename__ = 'otu_profile_methods'
@@ -34,3 +39,70 @@ class OTUProfile(db.Model):
 
     def __repr__(self):
         return str(self.id) + ". " + str(self.otu_id) + "(OTU Profile Method ID: " + str(self.otu_profile_method_id) + ")"
+
+    @staticmethod
+    def add_otu_profiles_from_table(feature_table, species_id, otu_method_id):
+        """
+        Function to generate an OTU profile
+
+        :param feature_table: path to the feature table
+        :param otu_method_id: internal id of the method used to generate the OTU
+        :param species_id: internal id of the species
+        """
+
+        added_asv_profiles = 0
+
+        # build conversion table for OTUs
+        otus = OTUProfile.query.filter_by(method_id=otu_method_id).all()
+        otu_seq_dict = {}  # key = sequence name uppercase, value internal id
+        
+        for o in otus:
+            otu_seq_dict[o.original_id.upper()] = o.id
+
+        with open(feature_table, 'r') as fin:
+
+            # read header
+            _, *colnames = fin.readline().rstrip().split()
+
+            # build conversion table for asvs
+            runs = SeqRun.query.filter(SeqRun.accession_number.in_(colnames)).\
+                                all()
+            seq_run_dict = {}  # key = sequence name uppercase, value internal id
+            for r in runs:
+                seq_run_dict[r.accession_number.upper()] = r.id
+
+            # read each line and build OTU profile
+            new_otu_profiles = []
+
+            for line in fin:
+                otu_name, *values = line.rstrip().split()
+
+                profile = {'count': {},
+                           'run': {},
+                           'run_id': {}}
+
+                asv = OperationalTaxonomicUnit.query.filter_by(original_id=asv_name).first()
+
+                for c, v in zip(colnames, values):
+                    profile['count'][c] = int(v)
+                    profile['run_id'][c] = seq_run_dict[c.upper()]
+                    profile['run'][c] = c.upper()
+
+                new_profile = ASVProfile(**{"asv_id": asv.id,
+                                "asv_method_id": asv_method_id,
+                                "profile": json.dumps({"data": profile})
+                                })
+                
+                new_asv_profiles.append(new_profile)
+                added_asv_profiles+=1
+                db.session.add(new_profile)
+                db.session.commit()
+
+                for run in runs:
+                    new_asv_profile_run = {"asv_profile_id": new_profile.id,
+                                           "run_id": run.id}
+                    db.session.add(ASVProfileRunAssociation(**new_asv_profile_run))
+                
+                db.session.commit()
+
+        return added_asv_profiles
