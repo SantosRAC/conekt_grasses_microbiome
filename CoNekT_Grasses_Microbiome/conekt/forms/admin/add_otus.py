@@ -23,10 +23,9 @@ class AddOTUSForm(FlaskForm):
                                             ('closed_reference', 'closed_reference'),
                                             ('open_reference', 'open_reference')])
     
-    clustering_algorithm = SelectField('Clustering Algorithm', choices=[('qiime1', 'qiime1'),
-                                            ('vsearch', 'vsearch'), ('usearch', 'usearch'),
-                                            ('swarm', 'swarm'), ('dada2', 'dada2'),
-                                            ('deblur', 'deblur')])
+    clustering_algorithm = SelectField('Clustering Algorithm', choices=[('qiime1', 'QIIME 1'),
+                                            ('vsearch', 'VSearch'), ('usearch', 'USearch'),
+                                            ('dada2', 'Dada2'), ('deblur', 'Deblur')])
     clustering_threshold = StringField('Clustering Threshold', [InputRequired()])
     clustering_reference_database = StringField('Clustering Reference Database', [InputRequired()])
     clustering_reference_db_release = StringField('Reference Database release', [InputRequired()])
