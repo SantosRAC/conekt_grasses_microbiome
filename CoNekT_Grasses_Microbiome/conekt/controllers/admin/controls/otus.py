@@ -44,8 +44,10 @@ def add_otus():
 
         otu_classification_description = request.form.get('otu_classification_description')
         otu_classification_method = request.form.get('otu_classification_method')
+
         classifier_version = request.form.get('classifier_version')
-        ref_db_release = request.form.get('ref_db_release')
+        classification_ref_db = request.form.get('classification_ref_db')
+        classification_ref_db_release = request.form.get('classification_ref_db_release')
 
         run_annotation = request.files[form.run_annotation_file.name].read()
         feature_table = request.files[form.feature_table_file.name].read()
@@ -56,6 +58,10 @@ def add_otus():
               not otu_classification_file or\
               not run_annotation:
             flash('Missing File. Please, upload all files before submission.', 'danger')
+            return redirect(url_for('admin.add.otus.index'))
+
+        if not classification_ref_db_release:
+            flash('Please, select method for OTU classification before submission.', 'danger')
             return redirect(url_for('admin.add.otus.index'))
 
         # Add OTUs
@@ -96,7 +102,7 @@ def add_otus():
         with open(temp_feature_table_path, 'wb') as feature_table_writer:
             feature_table_writer.write(feature_table)
         
-        added_profiles_count = OTUProfile.add_otu_profiles_from_table(temp_feature_table_path, species_id, asv_method_id)
+        added_profiles_count = OTUProfile.add_otu_profiles_from_table(temp_feature_table_path, otu_method_id)
 
         os.close(fd_feature_table)
         os.remove(temp_feature_table_path)
@@ -104,21 +110,22 @@ def add_otus():
         # Add feature table
         fd_classification_file, temp_classification_file_path = mkstemp()
 
-        with open(temp_classification_file_path, 'wb') as asv_classification_file_writer:
-            asv_classification_file_writer.write(otu_classification_file)
+        with open(temp_classification_file_path, 'wb') as otu_classification_file_writer:
+            otu_classification_file_writer.write(otu_classification_file)
 
         OTUClassification.add_otu_classification_from_table(temp_classification_file_path,
                                     otu_classification_description,
                                     otu_classification_method,
                                     classifier_version,
-                                    ref_db_release)
+                                    classification_ref_db,
+                                    classification_ref_db_release)
 
         os.close(fd_classification_file)
         os.remove(temp_classification_file_path)
 
-        flash('Added %d ASVs' % (added_otus_count), 'success')
+        flash('Added %d OTUs' % (added_otus_count), 'success')
         flash('Added %d Runs' % (added_runs_count), 'success')
-        flash('Added %d ASV profiles' % (added_profiles_count), 'success')
+        flash('Added %d OTU profiles' % (added_profiles_count), 'success')
 
         return redirect(url_for('admin.index'))
     else:

@@ -10,50 +10,33 @@ from conekt.models.microbiome.operational_taxonomic_unit import OperationalTaxon
 from conekt.models.seq_run import SeqRun
 from conekt.models.relationships_microbiome.otu_profile_run import OTUProfileRunAssociation
 
-class OTUProfileMethod(db.Model):
-    __tablename__ = 'otu_profile_methods'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(255, collation=SQL_COLLATION), unique=True)
-    normalization = db.Column(db.Enum('counts', 'cpm', 'tpm', name='Normalization'), default='counts')
-
-    def __init__(self, otu_id, name, normalization):
-        self.otu_id = otu_id
-        self.name = name
-        self.normalization = normalization
-
-    def __repr__(self):
-        return str(self.id) + ". " + str(self.name)
-
 
 class OTUProfile(db.Model):
     __tablename__ = 'otu_profiles'
     id = db.Column(db.Integer, primary_key=True)
     otu_id = db.Column(db.Integer, db.ForeignKey('otus.id', ondelete='CASCADE'), index=True)
-    otu_profile_method_id = db.Column(db.Integer, db.ForeignKey('otu_profile_methods.id', ondelete='CASCADE'), index=True)
     profile = db.deferred(db.Column(db.Text))
 
-    def __init__(self, otu_id, otu_profile_method_id, profile):
+    def __init__(self, otu_id, profile):
         self.otu_id = otu_id
-        self.otu_profile_method_id = otu_profile_method_id
         self.profile = profile
 
     def __repr__(self):
-        return str(self.id) + ". " + str(self.otu_id) + "(OTU Profile Method ID: " + str(self.otu_profile_method_id) + ")"
+        return str(self.id) + ". " + str(self.otu_id)
 
     @staticmethod
-    def add_otu_profiles_from_table(feature_table, species_id, otu_method_id):
+    def add_otu_profiles_from_table(feature_table, otu_method_id):
         """
         Function to generate an OTU profile
 
         :param feature_table: path to the feature table
-        :param otu_method_id: internal id of the method used to generate the OTU
         :param species_id: internal id of the species
         """
 
-        added_asv_profiles = 0
+        added_otu_profiles = 0
 
         # build conversion table for OTUs
-        otus = OTUProfile.query.filter_by(method_id=otu_method_id).all()
+        otus = OperationalTaxonomicUnit.query.filter_by().all()
         otu_seq_dict = {}  # key = sequence name uppercase, value internal id
         
         for o in otus:
@@ -64,7 +47,7 @@ class OTUProfile(db.Model):
             # read header
             _, *colnames = fin.readline().rstrip().split()
 
-            # build conversion table for asvs
+            # build conversion table for OTUs
             runs = SeqRun.query.filter(SeqRun.accession_number.in_(colnames)).\
                                 all()
             seq_run_dict = {}  # key = sequence name uppercase, value internal id
@@ -81,28 +64,29 @@ class OTUProfile(db.Model):
                            'run': {},
                            'run_id': {}}
 
-                asv = OperationalTaxonomicUnit.query.filter_by(original_id=asv_name).first()
+                print(otu_name, type(otu_name), '(Remember the \"original OTU ID\" (original_id) is set as a String(255) in the table)\n\n\n\n\n\n\n\n\n')
+
+                otu = OperationalTaxonomicUnit.query.filter_by(original_id=otu_name).first()
 
                 for c, v in zip(colnames, values):
-                    profile['count'][c] = int(v)
+                    profile['count'][c] = int(float(v))
                     profile['run_id'][c] = seq_run_dict[c.upper()]
                     profile['run'][c] = c.upper()
 
-                new_profile = ASVProfile(**{"asv_id": asv.id,
-                                "asv_method_id": asv_method_id,
+                new_profile = OTUProfile(**{"otu_id": otu.id,
                                 "profile": json.dumps({"data": profile})
                                 })
                 
-                new_asv_profiles.append(new_profile)
-                added_asv_profiles+=1
+                new_otu_profiles.append(new_profile)
+                added_otu_profiles+=1
                 db.session.add(new_profile)
                 db.session.commit()
 
                 for run in runs:
-                    new_asv_profile_run = {"asv_profile_id": new_profile.id,
+                    new_otu_profile_run = {"otu_profile_id": new_profile.id,
                                            "run_id": run.id}
-                    db.session.add(ASVProfileRunAssociation(**new_asv_profile_run))
+                    db.session.add(OTUProfileRunAssociation(**new_otu_profile_run))
                 
                 db.session.commit()
 
-        return added_asv_profiles
+        return added_otu_profiles

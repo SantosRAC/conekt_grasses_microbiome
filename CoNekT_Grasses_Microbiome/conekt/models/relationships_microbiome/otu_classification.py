@@ -12,18 +12,18 @@ class OTUClassificationMethod(db.Model):
     classifier_name = db.Column(db.Enum('uclust', 'other', name=''),
                                 default='uclust')
     classifier_version = db.Column(db.String(255), default='')
-    ref_database = db.Column(db.Enum('greengenes', 'silva', 'other', name=''),
+    classification_ref_db = db.Column(db.Enum('greengenes', 'silva', 'other', name=''),
                              default='silva')
-    ref_db_release = db.Column(db.String(255), default='')
+    classification_ref_db_release = db.Column(db.String(255), default='')
 
     def __init__(self, description, classifier_name,
-                 classifier_version, ref_database,
-                 ref_db_release):
+                 classifier_version, classification_ref_db,
+                 classification_ref_db_release):
         self.description = description
         self.classifier_name = classifier_name
         self.classifier_version = classifier_version
-        self.ref_database = ref_database
-        self.ref_db_release = ref_db_release
+        self.classification_ref_db = classification_ref_db
+        self.classification_ref_db_release = classification_ref_db_release
     
     def __repr__(self):
         return str(self.id) + ". " + self.classifier_name + " " + self.classifier_version
@@ -49,8 +49,8 @@ class OTUClassification(db.Model):
                                     otu_classification_description,
                                     classifier_name,
                                     classifier_version,
-                                    reference_database,
-                                    ref_db_release):
+                                    classification_ref_db,
+                                    classification_ref_db_release):
         """
         Function to add OTU classification to the database
 
@@ -58,13 +58,13 @@ class OTUClassification(db.Model):
         :param otu_classification_description: description of the OTU classification method
         :param classifier_name: classifier used to classify the OTUs
         :param classifier_version: version of the classifier used
-        :param reference_database: reference database used in classification
-        :param ref_db_release: release of the reference database used
+        :param classification_ref_db: reference database used in classification
+        :param classification_ref_db_release: release of the reference database used
         """
         
         new_classification_method = OTUClassificationMethod(otu_classification_description,
                                     classifier_name, classifier_version,
-                                    reference_database, ref_db_release)
+                                    classification_ref_db, classification_ref_db_release)
         
         db.session.add(new_classification_method)
         db.session.commit()
@@ -85,10 +85,15 @@ class OTUClassification(db.Model):
 
                     otu_record = OperationalTaxonomicUnit.query.filter_by(original_id=otu_name).first()
 
-                    if reference_database == 'silva':
-                        taxon_db_record = SILVATaxon.query.filter_by(taxon=path).first()
-                    elif reference_database == 'greengenes':
-                        taxon_db_record = GGTaxon.query.filter_by(taxon=path).first()
+                    if classification_ref_db == 'silva':
+                        taxon_db_record = SILVATaxon.query.filter_by(taxon_path=path).first()
+                        print('Using SILVA !!!!!!!\n\n\n\n\n\n')
+                    elif classification_ref_db == 'greengenes':
+                        taxon_db_record = GGTaxon.query.filter_by(taxon_path=path).first()
+                        print('Using GreenGenes !!!!!!!\n\n\n\n\n\n')
+
+                    print('reference_database:', classification_ref_db, '\n\n\n\n\n\n\n\n\n')
+                    print('path:', path, '\n\n\n\n\n\n\n\n\n')
 
                     new_otu_classification = OTUClassification(taxon_db_record.id,\
                                                                otu_record.id,\

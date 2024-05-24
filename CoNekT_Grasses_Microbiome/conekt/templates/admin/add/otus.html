@@ -77,20 +77,20 @@
             </div>
 
             <div class="form-group">
-                <label>The run annotation file</label>
-                <p>Tabular file with runs and associated metadata.</p>
-                <label class="btn btn-default" for="run_annotation_file" id="run-annotation-file-button">
-                    {{ form.run_annotation_file(style="display:none;", onchange="")}}
-                    <span id="run-annotation-file-selector-text">Select File</span>
-                </label>
-            </div>
-
-            <div class="form-group">
                 <label>The OTU table file</label>
                 <p>OTU table file, sequence identifiers must match those in FASTA file.</p>
                 <label class="btn btn-default" for="feature_table_file" id="feature-table-file-button">
                     {{ form.feature_table_file(style="display:none;", onchange="")}}
                     <span id="feature-table-file-selector-text">Select File</span>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>The run annotation file</label>
+                <p>Tabular file with runs and associated metadata.</p>
+                <label class="btn btn-default" for="run_annotation_file" id="run-annotation-file-button">
+                    {{ form.run_annotation_file(style="display:none;", onchange="")}}
+                    <span id="run-annotation-file-selector-text">Select File</span>
                 </label>
             </div>
 
@@ -112,10 +112,16 @@
                 {{ form.classifier_version(class_="form-control") }}
             </div>
 
-            <label>Add the SILVA or GreenGenes release used in OTU classification</label>
+            <label>Select database used in OTU classification. Currently, SILVA and GreenGenes are available.</label>
             <div class="form-group">
-                {{ form.ref_db_release.label }}
-                {{ form.ref_db_release(class_="form-control") }}
+                {{ form.classification_ref_db.label }}
+                {{ form.classification_ref_db(class_="form-control") }}
+            </div>
+
+            <label>Add the release of reference database used in OTU classification</label>
+            <div class="form-group">
+                {{ form.classification_ref_db_release.label }}
+                {{ form.classification_ref_db_release(class_="form-control") }}
             </div>            
 
             <div class="form-group">
@@ -133,7 +139,10 @@
         <div class="panel panel-default">
             <div class="panel-heading"><strong>Help</strong></div>
             <div class="panel-body">
-                DESCRIBE FILES.
+                <li>Adds <strong>OTU profiles</strong> to the database</li>
+                <li>It is mandatory to provide technical details on how OTUs were generated</li>
+                <li>A reference database is mandatory if method involves
+                open or closed reference clutering.</li>
             </div>
         </div>
     </div>

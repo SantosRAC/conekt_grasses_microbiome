@@ -30,13 +30,17 @@ class OperationalTaxonomicUnitMethod(db.Model):
 
     def __init__(self, description, clustering_method, clustering_threshold,
                  clustering_algorithm, clustering_reference_database,
-                 clustering_reference_db_release):
+                 clustering_reference_db_release, amplicon_marker,
+                 primer_pair, literature_id):
         self.description = description
         self.clustering_method = clustering_method
         self.clustering_threshold = clustering_threshold
         self.clustering_algorithm = clustering_algorithm
         self.clustering_reference_database = clustering_reference_database
         self.clustering_reference_db_release = clustering_reference_db_release
+        self.amplicon_marker = amplicon_marker
+        self.primer_pair = primer_pair
+        self.literature_id = literature_id
     
     def __repr__(self):
         return str(self.id) + ". " + self.id (self.clustering_method, self.clustering_algorithm)

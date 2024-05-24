@@ -13,8 +13,8 @@ class AddOTUSForm(FlaskForm):
     literature_doi = StringField('Literature DOI', [InputRequired()])
 
     # Fields for the OTU method
-    amplicon_marker = SelectField('Amplicon Marker', choices=[('16s', '16S'),
-                                            ('its', 'ITS')])
+    amplicon_marker = SelectField('Amplicon Marker', choices=[('16S', '16S'),
+                                            ('ITS', 'ITS')])
     primer_pair = StringField('Primer pair', [InputRequired()])
 
     otu_method_description = StringField('OTU Method Description', [InputRequired()])
@@ -44,7 +44,9 @@ class AddOTUSForm(FlaskForm):
                                                     ('other', 'Other'),])
 
     classifier_version = StringField('Classifier version', [InputRequired()])
-    ref_db_release = StringField('Reference Database version (currently only SILVA and GreenGenes are accepted)', [InputRequired()])
+    classification_ref_db = SelectField('Reference used in OTU classification', choices=[('silva', 'SILVA'),
+                                            ('greengenes', 'GreenGenes')])
+    classification_ref_db_release = StringField('Reference Database release', [InputRequired()])
 
     otu_classification_file = FileField()
 

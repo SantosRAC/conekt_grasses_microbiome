@@ -63,7 +63,7 @@ def add_taxonomy():
         with open(temp_path, 'wb') as file_writer:
             file_writer.write(gg_taxonomy_data)
 
-        gg_taxon_count = GGTaxon.add_silva_taxonomy(temp_path)
+        gg_taxon_count = GGTaxon.add_gg_taxonomy(temp_path)
 
         os.close(fd)
         os.remove(temp_path)
