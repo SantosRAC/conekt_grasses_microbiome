@@ -90,6 +90,7 @@ def add_taxonomy():
 
         flash('Added %s taxon records from SILVA' % (silva_taxon_count), 'success')
         flash('Added %s taxon records from NCBI' % (ncbi_taxon_count), 'success')
+        flash('Added %s taxon records from GreenGenes' % (gg_taxon_count), 'success')
         return redirect(url_for('admin.index'))
     else:
         if not form.validate():
