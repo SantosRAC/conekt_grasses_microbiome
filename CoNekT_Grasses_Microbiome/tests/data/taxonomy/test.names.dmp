@@ -7844,3 +7844,17 @@
 4577	|	Zea mays L., 1753	|		|	authority	|
 4577	|	Zea mays	|		|	scientific name	|
 4577	|	Zea mays var. japonica	|		|	synonym	|
+2	|	Bacteria	|	Bacteria <bacteria>	|	scientific name	|
+2	|	bacteria	|		|	blast name	|
+2	|	"Bacteria" Cavalier-Smith 1987	|		|	authority	|
+2	|	Bacteria (ex Cavalier-Smith 1987)	|		|	synonym	|
+2	|	Bacteria Woese et al. 2024	|		|	synonym	|
+2	|	"Bacteriobiota" Luketa 2012	|		|	authority	|
+2	|	Bacteriobiota	|		|	synonym	|
+2	|	eubacteria	|		|	genbank common name	|
+2	|	Monera	|	Monera <bacteria>	|	in-part	|
+2	|	Procaryotae	|	Procaryotae <bacteria>	|	in-part	|
+2	|	Prokaryotae	|	Prokaryotae <bacteria>	|	in-part	|
+2	|	Prokaryota	|	Prokaryota <bacteria>	|	in-part	|
+2	|	prokaryote	|	prokaryote <bacteria>	|	in-part	|
+2	|	prokaryotes	|	prokaryotes <bacteria>	|	in-part	|
