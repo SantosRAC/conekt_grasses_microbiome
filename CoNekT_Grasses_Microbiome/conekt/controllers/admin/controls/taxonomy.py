@@ -46,6 +46,25 @@ def add_taxonomy():
             flash('Missing File. Please, upload NCBI, SILVA and GreenGenes taxonomy Files before submission.', 'danger')
             return redirect(url_for('admin.add.taxonomy.index'))
 
+        # Add NCBI information
+        fd_nodes, temp_path_nodes = mkstemp()
+        fd_names, temp_path_names = mkstemp()
+
+        with open(temp_path_nodes, 'wb') as file_writer:
+            file_writer.write(ncbi_taxonomy_nodes)
+        
+        with open(temp_path_names, 'wb') as file_writer:
+            file_writer.write(ncbi_taxonomy_names)
+
+        ncbi_taxon_count = NCBITaxon.add_ncbi_taxonomy(temp_path_nodes,
+                                                       temp_path_names)
+
+        os.close(fd_nodes)
+        os.remove(temp_path_nodes)
+
+        os.close(fd_names)
+        os.remove(temp_path_names)
+
         # Add SILVA information
         fd, temp_path = mkstemp()
 
@@ -67,26 +86,6 @@ def add_taxonomy():
 
         os.close(fd)
         os.remove(temp_path)
-
-        # Add NCBI information
-        fd_nodes, temp_path_nodes = mkstemp()
-        fd_names, temp_path_names = mkstemp()
-
-        with open(temp_path_nodes, 'wb') as file_writer:
-            file_writer.write(ncbi_taxonomy_nodes)
-        
-        with open(temp_path_names, 'wb') as file_writer:
-            file_writer.write(ncbi_taxonomy_names)
-
-        ncbi_taxon_count = NCBITaxon.add_ncbi_taxonomy(temp_path_nodes,
-                                                       temp_path_names)
-
-        os.close(fd_nodes)
-        os.remove(temp_path_nodes)
-
-        os.close(fd_names)
-        os.remove(temp_path_names)
-
 
         flash('Added %s taxon records from SILVA' % (silva_taxon_count), 'success')
         flash('Added %s taxon records from NCBI' % (ncbi_taxon_count), 'success')
