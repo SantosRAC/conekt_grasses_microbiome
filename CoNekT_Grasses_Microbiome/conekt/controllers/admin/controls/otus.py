@@ -11,7 +11,7 @@ from conekt.forms.admin.add_otus import AddOTUSForm
 from conekt.models.microbiome.operational_taxonomic_unit import OperationalTaxonomicUnit
 from conekt.models.seq_run import SeqRun
 from conekt.models.microbiome.otu_profiles import OTUProfile
-from conekt.models.relationships_microbiome.otu_classification import OTUClassification
+from conekt.models.relationships_microbiome.otu_classification import OTUClassificationGG
 
 @admin_controls.route('/add/otus', methods=['POST'])
 @admin_required
@@ -113,11 +113,11 @@ def add_otus():
         with open(temp_classification_file_path, 'wb') as otu_classification_file_writer:
             otu_classification_file_writer.write(otu_classification_file)
 
-        OTUClassification.add_otu_classification_from_table(temp_classification_file_path,
+        if classification_ref_db == 'greengenes':
+            OTUClassificationGG.add_otu_classification_from_table(temp_classification_file_path,
                                     otu_classification_description,
                                     otu_classification_method,
                                     classifier_version,
-                                    classification_ref_db,
                                     classification_ref_db_release)
 
         os.close(fd_classification_file)

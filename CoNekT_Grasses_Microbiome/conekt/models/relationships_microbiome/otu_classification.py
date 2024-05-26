@@ -29,15 +29,15 @@ class OTUClassificationMethod(db.Model):
         return str(self.id) + ". " + self.classifier_name + " " + self.classifier_version
 
 
-class OTUClassification(db.Model):
-    __tablename__ = 'otu_classification'
+class OTUClassificationGG(db.Model):
+    __tablename__ = 'otu_classification_gg'
     id = db.Column(db.Integer, primary_key=True)
-    method_db_id = db.Column(db.String(255), default='')
+    gg_id = db.Column(db.Integer, db.ForeignKey('gg_taxonomy.id'), index=True)
     otu_id = db.Column(db.Integer, db.ForeignKey('otus.id', ondelete='CASCADE'), index=True)
     method_id = db.Column(db.Integer, db.ForeignKey('otu_classification_methods.id', ondelete='CASCADE'), index=True)
 
-    def __init__(self, method_db_id, otu_id, method_id):
-        self.method_db_id = method_db_id
+    def __init__(self, gg_id, otu_id, method_id):
+        self.gg_id = gg_id
         self.otu_id = otu_id
         self.method_id = method_id
     
@@ -49,22 +49,20 @@ class OTUClassification(db.Model):
                                     otu_classification_description,
                                     classifier_name,
                                     classifier_version,
-                                    classification_ref_db,
                                     classification_ref_db_release):
         """
-        Function to add OTU classification to the database
+        Function to add OTU classification from GG to the database
 
         :param otu_classification_table: path to the file with OTU classification
         :param otu_classification_description: description of the OTU classification method
         :param classifier_name: classifier used to classify the OTUs
         :param classifier_version: version of the classifier used
-        :param classification_ref_db: reference database used in classification
         :param classification_ref_db_release: release of the reference database used
         """
         
         new_classification_method = OTUClassificationMethod(otu_classification_description,
-                                    classifier_name, classifier_version,
-                                    classification_ref_db, classification_ref_db_release)
+                                    classifier_name, classifier_version, 'greengenes',
+                                    classification_ref_db_release)
         
         db.session.add(new_classification_method)
         db.session.commit()
@@ -75,6 +73,7 @@ class OTUClassification(db.Model):
         with open(otu_classification_table, 'r') as fin:
 
             _ = fin.readline()
+            #OTU	path
 
             for line in fin:
                 parts = line.strip().split('\t')
@@ -85,19 +84,14 @@ class OTUClassification(db.Model):
 
                     otu_record = OperationalTaxonomicUnit.query.filter_by(original_id=otu_name).first()
 
-                    if classification_ref_db == 'silva':
-                        taxon_db_record = SILVATaxon.query.filter_by(taxon_path=path).first()
-                        print('Using SILVA !!!!!!!\n\n\n\n\n\n')
-                    elif classification_ref_db == 'greengenes':
-                        taxon_db_record = GGTaxon.query.filter_by(taxon_path=path).first()
-                        print('Using GreenGenes !!!!!!!\n\n\n\n\n\n')
+                    # get the GG taxon record
+                    #taxon_db_record = GGTaxon.query.filter_by(taxon_path=path).first()
 
-                    print('reference_database:', classification_ref_db, '\n\n\n\n\n\n\n\n\n')
-                    print('path:', path, '\n\n\n\n\n\n\n\n\n')
-
-                    new_otu_classification = OTUClassification(taxon_db_record.id,\
-                                                               otu_record.id,\
-                                                               new_classification_method.id)
+                    # create a new OTU classification record
+                    new_otu_classification = OTUClassificationGG(1,
+                                                                 #taxon_db_record.id,
+                                                                 otu_record.id,
+                                                                 new_classification_method.id)
 
                     db.session.add(new_otu_classification)
                     classified_otus+=1
@@ -110,22 +104,3 @@ class OTUClassification(db.Model):
             db.session.commit()
         
         return classified_otus
-    
-    @staticmethod
-    def get_ncbi_from_gg_taxonomy(gg_taxonomy_path):
-        """
-        Get NCBI taxid from GreenGenes taxonomy path
-
-        :param gg_taxonomy_path: GG taxonomy path (e.g., gg_13_5_taxonomy.txt)
-        :return: 
-        """
-
-        new_taxons = []
-        taxon_count = 0
-
-        
-
-        # add the last set of sequences
-        db.session.commit()
-
-        return taxon_count
