@@ -9,7 +9,10 @@ from conekt.models.sample import Sample
 class AddExpressionProfilesForm(FlaskForm):
     species_id = SelectField('Species', coerce=int)
 
-    source = SelectField('Source', choices=[('lstrap', 'LSTrAP Expression Matrix')])
+    normalization_method = SelectField('Normalization method', choices=[('tpm', 'TPM'),
+                                                                        ('cpm', 'CPM'),
+                                                                        ('tmm', 'TMM'),
+                                                                        ('numreads', 'NumReads')])
 
     matrix_file = FileField()
     annotation_file = FileField()

@@ -25,6 +25,8 @@ def add_expression_profiles():
     if request.method == 'POST':
         species_id = int(request.form.get('species_id'))
 
+        normalization_method = request.form.get('normalization_method')
+
         matrix_file = request.files[form.matrix_file.name].read()
         annotation_file = request.files[form.annotation_file.name].read()
 
