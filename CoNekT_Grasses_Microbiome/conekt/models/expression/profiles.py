@@ -20,6 +20,7 @@ SQL_COLLATION = 'NOCASE' if db.engine.name == 'sqlite' else ''
 class ExpressionProfile(db.Model):
     __tablename__ = 'expression_profiles'
     id = db.Column(db.Integer, primary_key=True)
+    normalization_method = db.Column(db.Enum('numreads', 'cpm', 'tpm', 'tmm'), default='tpm')
     species_id = db.Column(db.Integer, db.ForeignKey('species.id', ondelete='CASCADE'), index=True)
     probe = db.Column(db.String(50, collation=SQL_COLLATION), index=True)
     sequence_id = db.Column(db.Integer, db.ForeignKey('sequences.id', ondelete='CASCADE'), index=True)
@@ -31,11 +32,12 @@ class ExpressionProfile(db.Model):
                                     cascade="all, delete-orphan",
                                     passive_deletes=True)
 
-    def __init__(self, species_id, probe, sequence_id, profile):
+    def __init__(self, species_id, probe, sequence_id, profile, normalization_method='tpm'):
         self.species_id = species_id
         self.probe = probe
         self.sequence_id = sequence_id
         self.profile = profile
+        self.normalization_method = normalization_method
 
     @staticmethod
     def get_values(data):
