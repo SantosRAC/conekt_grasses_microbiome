@@ -45,6 +45,18 @@ class Species(db.Model):
         return str(self.id) + ". " + self.name
 
     @property
+    def has_cazyme(self):
+        from conekt.models.sequences import Sequence
+        from conekt.models.relationships.sequence_cazyme import SequenceCAZYmeAssociation
+
+        cazyme = SequenceCAZYmeAssociation.query.join(Sequence, Sequence.id == SequenceCAZYmeAssociation.sequence_id).filter(Sequence.species_id == self.id).first()
+
+        if cazyme is not None:
+            return True
+        else:
+            return False
+    
+    @property
     def has_interpro(self):
         from conekt.models.sequences import Sequence
         from conekt.models.relationships.sequence_interpro import SequenceInterproAssociation

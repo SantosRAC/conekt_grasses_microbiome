@@ -51,7 +51,10 @@ def species_view(species_id):
 
     :param species_id: ID of the species to show
     """
-    current_species = db.session.query.get_or_404(Species, species_id)
+    current_species = db.session.get(Species, species_id)
+
+    if not current_species.has_cazyme:
+        flash('No <strong>CAZyme domains</strong> present in the database for this species', 'warning')
 
     if not current_species.has_interpro:
         flash('No <strong>InterPro domains</strong> present in the database for this species', 'warning')
