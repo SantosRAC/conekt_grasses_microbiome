@@ -37,6 +37,10 @@ class AddOTUSForm(FlaskForm):
 
     # Fields for the feature table
     feature_table_file = FileField()
+    normalization_method = SelectField('Normalization Method', choices=[('tpm', 'TPM'),
+                                                                        ('cpm', 'CPM'),
+                                                                        ('tmm', 'TMM'),
+                                                                        ('numreads', 'NumReads')])
     
     # Fields for the ASV classification method
     otu_classification_description = StringField('OTU Classification Method Description', [InputRequired()])

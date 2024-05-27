@@ -14,23 +14,30 @@ from conekt.models.relationships_microbiome.otu_profile_run import OTUProfileRun
 class OTUProfile(db.Model):
     __tablename__ = 'otu_profiles'
     id = db.Column(db.Integer, primary_key=True)
+    normalization_method = db.Column(db.Enum('numreads', 'cpm', 'tpm', 'tmm'), default='numreads')
+    species_id = db.Column(db.Integer, db.ForeignKey('species.id', ondelete='CASCADE'), index=True)
+    probe = db.Column(db.String(50, collation=SQL_COLLATION), index=True)
     otu_id = db.Column(db.Integer, db.ForeignKey('otus.id', ondelete='CASCADE'), index=True)
     profile = db.deferred(db.Column(db.Text))
 
-    def __init__(self, otu_id, profile):
+    def __init__(self, species_id,  probe, otu_id, profile, normalization_method='numreads'):
+        self.species_id = species_id
+        self.probe = probe
         self.otu_id = otu_id
         self.profile = profile
+        self.normalization_method = normalization_method
 
     def __repr__(self):
         return str(self.id) + ". " + str(self.otu_id)
 
     @staticmethod
-    def add_otu_profiles_from_table(feature_table, otu_method_id):
+    def add_otu_profiles_from_table(feature_table, species_id, normalization_method='numreads'):
         """
         Function to generate an OTU profile
 
         :param feature_table: path to the feature table
         :param species_id: internal id of the species
+        :param normalization_method: method used to normalize the data
         """
 
         added_otu_profiles = 0
@@ -61,19 +68,21 @@ class OTUProfile(db.Model):
                 otu_name, *values = line.rstrip().split()
 
                 profile = {'count': {},
-                           'run': {},
+                           'sample_id': {},
                            'run_id': {}}
 
-                print(otu_name, type(otu_name), '(Remember the \"original OTU ID\" (original_id) is set as a String(255) in the table)\n\n\n\n\n\n\n\n\n')
-
                 otu = OperationalTaxonomicUnit.query.filter_by(original_id=otu_name).first()
-
+                
                 for c, v in zip(colnames, values):
                     profile['count'][c] = int(float(v))
+                    run = SeqRun.query.get(seq_run_dict[c.upper()])
                     profile['run_id'][c] = seq_run_dict[c.upper()]
-                    profile['run'][c] = c.upper()
+                    profile['sample_id'][c] = run.sample_id
 
                 new_profile = OTUProfile(**{"otu_id": otu.id,
+                                "probe": otu_name,
+                                "species_id": species_id,
+                                "normalization_method": normalization_method,
                                 "profile": json.dumps({"data": profile})
                                 })
                 

@@ -85,6 +85,12 @@
                 </label>
             </div>
 
+            <label>Specify normalization methods used in OTU quantification</label>
+            <div class="form-group">
+                {{ form.normalization_method.label }}
+                {{ form.normalization_method(class_="form-control") }}
+            </div>
+
             <div class="form-group">
                 <label>The run annotation file</label>
                 <p>Tabular file with runs and associated metadata.</p>

@@ -51,6 +51,7 @@ def add_otus():
 
         run_annotation = request.files[form.run_annotation_file.name].read()
         feature_table = request.files[form.feature_table_file.name].read()
+        normalization_method = request.form.get('normalization_method')
         otu_classification_file = request.files[form.otu_classification_file.name].read()
 
         if not fasta_data_otus or\
@@ -102,7 +103,7 @@ def add_otus():
         with open(temp_feature_table_path, 'wb') as feature_table_writer:
             feature_table_writer.write(feature_table)
         
-        added_profiles_count = OTUProfile.add_otu_profiles_from_table(temp_feature_table_path, otu_method_id)
+        added_profiles_count = OTUProfile.add_otu_profiles_from_table(temp_feature_table_path, species_id, normalization_method)
 
         os.close(fd_feature_table)
         os.remove(temp_feature_table_path)
