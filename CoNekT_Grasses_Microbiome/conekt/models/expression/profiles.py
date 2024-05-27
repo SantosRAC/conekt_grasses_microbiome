@@ -48,7 +48,7 @@ class ExpressionProfile(db.Model):
         :return: Object of ontologies and values
         """
         processed_values = {}
-        for key, expression_values in data["data"]["tpm"].items():
+        for key, expression_values in data["data"]["exp_value"].items():
             po_value = data["data"]["PO_class"][key]
 
             if po_value not in processed_values:
@@ -195,7 +195,7 @@ class ExpressionProfile(db.Model):
             name = profile.probe
             data = json.loads(profile.profile)
             order = data['order']
-            experiments = data['data']['tpm']
+            experiments = data['data']['exp_value']
 
             with contextlib.suppress(ValueError):
                 not_found.remove(profile.probe.lower())
@@ -265,7 +265,7 @@ class ExpressionProfile(db.Model):
             else:
                 order = data['order']
                 
-            experiments = data['data']['tpm']
+            experiments = data['data']['exp_value']
 
 
             with contextlib.suppress(ValueError):
@@ -280,7 +280,7 @@ class ExpressionProfile(db.Model):
             for o in order:
                 for key, value in data['data']['PO_class'].items():
                     if value == o:
-                        values[key] = data['data']['tpm'][key] 
+                        values[key] = data['data']['exp_value'][key] 
                         labels.append(key + " ("+ o +")")
 
             row_max = max(list(values.values()))
@@ -330,13 +330,14 @@ class ExpressionProfile(db.Model):
         return profiles
 
     @staticmethod
-    def add_profile_from_lstrap(matrix_file, annotation_file, species_id):
+    def add_profile_from_lstrap(matrix_file, annotation_file, species_id, normalization_method='tpm'):
         """
         Function to convert an (normalized) expression matrix (lstrap output) into a profile
 
         :param matrix_file: path to the expression matrix
         :param annotation_file: path to the file assigning samples to conditions
         :param species_id: internal id of the species
+        :param normalization_method: method used for normalization (default TPM)
         """
         annotation = {}
 
@@ -354,9 +355,7 @@ class ExpressionProfile(db.Model):
                     if run_sample and run_in_matrix:
                         annotation[run] = {}
                         annotation[run]["literature_doi"] = literature_doi
-                        annotation[run]["strandness"] = strandness
-                        annotation[run]["layout"] = layout
-                        annotation[run]["seq_platform"] = seq_platform
+                        annotation[run]["sample_id"] = run_sample.id
 
                     else:
                         print("Either sample or run (or both) not found: ", sample, run)
@@ -382,21 +381,18 @@ class ExpressionProfile(db.Model):
             new_probes = []
             for line in fin:
                 transcript, *values = line.rstrip().split()
-                profile = {'tpm': {},
+                profile = {'exp_value': {},
                            'literature_doi': {},
-                           'strandness': {},
-                            'layout': {},
-                            'seq_platform': {}}
+                           'sample_id': {}}
 
                 for c, v in zip(colnames, values):
                     if c in annotation.keys():
-                        profile['tpm'][c] = float(v)
+                        profile['exp_value'][c] = float(v)
                         profile['literature_doi'][c] = annotation[c]['literature_doi']
-                        profile['strandness'][c] = annotation[c]['strandness']
-                        profile['layout'][c] = annotation[c]['layout']
-                        profile['seq_platform'][c] = annotation[c]['seq_platform']
+                        profile['sample_id'][c] = annotation[c]['sample_id']
 
                 new_probe = ExpressionProfile(**{"species_id": species_id,
+                                "normalization_method": normalization_method,
                                 "probe": transcript,
                                 "sequence_id": sequence_dict[transcript.upper()] if transcript.upper() in sequence_dict.keys() else None,
                                 "profile": json.dumps({'data': profile})}

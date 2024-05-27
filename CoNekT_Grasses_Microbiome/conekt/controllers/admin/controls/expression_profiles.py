@@ -46,7 +46,7 @@ def add_expression_profiles():
                                   'rnaseq')
 
             ExpressionProfile.add_profile_from_lstrap(temp_matrix_path, temp_annotation_path,
-                                                          species_id)
+                                                          species_id, normalization_method)
 
             os.close(fd_annotation)
             os.remove(temp_annotation_path)
