@@ -199,6 +199,7 @@ def configure_admin_panel(app):
         from conekt.controllers.admin.views.asvs import AddASVSView
         from conekt.controllers.admin.views.otus import AddOTUSView
         from conekt.controllers.admin.views.study import BuildStudyView
+        from conekt.controllers.admin.views.omics_integration.expression_microbiome_correlations import BuildCorrelationsView
 
         from conekt.models.users import User
         from conekt.models.species import Species
@@ -336,6 +337,10 @@ def configure_admin_panel(app):
         admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Build')
         admin.add_view(PredictGOView(name='Predict GO from neighborhood', endpoint='admin_predict_go',
                                      url='predict/go', category='Build'))
+        admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Build')
+        admin.add_menu_item(MenuLink("Integration of RNAseq and Metataxonomics", class_name="disabled", url="#"), target_category='Build')
+        admin.add_view(BuildCorrelationsView(name='Build RNAseq - Metataxonomics Profile Correlations', endpoint='admin_build_rnametataxcor',
+                                     url='build/exp_metatax_correlations', category='Build'))
 
         # Control panel
         admin.add_view(ControlsView(name='Controls', url='controls/'))
