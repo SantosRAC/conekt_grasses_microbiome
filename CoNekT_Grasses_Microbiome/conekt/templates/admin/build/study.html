@@ -39,6 +39,8 @@
 {% block tail %}
 
 <script>
+    $("#literature_list").hide();
+
     let species_select = document.getElementById('species_id');
     let study_type_select = document.getElementById('study_type');
     let literature_select = document.getElementById('literature_list');
@@ -46,20 +48,28 @@
     study_type_select.onchange = function() {
         study_type = study_type_select.value;
         species_id = species_select.value;
+        console.log(study_type);
+
+        if (study_type === "metataxonomics" || study_type === "expression_metataxonomics") {
+            $("#literature_list").show();
         
-        fetch("{{ url_for('study.get_species_lits_with_runs', species_id='species_id', study_type='study_type') }}".replace('species_id', species_id).replace('study_type', study_type)).then(function(response) {
-            response.json().then(function(data) {
-                
-                let optionHTML = '';
-               
-                for (let literature of data.literatures) {
-                    optionHTML += '<option value="' + literature.id + '">' + literature.publication_detail + '</option>';
-                }
-    
-                literature_select.innerHTML = optionHTML;
-    
+            fetch("{{ url_for('study.get_species_lits_with_runs', species_id='species_id', study_type='study_type') }}".replace('species_id', species_id).replace('study_type', study_type)).then(function(response) {
+                response.json().then(function(data) {
+                    
+                    let optionHTML = '';
+                    
+                    for (let literature of data.literatures) {
+                        optionHTML += '<option value="' + literature.id + '">' + literature.publication_detail + '</option>';
+                    }
+
+                    literature_select.innerHTML = optionHTML;
+
+                })
             })
-        })
+
+        } else if (study_type === "rnaseq") {
+            $("#literature_list").hide();
+        }
     }
 </script>
 

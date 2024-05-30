@@ -5,7 +5,7 @@ SQL_COLLATION = 'NOCASE' if db.engine.name == 'sqlite' else ''
 from conekt.models.species import Species
 from conekt.models.seq_run import SeqRun
 from conekt.models.relationships.study_literature import StudyLiteratureAssociation
-from conekt.models.relationships.study_run import StudyRunAssociation
+from conekt.models.relationships.study_sample import StudySampleAssociation
 
 
 class Study(db.Model):
@@ -41,6 +41,7 @@ class Study(db.Model):
         db.session.commit()
 
         associated_literature = 0
+        associated_samples = 0
 
         if study_type == 'rnaseq':
 
@@ -50,7 +51,7 @@ class Study(db.Model):
 
                 for run in literature_rnaseq_runs:
 
-                    new_study_run = StudyRunAssociation(new_study.id, run.id, 'rnaseq')
+                    new_study_run = StudySampleAssociation(new_study.id, run.id, 'rnaseq')
                     db.session.add(new_study_run)
                     db.session.commit()
                         
@@ -62,42 +63,39 @@ class Study(db.Model):
 
                 for run in literature_metatax_runs:
 
-                    new_study_run = StudyRunAssociation(new_study.id, run.id, 'metataxonomics') 
+                    new_study_run = StudySampleAssociation(new_study.id, run.id, 'metataxonomics') 
                     db.session.add(new_study_run)
                     db.session.commit()
                 
         else:
 
+            samples_rnaseq_runs = []
+            samples_metatax_runs = []
+
             for lit_id in literature_ids:
                 
-                samples_rnaseq_runs = SeqRun.query(SeqRun.sample_id).filter_by(species_id=species.id, data_type='rnaseq', literature_id=lit_id).all()
-                samples_metatax_runs = SeqRun.query(SeqRun.sample_id).filter_by(species_id=species.id, data_type='metataxonomics', literature_id=lit_id).all()
+                rnaseq_runs = SeqRun.query.filter_by(species_id=species.id, data_type='rnaseq', literature_id=lit_id).all()
+                metatax_runs = SeqRun.query.filter_by(species_id=species.id, data_type='metataxonomics', literature_id=lit_id).all()
 
-                sample_intersection = set(samples_rnaseq_runs).intersection(set(samples_metatax_runs))
+                samples_rnaseq_runs.extend([run.sample_id for run in rnaseq_runs])
+                samples_metatax_runs.extend([run.sample_id for run in metatax_runs])
+
+            sample_intersection = set(samples_rnaseq_runs).intersection(set(samples_metatax_runs))
+
+            if list(sample_intersection).sort() == samples_rnaseq_runs.sort():
+
+                for sample_id in sample_intersection:
+                    new_study_sample = StudySampleAssociation(new_study.id, sample_id)
+                    db.session.add(new_study_sample)
+                    db.session.commit()
+
+                    associated_samples+=1
                 
-                if len(sample_intersection) == len(samples_rnaseq_runs):
+                for lit_id in literature_ids:
+                    new_study_lit = StudyLiteratureAssociation(new_study.id, lit_id)
+                    db.session.add(new_study_lit)
+                    db.session.commit()
 
-                    literature_rnaseq_runs = SeqRun.query.filter_by(species_id=species.id, data_type='rnaseq', literature_id=lit_id).all()
-                
-                    for rnaseq_run in literature_rnaseq_runs:
-
-                        metatax_run = SeqRun.query.filter_by(species_id=species.id, data_type='metataxonomics',
-                                                            literature_id=lit_id, study_id=rnaseq_run.study_id).all()
-                        
-                        if metatax_run:
-
-                            new_study_rnaseq_run = StudyRunAssociation(new_study.id, run.id, 'rnaseq')
-                            new_study_metataxonomics_run = StudyRunAssociation(new_study.id, run.id, 'metataxonomics')
-                            db.session.add(new_study_rnaseq_run)
-                            db.session.add(new_study_metataxonomics_run)
-                            db.session.commit()
-                
-        for lit_id in literature_ids:
-            
-            new_study_lit = StudyLiteratureAssociation(new_study.id, lit_id)
-            db.session.add(new_study_lit)
-            db.session.commit()
-
-            associated_literature+=1
+                    associated_literature+=1
         
-        return associated_literature
+        return associated_literature, associated_samples

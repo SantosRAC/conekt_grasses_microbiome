@@ -35,7 +35,10 @@ def study_papers(study_id, page=1):
 @cache.cached()
 def get_species_lits_with_runs(species_id, study_type):
     
-    lit_info = SeqRun.query.with_entities(SeqRun.literature_id).filter_by(species_id=species_id, data_type=study_type).distinct().all()
+    if study_type == 'expression_metataxonomics':
+        lit_info = SeqRun.query.with_entities(SeqRun.literature_id).filter_by(species_id=species_id).distinct().all()
+    else:
+        lit_info = SeqRun.query.with_entities(SeqRun.literature_id).filter_by(species_id=species_id, data_type=study_type).distinct().all()
 
     literatureArray = []
     literature_ids = []
