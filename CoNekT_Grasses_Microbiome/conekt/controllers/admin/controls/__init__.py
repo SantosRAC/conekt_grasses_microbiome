@@ -12,7 +12,7 @@ from .expression_clusters import neighborhoods_to_clusters, build_hcca_clusters,
 from .expression_networks import add_coexpression_network
 from .expression_profiles import add_expression_profiles
 from .expression_specificity import add_condition_specificity, add_tissue_specificity
-from .expression_microbiome import build_expression_microbiome_correlations
+from .omics_integration.profile_correlations import build_profile_correlations
 from .families import add_family
 from .ftp import export_ftp
 from .functional_data import add_functional_data, add_go, add_interpro, calculate_enrichment, delete_enrichment

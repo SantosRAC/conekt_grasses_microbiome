@@ -1,14 +1,25 @@
 from conekt import db
 
+import json
+
 SQL_COLLATION = 'NOCASE' if db.engine.name == 'sqlite' else ''
 
 from conekt.models.studies import Study
+from conekt.models.relationships.study_sample import StudySampleAssociation
 from conekt.models.expression.profiles import ExpressionProfile
+from conekt.models.microbiome.otu_profiles import OTUProfile
 
+from corals.threads import set_threads_for_external_libraries
+set_threads_for_external_libraries(n_threads=1)
+import numpy as np
+from corals.correlation.full.default import cor_full
+
+import pandas as pd
 
 class ExpMicroCorrelationMethod(db.Model):
     __tablename__ = 'expression_microbiome_correlation_methods'
     id = db.Column(db.Integer, primary_key=True)
+    description = db.Column(db.Text)
     tool_name = db.Column(db.Enum('corALS', name='Tool'), default='corALS')
     stat_method = db.Column(db.Enum('pearson', 'spearman', name='Statistical Method'), default='pearson')
     multiple_test_cor_method = db.Column(db.Enum('fdr_bh', 'bonferroni', name='P-value correction Method'), default='fdr_bh')
@@ -16,8 +27,10 @@ class ExpMicroCorrelationMethod(db.Model):
     metatax_norm = db.Column(db.Enum('numreads', 'cpm', 'tpm', 'tmm', name='Metataxonomic Normalization'), default='numreads')
     study_id = db.Column(db.Integer, db.ForeignKey('studies.id', ondelete='CASCADE'), index=True)
 
-    def __init__(self, tool_name, stat_method, multiple_test_cor_method,
-                 rnaseq_norm, metatax_norm, study_id):
+    def __init__(self, description, tool_name, stat_method,
+                 multiple_test_cor_method, rnaseq_norm,
+                 metatax_norm, study_id):
+        self.description = description
         self.tool_name = tool_name
         self.stat_method = stat_method
         self.multiple_test_cor_method = multiple_test_cor_method
@@ -53,7 +66,7 @@ class ExpMicroCorrelation(db.Model):
         return str(self.id)
 
     @staticmethod
-    def calculate_expression_metataxonomic_correlations(study_id, tool, stat_method, multiple_test_cor_method,
+    def calculate_expression_metataxonomic_correlations(study_id, description, tool, stat_method, multiple_test_cor_method,
                                                         rnaseq_norm, metatax_norm):
         """
         Function to calculate the correlations between expression and metataxonomic profiles
@@ -66,7 +79,7 @@ class ExpMicroCorrelation(db.Model):
         :param metatax_norm: normalization method used for the metataxonomic data
         """
 
-        new_correlation_method = ExpMicroCorrelationMethod(tool, stat_method, multiple_test_cor_method,
+        new_correlation_method = ExpMicroCorrelationMethod(description, tool, stat_method, multiple_test_cor_method,
                                                             rnaseq_norm, metatax_norm, study_id)
         
         db.session.add(new_correlation_method)
@@ -75,21 +88,64 @@ class ExpMicroCorrelation(db.Model):
         # Get study
         study = Study.query.get(study_id)
 
-        # Get all expression profiles
+        # Get all sample ids associated with study
+        study_samples = StudySampleAssociation.query.filter_by(study_id=study.id).all()
+        study_sample_ids = [sample.sample_id for sample in study_samples]
 
+        # Get all expression profiles associated with study
+        expression_profiles = ExpressionProfile.query.filter_by(normalization_method=rnaseq_norm,
+                                                                species_id=study.species_id).all()
+        metatax_profiles = OTUProfile.query.filter_by(normalization_method=metatax_norm,
+                                                         species_id=study.species_id).all()
         
+        # Create pandas dataframe with all expression and metatax profiles associated with study
+        expression_profiles_df = pd.DataFrame()
+        exp_run2sample_id = {}
 
+        # Add rows to the dataframe from JSON
+        for profile in expression_profiles:
+            profile_dict = json.loads(profile.profile)
+            study_runs = [r for r in profile_dict['data']['sample_id'].keys() if profile_dict['data']['sample_id'][r] in study_sample_ids]
+            if expression_profiles_df.empty:
+                expression_profiles_df = pd.DataFrame(columns = study_runs)
+                exp_run2sample_id = profile_dict['data']['sample_id']
+            df_the_dict = pd.DataFrame(dict(map(lambda key: (key, profile_dict['data']['exp_value'].get(key, None)), study_runs)), index=[str(profile.probe)])
+            expression_profiles_df = pd.concat([expression_profiles_df, df_the_dict])
+
+        expression_profiles_df = expression_profiles_df.rename(columns=exp_run2sample_id)
         
+        metatax_profiles_df = pd.DataFrame()
+        metatax_run2sample_id = {}
 
+        for profile in metatax_profiles:
+            profile_dict = json.loads(profile.profile)
+            study_runs = [r for r in profile_dict['data']['sample_id'].keys() if profile_dict['data']['sample_id'][r] in study_sample_ids]
+            if metatax_profiles_df.empty:
+                metatax_profiles_df = pd.DataFrame(columns = study_runs)
+                metatax_run2sample_id = profile_dict['data']['sample_id']
+            df_the_dict = pd.DataFrame(dict(map(lambda key: (key, profile_dict['data']['count'].get(key, None)), study_runs)), index=[str(profile.probe)])
+            metatax_profiles_df = pd.concat([metatax_profiles_df, df_the_dict])
         
+        metatax_profiles_df = metatax_profiles_df.rename(columns=metatax_run2sample_id)
+        concat_df = pd.concat([expression_profiles_df, metatax_profiles_df], axis=0)
+        concatenated_transposed = concat_df.transpose()
+        cor_values = cor_full(concatenated_transposed)
 
+        print(concatenated_transposed.head(n=40))
+        print(cor_values)
+        print('\n\n\n\n\n\n\n\n')
         
+        # Get the positions of cells with True after a test
+        true_positions = np.where(cor_values > 0.5)
 
-        
+        # Iteratve over the positions and get the indexes
+        for i in range(len(true_positions[0])):
+            print(cor_values.columns[true_positions[1][i]],
+                  cor_values.index[true_positions[0][i]],
+                  cor_values.iloc[true_positions[0][i], true_positions[1][i]])
 
-        
+        exit(1)
 
-
-        
-
+        # Return the calculated correlations
+        return True
 
