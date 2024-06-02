@@ -57,4 +57,4 @@ class AddOTUSForm(FlaskForm):
     def populate_species(self):
         # Get distinct species ids from sample table
         species_ids = [species_id[0] for species_id in Sample.query.with_entities(Sample.species_id).distinct().all()]
-        self.species_id.choices = [(s.id, s.name) for s in Species.query.filter(Species.id.in_(species_ids)).all()]
+        self.species_id.choices = [(0, 'Select Species')] + [(s.id, s.name) for s in Species.query.filter(Species.id.in_(species_ids)).all()]
