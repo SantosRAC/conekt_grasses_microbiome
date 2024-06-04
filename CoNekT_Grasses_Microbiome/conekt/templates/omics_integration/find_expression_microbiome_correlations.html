@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if form %}
+        Search correlated Expressio and Microbiome profiles
+    {% else %}
+        Profile correlation results
+    {% endif %}
+{% endblock %}
+
+{% block container %}
+<div class="top-pad">
+
+    {% if form %}
+    <ol class="breadcrumb">
+        <li><a href="{{ url_for('main.screen') }}">Home</a></li>
+        <li><a href="{{ url_for('main.features') }}">Tools</a></li>
+        <li class="active"><strong>Expression and Microbiome Profiles Correlations</strong></li>
+    </ol>
+    <h1>Profiles Correlations</h1>
+    <p>Using the form below correlations can be found in a study of interaction between host expression and microbiome.</p>
+        <div class="row">
+            <div class="col-md-6 col-md-offset-1 col-xs-8">
+                <div class="panel panel-primary">
+                    <div class="panel-heading"><strong>Search options</strong></div>
+                    <div class="panel-body">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-xs-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading"><strong>Help</strong></div>
+                    <div class="panel-body">
+                        <ul>
+                            <li>Select the <strong>species</strong> first. This will enable a list of studies for this species in next selector.</li>
+                            <li>Next select a <strong>study</strong>. Note that studies are formed by combinations of runs from different literature sources.</li>
+                            <li>Set the <abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">Pearson correlation</abbr> cutoff (recommended setting: 0.5). Higher values are stronger correlations, lower ones are weaker</li>
+                            <li>Click <strong>Show profile pairs</strong> <span class="text-muted"> When updating the slider a number will appear in the button indicating how many pairs there will be in the results</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% elif results %}
+    <ol class="breadcrumb">
+        <li><a href="{{ url_for('main.screen') }}">Home</a></li>
+        <li><a href="{{ url_for('main.features') }}">Tools</a></li>
+        <li>Specific Profiles</li>
+        <li class="active"><strong><em>{{species.name}}</em>: {{condition}}</strong> ({{method.description}})</li>
+    </ol>
+    <h1><em>{{species.name}}</em> profiles specific for <strong>{{condition}}</strong><br /><small>Method: {{method.description}}</small></h1>
+    <div class="row">
+        <div class="col-lg-12">
+        <table class="table table-striped" id="results_table">
+            <thead>
+            <tr>
+                <th data-sort="string-ins"><span class="sort-icon"></span>Host transcript</th>
+                <th data-sort="string-ins"><span class="sort-icon"></span>Host transcript description</th>
+                <th data-sort="string-ins"><span class="sort-icon"></span>OTU/ASV</th>
+                <th data-sort="string-ins"><span class="sort-icon"></span>OTU/ASV taxonomy</th>
+                <th data-sort="string-ins"><span class="sort-icon"></span>Correlation method</th>
+                <th data-sort="float"><span class="sort-icon"></span><abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">P-value</abbr></th>
+                <th data-sort="float"><span class="sort-icon"></span><abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">Q-value</abbr></th>
+                <th data-sort="float"><span class="sort-icon"></span><abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">Pearson</abbr> correlation coefficient</th>
+                <th>Info</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for r in results %}
+                {% if r.profile.sequence %}
+                    <tr>
+                        <td><a href="{{url_for('sequence.sequence_view', sequence_id=r.profile.sequence.id)}}" class="qtip_tooltip"
+                               qtip_href="{{ url_for('sequence.sequence_tooltip', sequence_id=r.profile.sequence_id) }}">{{ r.profile.sequence.name }}</a></td>
+                        {% if r.profile.sequence.description %}
+                        <td class="alias-cell">{{ r.profile.sequence.description }}</td>
+                        {% else %}
+                        <td class="alias-cell"><span class="text-muted">None</span></td>
+                        {% endif %}
+                        <td><a href="{{url_for('otu.otu_view', sequence_id=r.profile.sequence.id)}}" class="qtip_tooltip"
+                                qtip_href="{{ url_for('.sequence_tooltip', sequence_id=r.profile.sequence_id) }}">{{ r.profile.sequence.name }}</a></td>
+                        {% if r.profile.sequence.description %}
+                        <td class="alias-cell">{{ r.profile.sequence.description }}</td>
+                        {% else %}
+                        <td class="alias-cell"><span class="text-muted">None</span></td>
+                        {% endif %}
+                        <td>{{ r.condition }}</td>
+                        <td>{{ r.score|round(2) }}</td>
+                        <td>{{ r.entropy|round(2) }}</td>
+                        <td>{% if r.tau %}{{ r.tau|round(2) }}{% else %}<span class="text-muted">None</span>{% endif %}</td>
+                        <td>{% if r.profile.low_abundance %}<span class="warning-message qtip_tooltip"
+                               qtip_href="{{ url_for('help.help_popup', topic='lowabundance') }}"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>{% endif %}</td>
+                        <td><a href="{{url_for('expression_profile.expression_profile_view', profile_id=r.profile_id)}}">view profile</a></td>
+ </tr>
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+        <a id="DownloadTable" href="#" class="btn btn-primary">Download table</a><br /><br />
+        </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script src="{{ url_for('static', filename='js/bootstrap-slider.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/table2CSV.js') }}" > </script>
+{% if form %}
+
+{% endif %}
+{% endblock %}
