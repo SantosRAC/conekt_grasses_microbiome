@@ -53,8 +53,9 @@ class ExpMicroCorrelation(db.Model):
     metatax_profile_id = db.Column(db.Integer, db.ForeignKey('otu_profiles.id', ondelete='CASCADE'), index=True)
     exp_micro_correlation_method_id = db.Column(db.Integer, db.ForeignKey('expression_microbiome_correlation_methods.id', ondelete='CASCADE'), index=True)
 
-    def __init__(self, pvalue, qvalue, corr_coef, expression_profile_id,
-                 metatax_profile_id, exp_micro_correlation_method_id):
+    def __init__(self, corr_coef, expression_profile_id,
+                 metatax_profile_id, exp_micro_correlation_method_id,
+                 pvalue=None, qvalue=None):
         self.pvalue = pvalue
         self.qvalue = qvalue
         self.corr_coef = corr_coef
@@ -130,21 +131,26 @@ class ExpMicroCorrelation(db.Model):
         concat_df = pd.concat([expression_profiles_df, metatax_profiles_df], axis=0)
         concatenated_transposed = concat_df.transpose()
         cor_values = cor_full(concatenated_transposed)
-
-        print(concatenated_transposed.head(n=40))
-        print(cor_values)
-        print('\n\n\n\n\n\n\n\n')
         
         # Get the positions of cells with True after a test
         true_positions = np.where(cor_values > 0.5)
+        shape_row = expression_profiles_df.shape[0]
 
         # Iteratve over the positions and get the indexes
         for i in range(len(true_positions[0])):
-            print(cor_values.columns[true_positions[1][i]],
-                  cor_values.index[true_positions[0][i]],
-                  cor_values.iloc[true_positions[0][i], true_positions[1][i]])
+            if (true_positions[1][i] > (shape_row - 1)) and (true_positions[0][i] < shape_row):
+                otu_p = OTUProfile.query.filter_by(probe=str(cor_values.columns[true_positions[1][i]]),
+                                                         species_id=study.species_id).first()
+                exp_p = ExpressionProfile.query.filter_by(probe=str(cor_values.index[true_positions[0][i]]),
+                                                species_id=study.species_id).first()
+                new_correlation_pair = ExpMicroCorrelation(cor_values.iloc[true_positions[0][i], true_positions[1][i]],
+                                                           exp_p.id, otu_p.id, new_correlation_method.id)
+                db.session.add(new_correlation_pair)
 
-        exit(1)
+            if i % 400 == 0:
+                db.session.commit()
+
+        db.session.commit()
 
         # Return the calculated correlations
         return True
