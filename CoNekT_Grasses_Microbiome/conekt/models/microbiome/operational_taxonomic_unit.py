@@ -52,7 +52,7 @@ class OperationalTaxonomicUnit(db.Model):
     representative_sequence = db.deferred(db.Column(LONGTEXT))
     method_id = db.Column(db.Integer, db.ForeignKey('otu_methods.id', ondelete='CASCADE'), index=True)
 
-    otus_profiles = db.relationship('OTUProfile', backref=db.backref('otu', lazy='joined'),
+    otu_profiles = db.relationship('OTUProfile', backref=db.backref('otu', lazy='joined'),
                                           lazy='dynamic',
                                           cascade="all, delete-orphan",
                                           passive_deletes=True)
