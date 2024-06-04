@@ -5,6 +5,7 @@ from sqlalchemy.orm import joinedload, undefer
 SQL_COLLATION = 'NOCASE' if db.engine.name == 'sqlite' else ''
 
 import json
+from statistics import mean
 
 from conekt.models.microbiome.operational_taxonomic_unit import OperationalTaxonomicUnit
 from conekt.models.seq_run import SeqRun
@@ -29,6 +30,21 @@ class OTUProfile(db.Model):
 
     def __repr__(self):
         return str(self.id) + ". " + str(self.otu_id)
+
+    @property
+    def low_abundance(self, cutoff=10):
+        """
+        Checks if the mean OTU value in any conditions in the plot is higher than the desired cutoff
+
+        :param cutoff: cutoff for OTU quantification, default = 10
+        :return: True in case of low abundance otherwise False
+        """
+        data = json.loads(self.profile)
+        processed_values = OTUProfile.get_values(data)
+
+        checks = [mean(v) > cutoff for _, v in processed_values.items()]
+
+        return not any(checks)
 
     @staticmethod
     def add_otu_profiles_from_table(feature_table, species_id, normalization_method='numreads'):
