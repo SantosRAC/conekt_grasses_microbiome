@@ -49,7 +49,7 @@ class ExpressionProfile(db.Model):
         """
         processed_values = {}
         for key, expression_values in data["data"]["exp_value"].items():
-            po_value = data["data"]["PO_class"][key]
+            po_value = data["data"]["po_class"][key]
 
             if po_value not in processed_values:
                 processed_values[po_value] = []
@@ -278,7 +278,7 @@ class ExpressionProfile(db.Model):
             labels = []
 
             for o in order:
-                for key, value in data['data']['PO_class'].items():
+                for key, value in data['data']['po_class'].items():
                     if value == o:
                         values[key] = data['data']['exp_value'][key] 
                         labels.append(key + " ("+ o +")")
