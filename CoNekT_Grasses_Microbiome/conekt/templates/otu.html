@@ -16,12 +16,13 @@
             <ul class="nav nav-pills nav-stacked" data-spy="affix">
               <li><a href="#otu_details">OTU Details</a></li>
               <li><a href="#otu_profile">OTU Profile</a></li>
+              <li><a href="#literature">Literature</a></li>
               <li><a href="#taxonomy">Taxonomy</a></li>
               <li><a href="#links">Links</a></li>
             </ul>
             </nav>
         </div>
-    {% if sequence %}
+    {% if otu %}
     <ol class="breadcrumb">
         <li><a href="{{ url_for('main.screen') }}">Home</a></li>
         <li><a href="{{ url_for('species.species_view', species_id=sequence.species.id) }}"><em>{{ sequence.species.name }}</em></a></li>

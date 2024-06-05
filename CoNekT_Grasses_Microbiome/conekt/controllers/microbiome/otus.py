@@ -2,6 +2,7 @@ from flask import Blueprint, redirect, url_for, render_template, make_response
 
 from conekt import cache
 from conekt.models.microbiome.operational_taxonomic_unit import OperationalTaxonomicUnit
+from conekt.models.relationships_microbiome.otu_classification import OTUClassificationGG
 from sqlalchemy.orm import undefer, noload
 
 otu = Blueprint('otu', __name__)
@@ -40,9 +41,11 @@ def otu_view(otu_id):
 
     current_otu = OperationalTaxonomicUnit.query.get_or_404(otu_id)
 
+    taxonomic_info_gg = OTUClassificationGG.get_otu_taxonomy(otu_id)
+
     # to avoid running long count queries, fetch relations here and pass to template
     #expression_profiles=current_sequence.expression_profiles.all()
     return render_template('otu.html',
                            otu=current_otu,
-                           otu_profiles=current_otu.otu_profiles.all()
-                           )
+                           otu_profiles=current_otu.otu_profiles.all(),
+                           taxonomic_info_gg=taxonomic_info_gg)

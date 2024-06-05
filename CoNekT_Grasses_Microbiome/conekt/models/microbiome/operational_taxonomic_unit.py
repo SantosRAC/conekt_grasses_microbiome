@@ -13,6 +13,7 @@ from utils.parser.fasta import Fasta
 import operator
 
 from conekt.models.literature import LiteratureItem
+from conekt.models.taxonomy import GGTaxon
 
 
 class OperationalTaxonomicUnitMethod(db.Model):
@@ -140,3 +141,5 @@ class OperationalTaxonomicUnit(db.Model):
         db.session.commit()
 
         return len(fasta_data.sequences.keys()), new_otu_method.id
+
+
