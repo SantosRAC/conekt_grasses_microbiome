@@ -25,112 +25,45 @@
     {% if otu %}
     <ol class="breadcrumb">
         <li><a href="{{ url_for('main.screen') }}">Home</a></li>
-        <li><a href="{{ url_for('species.species_view', species_id=sequence.species.id) }}"><em>{{ sequence.species.name }}</em></a></li>
+        <li><a href="{{ url_for('literature.literature_view', literature_id=otu.otu_method.id) }}"><em>Paper</em></a></li>
         <li>OTU</li>
         <li class="active"><strong>{{ otu.original_id }}</strong></li>
     </ol>
-    <h1><strong>{{ sequence.name }}</strong>{%- if sequence.aliases -%}&nbsp;<small>({{ sequence.aliases|truncate(25) }})</small>{%endif%}</h1>
+    <h1><strong>{{ otu.original_id }}</strong></h1>
     
-    {% if otu.representative_sequence %}
-    <p><strong>Description : </strong> {{sequence.description}}</p>
-    {% else %}
-    <p><span class="text-muted"><em>No description available</em></span></p>
-    {% endif %}
-
     <div>
-    <p><strong>Sequence :</strong> <a href="{{ url_for('sequence.sequence_modal_coding', sequence_id=sequence.id, rna='false') }}" data-target="#profileModal">cds</a> (<a href="{{ url_for('sequence.sequence_fasta_coding', sequence_id=sequence.id, rna='false') }}">download</a>), <a href="{{ url_for('sequence.sequence_modal_coding', sequence_id=sequence.id, rna='true') }}" data-target="#profileModal">rna</a> (<a href="{{ url_for('sequence.sequence_fasta_coding', sequence_id=sequence.id, rna='true') }}">download</a>) {%- if sequence.type == 'protein_coding' -%}, <a href="{{ url_for('sequence.sequence_modal_protein', sequence_id=sequence.id) }}" data-target="#profileModal">protein</a> (<a href="{{ url_for('sequence.sequence_fasta_protein', sequence_id=sequence.id) }}">download</a>) {% endif %}</p>
+    <p><strong>Sequence :</strong> <a href="{{ url_for('otu.otu_modal', otu_id=otu.id) }}" data-target="#profileModal">OTU representative sequence</a>
+         (<a href="#">download</a>)</p>
     </div>
 
-    {% if otu_profiles|count > 0 %}
-    <h3 class="banner-green" id="expression_profile">OTU Profile</h3>
-        {% for profile in otu_profiles %}
-            {% if loop.first %}
-                {% if profile.low_abundance %}
-                <br />
-                <span class="warning-message"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> <strong>Attention:</strong> This gene has <strong><abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='lowabundance') }}" data-target="#helpModal">low abundance</abbr></strong>.</span>
-                <br /><br />
-                {% endif %}
-                <div class="pull-right">
-                    <a href="#" class="btn btn-default" id="enable_pan" data-toggle="tooltip" title="Toggle Pan"><i class="fa fa-arrows" aria-hidden="true"></i></a> <a href="#" class="btn btn-default" id="enable_zoom" data-toggle="tooltip" title="Toggle zoom"><i class="fa fa-search" aria-hidden="true"></i></a>
-                </div>
-                <div style="height:550px; max-height:550px; margin-top:30px">
-                    <canvas id="expression-profile" class="center-block" height="550"/>
-                </div>
-                <br />
-                <div class="pull-right">
-                    <a href="{{ url_for('expression_profile.expression_profile_download_plot', profile_id=profile.id) }}" class="btn btn-primary" download="plot_{{profile.id}}.txt">Download</a>
-                </div>
-                <p><strong>Note:</strong> <a href="{{ url_for('expression_profile.expression_profile_view', profile_id=profile.id) }}">here</a>.</p>
-            {% endif %}
-        {% endfor %}
-        {% if expression_profiles|count > 1 %}
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="btn-group">
-                      <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        All profiles <span class="caret"></span>
-                      </button>
-                      <ul class="dropdown-menu">
-                        {% for profile in expression_profiles %}
-                            <li class="dropdown-header">{{ profile.probe }}</li>
-                            <li><a href="{{ url_for('expression_profile.expression_profile_view', profile_id=profile.id) }}">View details</a></li>
-                            <li><a href="{{ url_for('expression_profile.expression_profile_modal', profile_id=profile.id) }}" data-target="#profileModal">Show</a></li>
-                              {% if not loop.last %}
-                                <li role="separator" class="divider"></li>
-                              {% endif %}
-                        {% endfor %}
-                      </ul>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
-    {% else %}
-        <p><span class="text-muted"><em>No expression profile available</em></span></p>
-    {% endif %}
     <br />
     <br />
     <h3 class="banner-green" id="annotation">Taxonomy Information</h3>
     <div class="panel with-nav-tabs panel-default">
     <div class="panel-heading">
             <ul class="nav nav-tabs">
-                <li class="active"><a href="#tab1default" data-toggle="tab">GO</a></li>
-                <li><a href="#tab2default" data-toggle="tab">Predicted GO</a></li>
-                <li><a href="#tab3default" data-toggle="tab">InterPro</a></li>
-                <li><a href="#tab4default" data-toggle="tab">CAZYme</a></li>
+                <li class="active"><a href="#tab1default" data-toggle="tab">GreenGenes</a></li>
+                <li><a href="#tab2default" data-toggle="tab">Something else ...</a></li>
             </ul>
     </div>
     <div>
         <div class="tab-content">
 
-            <div class="tab-pane fade" id="tab3default">
-                {% if interpro_associations|count > 0 %}
+            <div class="tab-pane fade" id="tab1default">
+                {% if gg_associations|count > 0 %}
                 <div class="table-responsive">
-                    <table class="table table-striped table-fixed" id="interpro_table">
+                    <table class="table table-striped table-fixed" id="gg_table">
                         <thead>
                             <tr>
                                 <th class="col-xs-3" data-sort="string-ins"><span class="sort-icon"></span><abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='interpro_domain') }}" data-target="#helpModal">InterPro domains</abbr></th>
                                 <th class="col-xs-5" data-sort="string-ins"><span class="sort-icon"></span>Description</th>
-                                <th class="col-xs-2" data-sort="int"><span class="sort-icon"></span>Start</th>
-                                <th class="col-xs-2" data-sort="int"><span class="sort-icon"></span>Stop</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for association in interpro_associations %}
+                            {% for association in gg_associations %}
                             <tr>
-                                <td class="col-xs-3"><a href="{{ url_for('interpro.interpro_view', interpro_id=association.domain.id) }}">{{ association.domain.label }}</a></td>
-                                <td class="col-xs-5">{{ association.domain.description }}</td>
-
-                                {% if association.start %}
-                                    <td class="col-xs-2">{{ association.start }}</td>
-                                {% else %}
-                                    <td class="col-xs-2"> - </td>
-                                {% endif %}
-
-                                {% if association.stop %}
-                                    <td class="col-xs-2">{{ association.stop }}</td>
-                                {% else %}
-                                    <td class="col-xs-2"> - </td>
-                                {% endif %}
+                                <td class="col-xs-3"><a href="#"> To be filled </a></td>
+                                <td class="col-xs-5"> To be filled </td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -138,7 +71,7 @@
                 </div>
                 {% else %}
                 <div class="panel-body">
-                    <p>No InterPro domains available for this sequence</p>
+                    <p>No GreenGenes taxonomy available for this OTU</p>
                 </div>
                 {% endif %}
             </div>
