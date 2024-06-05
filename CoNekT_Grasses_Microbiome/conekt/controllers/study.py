@@ -23,9 +23,9 @@ def study_papers(study_id, page=1):
 
     lit_info = StudyLiteratureAssociation.query.with_entities(StudyLiteratureAssociation.literature_id).filter_by(study_id=study_id).distinct().all()
 
-    literatures = LiteratureItem.query.filter(LiteratureItem.id.in_([lit_id[0] for lit_id in lit_info])).paginate(page,
-                                                                 g.page_items,
-                                                                 False).items
+    literatures = LiteratureItem.query.filter(LiteratureItem.id.in_([lit_id[0] for lit_id in lit_info])).paginate(page=page,
+                                                                 per_page=g.page_items,
+                                                                 error_out=False).items
 
     return render_template('pagination/literatures.html', literatures=literatures)
 
