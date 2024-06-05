@@ -60,7 +60,9 @@ def expression_cluster_sequences(cluster_id, page=1):
     :param page: page number
     """
     cluster = CoexpressionCluster.query.get_or_404(cluster_id)
-    sequence_associations = cluster.sequence_associations.order_by(SequenceCoexpressionClusterAssociation.probe).paginate(page, g.page_items, False).items
+    sequence_associations = cluster.sequence_associations.order_by(SequenceCoexpressionClusterAssociation.probe).paginate(page=page,
+                                                                                                                          per_page=g.page_items,
+                                                                                                                          error_out=False).items
 
     return render_template('pagination/cluster_probes.html', sequence_associations=sequence_associations,
                            species_id=cluster.method.network_method.species.id)

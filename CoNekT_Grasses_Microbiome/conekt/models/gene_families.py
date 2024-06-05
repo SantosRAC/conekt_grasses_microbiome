@@ -241,7 +241,7 @@ class GeneFamily(db.Model):
             .filter_by(gene_family_method_id=self.method_id)\
             .filter(or_(or_(*[SequenceSequenceECCAssociation.query_id == s for s in sequence_ids]),
                         or_(*[SequenceSequenceECCAssociation.target_id == s for s in sequence_ids])))\
-            .paginate(page, page_items, False).items
+            .paginate(page=page, per_page=page_items, error_out=False).items
 
         return output
 
