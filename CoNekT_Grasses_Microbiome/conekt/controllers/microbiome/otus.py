@@ -47,5 +47,20 @@ def otu_view(otu_id):
     #expression_profiles=current_sequence.expression_profiles.all()
     return render_template('otu.html',
                            otu=current_otu,
-                           otu_profiles=current_otu.otu_profiles.all(),
+                           otu_profiles=current_otu.otu_profiles,
                            taxonomic_info_gg=taxonomic_info_gg)
+
+@otu.route('/modal/otu/<otu_id>')
+def otu_modal(otu_id):
+    """
+    Returns the OTU sequence in a modal
+
+    :param otu_id: ID of the OTU
+    :return: Response with the fasta file
+    """
+    current_sequence = OperationalTaxonomicUnit.query\
+        .get_or_404(otu_id)
+    
+    sequence = current_sequence.representative_sequence
+
+    return render_template('modals/microbiome_sequence.html', sequence=sequence, otu=True)
