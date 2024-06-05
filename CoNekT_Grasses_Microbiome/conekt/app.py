@@ -119,6 +119,7 @@ def configure_blueprints(app):
     from conekt.controllers.microbiome.otu_profiles import otus_profile
     from conekt.controllers.microbiome.otus import otu
     from conekt.controllers.omics_integration.profile_correlations import profile_correlations
+    from conekt.controllers.literature import literature
 
     LOGIN_ENABLED = app.config['LOGIN_ENABLED']
     BLAST_ENABLED = app.config['BLAST_ENABLED']
@@ -159,6 +160,7 @@ def configure_blueprints(app):
     app.register_blueprint(asvs_profile, url_prefix='/asvs_profile')
     app.register_blueprint(otus_profile, url_prefix='/otus_profile')
     app.register_blueprint(profile_correlations, url_prefix='/profile_correlations')
+    app.register_blueprint(literature, url_prefix='/literature')
 
 
 def configure_admin_panel(app):
