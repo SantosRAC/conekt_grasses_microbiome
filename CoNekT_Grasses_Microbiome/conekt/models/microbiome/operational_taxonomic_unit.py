@@ -29,6 +29,11 @@ class OperationalTaxonomicUnitMethod(db.Model):
     primer_pair = db.Column(db.String(255), default='')
     literature_id = db.Column(db.Integer, db.ForeignKey('literature.id', ondelete='CASCADE'), index=True)
 
+    otus = db.relationship('OperationalTaxonomicUnit', backref=db.backref('otu_method', lazy='joined'),
+                                          lazy='dynamic',
+                                          cascade="all, delete-orphan",
+                                          passive_deletes=True)
+
     def __init__(self, description, clustering_method, clustering_threshold,
                  clustering_algorithm, clustering_reference_database,
                  clustering_reference_db_release, amplicon_marker,
@@ -52,11 +57,6 @@ class OperationalTaxonomicUnit(db.Model):
     original_id = db.Column(db.String(255), index=True)
     representative_sequence = db.deferred(db.Column(LONGTEXT))
     method_id = db.Column(db.Integer, db.ForeignKey('otu_methods.id', ondelete='CASCADE'), index=True)
-
-    otu_profiles = db.relationship('OTUProfile', backref=db.backref('otu', lazy='joined'),
-                                          lazy='dynamic',
-                                          cascade="all, delete-orphan",
-                                          passive_deletes=True)
 
     def __init__(self, original_id, representative_sequence, method_id):
         self.original_id = original_id

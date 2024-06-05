@@ -21,6 +21,8 @@ class OTUProfile(db.Model):
     otu_id = db.Column(db.Integer, db.ForeignKey('otus.id', ondelete='CASCADE'), index=True)
     profile = db.deferred(db.Column(db.Text))
 
+    otus = db.relationship('OperationalTaxonomicUnit', backref='otu_profiles', lazy='joined')
+
     def __init__(self, species_id,  probe, otu_id, profile, normalization_method='numreads'):
         self.species_id = species_id
         self.probe = probe
