@@ -104,3 +104,21 @@ class OTUClassificationGG(db.Model):
             db.session.commit()
         
         return classified_otus
+
+
+    @staticmethod
+    def get_otu_taxonomy(otu_id):
+        """
+        Function to get the taxonomy of all OTUs
+        """
+
+        otu_gg_taxa = OTUClassificationGG.query.filter_by(otu_id=otu_id).all()
+
+        otu_taxonomy = []
+
+        if otu_gg_taxa:
+            for otu_gg_taxon in otu_gg_taxa:
+                gg_taxon = GGTaxon.query.filter_by(id=otu_gg_taxon.gg_id).first()
+                otu_taxonomy.append([gg_taxon.id, gg_taxon.taxon_path])
+
+        return otu_taxonomy
