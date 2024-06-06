@@ -102,8 +102,8 @@ def configure_blueprints(app):
     from conekt.controllers.expression_cluster import expression_cluster
     from conekt.controllers.expression_profile import expression_profile
     from conekt.controllers.expression_network import expression_network
-    # from conekt.controllers.search import search
-    # TODO: add search to configure_blueprints after Solr is up and running
+    from conekt.controllers.search import search
+    # TODO: Configure Solr to replace Whoosh !
     from conekt.controllers.help import help
     from conekt.controllers.heatmap import heatmap
     from conekt.controllers.profile_comparison import profile_comparison
@@ -118,7 +118,6 @@ def configure_blueprints(app):
     from conekt.controllers.microbiome.asvs_profile import asvs_profile
     from conekt.controllers.microbiome.otu_profiles import otus_profile
     from conekt.controllers.microbiome.otus import otu
-    from conekt.controllers.omics_integration.profile_correlations import profile_correlations
     from conekt.controllers.literature import literature
 
     LOGIN_ENABLED = app.config['LOGIN_ENABLED']
@@ -145,7 +144,7 @@ def configure_blueprints(app):
     app.register_blueprint(expression_cluster, url_prefix='/cluster')
     app.register_blueprint(expression_profile, url_prefix='/profile')
     app.register_blueprint(expression_network, url_prefix='/network')
-    #app.register_blueprint(search, url_prefix='/search')
+    app.register_blueprint(search, url_prefix='/search')
     # TODO: add URL after configuring Solr as the main search engine
     app.register_blueprint(help, url_prefix='/help')
     app.register_blueprint(heatmap, url_prefix='/heatmap')
@@ -159,7 +158,6 @@ def configure_blueprints(app):
     app.register_blueprint(otu, url_prefix='/otu')
     app.register_blueprint(asvs_profile, url_prefix='/asvs_profile')
     app.register_blueprint(otus_profile, url_prefix='/otus_profile')
-    app.register_blueprint(profile_correlations, url_prefix='/profile_correlations')
     app.register_blueprint(literature, url_prefix='/literature')
 
 
