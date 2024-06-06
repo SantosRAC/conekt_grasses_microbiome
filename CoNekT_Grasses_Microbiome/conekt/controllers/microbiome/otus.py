@@ -60,7 +60,5 @@ def otu_modal(otu_id):
     """
     current_sequence = OperationalTaxonomicUnit.query\
         .get_or_404(otu_id)
-    
-    sequence = current_sequence.representative_sequence
 
-    return render_template('modals/microbiome_sequence.html', sequence=sequence, otu=True)
+    return render_template('modals/microbiome_sequence.html', sequence=current_sequence, otu=True)
