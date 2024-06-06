@@ -5,7 +5,7 @@ from wtforms.validators import InputRequired
 from conekt.models.species import Species
 
 
-class StudyExprMicrobiomeCorrelationForm(FlaskForm):
+class SearchCorrelatedProfilesForm(FlaskForm):
     species_id = SelectField('Species', coerce=int)
     study_id = SelectField('Study', coerce=int)
 
