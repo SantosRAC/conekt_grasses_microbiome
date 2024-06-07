@@ -65,7 +65,8 @@
         <li><a href="{{ url_for('main.features') }}">Tools</a></li>
         <li>Correlated Profiles</li>
     </ol>
-    <h1>Correlated profiles for XXXXXX</h1>
+    <h1>Correlated profiles for study {{ study.name }} ({{ species.name }})</h1>
+
     <div class="row">
         <div class="col-lg-12">
         <table class="table table-striped" id="results_table">
@@ -85,8 +86,8 @@
             {% for r in results %}
 
                 <tr>
-                    <td>{{ r.expression_profile.probe }} (<a href="{{url_for('', profile_id=r.expression_profile.id)}}">view profile</a>)</td>
-                    <td>{{ r.metatax_profile.probe }} (<a href="{{url_for('', profile_id=r.metatax_profile.id)}}">view profile</a>)</td>
+                    <td>{{ r.expression_profile_id }} (<a href="#">view profile</a>)</td>
+                    <td>{{ r.metatax_profile_id }} (<a href="#">view profile</a>)</td>
                     <td>{{ r.cor_method }}</td>
                     <td>{{ r.corr_coef }}</td>
                     <td>{{ r.pvalue }}</td>
