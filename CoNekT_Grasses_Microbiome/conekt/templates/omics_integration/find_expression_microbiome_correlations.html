@@ -24,6 +24,23 @@
                 <div class="panel panel-primary">
                     <div class="panel-heading"><strong>Search options</strong></div>
                     <div class="panel-body">
+                        <form method="POST"  action="{{ url_for('search.search_correlated_profiles') }}"  role="form">
+                            {{ form.csrf_token }}
+                            <label>Species</label>
+                            {{form.species_id(class_="form-control")}}<br/>
+                            <label>Study</label>
+                            {{form.study_id(class_="form-control")}}<br/>
+                            <label>Method</label>
+                            {{form.method_id(class_="form-control")}}<br/>
+                            <label><abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">Correlation</abbr> cutoff :</label>
+                            {{form.cutoff(class_="form-control", **{'data-provide':"slider",
+                                                                    'data-slider-id':"cutoffSlider",
+                                                                    'data-slider-min':"0.5",
+                                                                    'data-slider-max':"1",
+                                                                    'data-slider-step': "0.01",
+                                                                    'data-slider-value': "0.85"})}}<br/>
+                            <button type="submit" id="show_button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#loaderModal">Show correlations</button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -34,7 +51,8 @@
                         <ul>
                             <li>Select the <strong>species</strong> first. This will enable a list of studies for this species in next selector.</li>
                             <li>Next select a <strong>study</strong>. Note that studies are formed by combinations of runs from different literature sources.</li>
-                            <li>Set the <abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">Pearson correlation</abbr> cutoff (recommended setting: 0.5). Higher values are stronger correlations, lower ones are weaker</li>
+                            <li>Next select a <strong>method</strong>. Methods can be Pearson or Spearman, to correlate microbiome and transcriptome profiles in a study.</li>
+                            <li>Set the <abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">Correlation</abbr> cutoff (recommended setting: 0.5). Higher values are stronger correlations, lower ones are weaker</li>
                             <li>Click <strong>Show profile pairs</strong> <span class="text-muted"> When updating the slider a number will appear in the button indicating how many pairs there will be in the results</span></li>
                         </ul>
                     </div>
@@ -54,9 +72,7 @@
             <thead>
             <tr>
                 <th data-sort="string-ins"><span class="sort-icon"></span>Host transcript</th>
-                <th data-sort="string-ins"><span class="sort-icon"></span>Host transcript description</th>
                 <th data-sort="string-ins"><span class="sort-icon"></span>OTU/ASV</th>
-                <th data-sort="string-ins"><span class="sort-icon"></span>OTU/ASV taxonomy</th>
                 <th data-sort="string-ins"><span class="sort-icon"></span>Correlation method</th>
                 <th data-sort="float"><span class="sort-icon"></span><abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">P-value</abbr></th>
                 <th data-sort="float"><span class="sort-icon"></span><abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">Q-value</abbr></th>
@@ -67,31 +83,17 @@
             </thead>
             <tbody>
             {% for r in results %}
-                {% if r.profile.sequence %}
-                    <tr>
-                        <td><a href="{{url_for('sequence.sequence_view', sequence_id=r.profile.sequence.id)}}" class="qtip_tooltip"
-                               qtip_href="{{ url_for('sequence.sequence_tooltip', sequence_id=r.profile.sequence_id) }}">{{ r.profile.sequence.name }}</a></td>
-                        {% if r.profile.sequence.description %}
-                        <td class="alias-cell">{{ r.profile.sequence.description }}</td>
-                        {% else %}
-                        <td class="alias-cell"><span class="text-muted">None</span></td>
-                        {% endif %}
-                        <td><a href="{{url_for('otu.otu_view', sequence_id=r.profile.sequence.id)}}" class="qtip_tooltip"
-                                qtip_href="{{ url_for('.sequence_tooltip', sequence_id=r.profile.sequence_id) }}">{{ r.profile.sequence.name }}</a></td>
-                        {% if r.profile.sequence.description %}
-                        <td class="alias-cell">{{ r.profile.sequence.description }}</td>
-                        {% else %}
-                        <td class="alias-cell"><span class="text-muted">None</span></td>
-                        {% endif %}
-                        <td>{{ r.condition }}</td>
-                        <td>{{ r.score|round(2) }}</td>
-                        <td>{{ r.entropy|round(2) }}</td>
-                        <td>{% if r.tau %}{{ r.tau|round(2) }}{% else %}<span class="text-muted">None</span>{% endif %}</td>
-                        <td>{% if r.profile.low_abundance %}<span class="warning-message qtip_tooltip"
-                               qtip_href="{{ url_for('help.help_popup', topic='lowabundance') }}"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>{% endif %}</td>
-                        <td><a href="{{url_for('expression_profile.expression_profile_view', profile_id=r.profile_id)}}">view profile</a></td>
- </tr>
-                {% endif %}
+
+                <tr>
+                    <td>{{ r.expression_profile.probe }} (<a href="{{url_for('', profile_id=r.expression_profile.id)}}">view profile</a>)</td>
+                    <td>{{ r.metatax_profile.probe }} (<a href="{{url_for('', profile_id=r.metatax_profile.id)}}">view profile</a>)</td>
+                    <td>{{ r.cor_method }}</td>
+                    <td>{{ r.corr_coef }}</td>
+                    <td>{{ r.pvalue }}</td>
+                    <td>{{ r.qvalue }}</td>
+                    <td></td>
+                </tr>
+
             {% endfor %}
             </tbody>
         </table>
@@ -106,6 +108,59 @@
 <script src="{{ url_for('static', filename='js/bootstrap-slider.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/table2CSV.js') }}" > </script>
 {% if form %}
+<script>
 
+    cutoff_slider = $('#cutoff').slider({
+        formatter: function(value) {
+            return 'Cutoff: ' + value;
+        }
+    }).on("slideStop", function(ev) {
+            update_count(ev.value);
+    });
+    
+</script>
 {% endif %}
+<script>
+    let species_select = document.getElementById('species_id');
+    let study_select = document.getElementById('study_id');
+    let method_select = document.getElementById('method_id');
+    
+    species_select.onchange = function() {
+        species_id = species_select.value;
+        
+        fetch("{{ url_for('study.get_species_studies', species_id='species_id', study_type='expression_metataxonomics') }}".replace('species_id', species_id)).then(function(response) {
+            response.json().then(function(data) {
+                
+                let optionHTML = '';
+                
+                optionHTML += '<option value="' + 0 + '">' + 'Select Study first' + '</option>';
+
+                for (let study of data.studies) {
+                    optionHTML += '<option value="' + study.id + '">' + study.name + '</option>';
+                }
+    
+                study_select.innerHTML = optionHTML;
+    
+            })
+        })
+    }
+
+    study_select.onchange = function() {
+        study_id = study_select.value;
+        
+        fetch("{{ url_for('profile_correlations.get_study_cor_methods', study_id='study_id', study_type='expression_metataxonomics') }}".replace('study_id', study_id)).then(function(response) {
+            response.json().then(function(data) {
+                
+                let optionHTML = '';
+                
+                for (let method of data.methods) {
+                    optionHTML += '<option value="' + method.id + '">' + method.method_tool + '</option>';
+                }
+    
+                method_select.innerHTML = optionHTML;
+    
+            })
+        })
+    }
+</script>
 {% endblock %}

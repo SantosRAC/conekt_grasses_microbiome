@@ -4,6 +4,9 @@ from sqlalchemy.orm import joinedload
 search = Blueprint('search', __name__)
 
 from conekt.forms.omics_integration.profile_correlations import SearchCorrelatedProfilesForm
+from conekt.models.species import Species
+from conekt.models.expression_microbiome.expression_microbiome_correlation import\
+    ExpMicroCorrelationMethod, ExpMicroCorrelation
 
 
 @search.route('/correlated/profiles', methods=['GET', 'POST'])
@@ -16,26 +19,21 @@ def search_correlated_profiles():
     form = SearchCorrelatedProfilesForm(request.form)
     form.populate_form()
 
-    #if request.method == 'POST':
-    #    species_id = request.form.get('species_id')
-    #    study_id = request.form.get('study_id')
-
     if request.method == 'GET':
         return render_template("omics_integration/find_expression_microbiome_correlations.html", form=form)
     else:
-        species_id = request.form.get('species')
-        method_id = request.form.get('methods')
-        condition = request.form.get('conditions')
+        species_id = request.form.get('species_id')
+        study_id = request.form.get('study_id')
+        method_id = request.form.get('method')
         cutoff = request.form.get('cutoff')
 
         species = Species.query.get_or_404(species_id)
-        method = ExpressionSpecificityMethod.query.get_or_404(method_id)
-        results = ExpressionSpecificity.query.\
-            filter(ExpressionSpecificity.method_id == method_id).\
-            filter(ExpressionSpecificity.score>=cutoff).\
-            filter(ExpressionSpecificity.condition == condition).\
+        exp_micro_cor_method = ExpMicroCorrelationMethod.query.get_or_404(method_id)
+        results = ExpMicroCorrelation.query.\
+            filter(ExpMicroCorrelation.method_id == method_id).\
+            filter(ExpMicroCorrelation.score>=cutoff).\
             options(
-                joinedload(ExpressionSpecificity.profile).undefer("profile")
+                joinedload(ExpMicroCorrelation.profile).undefer("profile")
             )
 
-        return render_template("omics_integration/find_expression_microbiome_correlations.html", results=results, species=species, method=method, condition=condition)
+        return render_template("omics_integration/find_expression_microbiome_correlations.html", results=results, species=species_id, method=method_id)
