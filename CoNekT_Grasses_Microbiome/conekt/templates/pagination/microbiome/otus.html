@@ -1,0 +1,17 @@
+<div class="table-responsive">
+    <table class="table table-striped table-separated">
+        <tbody>
+            {% for otu in otus %}
+                <tr>
+                    <td>{{ otu.original_id }}</td>
+                    <td>{{ otu.representative_sequence }}</td>
+                    <td>Taxonomy information not available yet</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="5"><em>No OTUs associated with this item</em></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

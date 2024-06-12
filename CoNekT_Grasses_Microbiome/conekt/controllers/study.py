@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, g, jsonify
+from markdown import markdown
 
 from conekt import db, cache
 
@@ -9,6 +10,42 @@ from conekt.models.seq_run import SeqRun
 from conekt.models.studies import Study
 
 study = Blueprint('study', __name__)
+
+
+@study.route('/')
+@cache.cached()
+def studies_overview():
+    """
+    Overview of all studies with data in the current database, including some basic statistics
+    """
+    all_studies = Study.query.all()
+
+    '''for species in all_species:
+        if LiteratureItem.query.filter_by(id=species.literature_id).first():
+            species.paper_author_names = LiteratureItem.query.filter_by(id=species.literature_id).first().author_names
+            species.paper_public_year = LiteratureItem.query.filter_by(id=species.literature_id).first().public_year
+            species.paper_doi = LiteratureItem.query.filter_by(id=species.literature_id).first().doi
+    '''    
+
+    return render_template('study.html', all_studies=all_studies)
+
+
+@study.route('/view/<study_id>')
+@cache.cached()
+def study_view(study_id):
+    """
+    Get a study based on the ID and show the details for this study.
+
+    :param study_id: ID of the study to show
+    """
+    current_study = db.session.get(Study, study_id)
+
+    description = None if current_study.description is None \
+        else markdown(current_study.description, extensions=['markdown.extensions.tables', 'markdown.extensions.attr_list'])
+
+    return render_template('study.html', study=current_study, description=description)
+    
+
 
 @study.route('/studies_papers/<study_id>/')
 @study.route('/studies_papers/<study_id>/<int:page>')
@@ -23,9 +60,9 @@ def study_papers(study_id, page=1):
 
     lit_info = StudyLiteratureAssociation.query.with_entities(StudyLiteratureAssociation.literature_id).filter_by(study_id=study_id).distinct().all()
 
-    literatures = LiteratureItem.query.filter(LiteratureItem.id.in_([lit_id[0] for lit_id in lit_info])).paginate(page,
-                                                                 g.page_items,
-                                                                 False).items
+    literatures = LiteratureItem.query.filter(LiteratureItem.id.in_([lit_id[0] for lit_id in lit_info])).paginate(page=page,
+                                                                 per_page=g.page_items,
+                                                                 error_out=False).items
 
     return render_template('pagination/literatures.html', literatures=literatures)
 
@@ -35,7 +72,10 @@ def study_papers(study_id, page=1):
 @cache.cached()
 def get_species_lits_with_runs(species_id, study_type):
     
-    lit_info = SeqRun.query.with_entities(SeqRun.literature_id).filter_by(species_id=species_id, data_type=study_type).distinct().all()
+    if study_type == 'expression_metataxonomics':
+        lit_info = SeqRun.query.with_entities(SeqRun.literature_id).filter_by(species_id=species_id).distinct().all()
+    else:
+        lit_info = SeqRun.query.with_entities(SeqRun.literature_id).filter_by(species_id=species_id, data_type=study_type).distinct().all()
 
     literatureArray = []
     literature_ids = []

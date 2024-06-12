@@ -1,0 +1,10 @@
+RunID	SampleID	DOI	Strandness	Layout	SequencingPlatform
+SRR5909626	spl00017	10.1038/nature25966	strand specific	single-end	illumina
+SRR5909627	spl00018	10.1038/nature25966	strand specific	single-end	illumina
+SRR5909633	spl00019	10.1038/nature25966	strand specific	single-end	illumina
+SRR5909635	spl00020	10.1038/nature25966	strand specific	single-end	illumina
+SRR5909639	spl00021	10.1038/nature25966	strand specific	single-end	illumina
+SRR5909642	spl00022	10.1038/nature25966	strand specific	single-end	illumina
+SRR5909645	spl00023	10.1038/nature25966	strand specific	single-end	illumina
+SRR5909653	spl00024	10.1038/nature25966	strand specific	single-end	illumina
+SRR5909655	spl00025	10.1038/nature25966	strand specific	single-end	illumina

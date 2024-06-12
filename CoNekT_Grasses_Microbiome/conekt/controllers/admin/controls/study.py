@@ -29,13 +29,16 @@ def build_study():
         study_name = request.form.get('study_name')
         study_description = request.form.get('study_description')
         study_type = request.form.get('study_type')
+
         literature_ids = request.form.getlist('literature_list')
 
         # Add study to database
-        literature_count_study = Study.build_study(species_id, study_name, study_description,
+        literature_count_study, samples_count = Study.build_study(species_id, study_name, study_description,
                                       study_type, literature_ids)
         
         flash(f'Added {study_type} study with {literature_count_study} associated papers', 'success')
+        flash(f'Added {samples_count} associated samples', 'success')
+
         return redirect(url_for('admin.index'))
     else:
         if not form.validate():

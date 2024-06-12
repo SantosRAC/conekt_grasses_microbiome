@@ -56,9 +56,9 @@ def clade_families(clade_id, page=1):
     :return: html-response which can be used in combination with the pagination code
     """
     current_clade = Clade.query.get_or_404(clade_id)
-    families = current_clade.families.order_by(GeneFamily.name).paginate(page,
-                                                                         g.page_items,
-                                                                         False).items
+    families = current_clade.families.order_by(GeneFamily.name).paginate(page=page,
+                                                                         per_page=g.page_items,
+                                                                         error_out=False).items
 
     return render_template('pagination/families.html', families=families)
 
@@ -89,9 +89,9 @@ def clade_interpro(clade_id, page=1):
     :return: html-response which can be used in combination with the pagination code
     """
     current_clade = Clade.query.get_or_404(clade_id)
-    interpro = current_clade.interpro.order_by(Interpro.label).paginate(page,
-                                                                        g.page_items,
-                                                                        False).items
+    interpro = current_clade.interpro.order_by(Interpro.label).paginate(page=page,
+                                                                        per_page=g.page_items,
+                                                                        error_out=False).items
 
     return render_template('pagination/interpro.html', interpro=interpro)
 
@@ -123,7 +123,9 @@ def clade_clusters(clade_id, page=1):
     """
     current_clade = Clade.query.get_or_404(clade_id)
     clusters = current_clade.enriched_clusters.\
-        order_by(ClusterCladeEnrichment.corrected_p_value.asc()).paginate(page, g.page_items, False).items
+        order_by(ClusterCladeEnrichment.corrected_p_value.asc()).paginate(page=page,
+                                                                          per_page=g.page_items,
+                                                                          error_out=False).items
 
     return render_template('pagination/clusters.html', clusters=clusters)
 
@@ -134,8 +136,8 @@ def clade_clusters(clade_id, page=1):
 def clade_associations(clade_id, page=1):
 
     current_clade = Clade.query.get_or_404(clade_id)
-    associations = current_clade.sequence_sequence_clade_associations.paginate(page,
-                                                                               g.page_items,
-                                                                               False).items
+    associations = current_clade.sequence_sequence_clade_associations.paginate(page=page,
+                                                                               per_page=g.page_items,
+                                                                               error_out=False).items
 
     return render_template('pagination/clade_relations.html', relations=associations)

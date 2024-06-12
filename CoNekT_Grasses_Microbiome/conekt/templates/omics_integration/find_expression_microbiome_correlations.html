@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if form %}
+        Search correlated Expression and Microbiome profiles
+    {% else %}
+        Profile correlation results
+    {% endif %}
+{% endblock %}
+
+{% block container %}
+<div class="top-pad">
+
+    {% if form %}
+    <ol class="breadcrumb">
+        <li><a href="{{ url_for('main.screen') }}">Home</a></li>
+        <li><a href="{{ url_for('main.features') }}">Tools</a></li>
+        <li class="active"><strong>Expression and Microbiome Profiles Correlations</strong></li>
+    </ol>
+    <h1>Profiles Correlations</h1>
+    <p>Using the form below correlations can be found in a study of interaction between host expression and microbiome.</p>
+        <div class="row">
+            <div class="col-md-6 col-md-offset-1 col-xs-8">
+                <div class="panel panel-primary">
+                    <div class="panel-heading"><strong>Search options</strong></div>
+                    <div class="panel-body">
+                        <form method="POST"  action="{{ url_for('search.search_correlated_profiles') }}"  role="form">
+                            {{ form.csrf_token }}
+                            <label>Species</label>
+                            {{form.species_id(class_="form-control")}}<br/>
+                            <label>Study</label>
+                            {{form.study_id(class_="form-control")}}<br/>
+                            <label>Method</label>
+                            {{form.method_id(class_="form-control")}}<br/>
+                            <label><abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">Correlation</abbr> cutoff :</label>
+                            {{form.cutoff(class_="form-control", **{'data-provide':"slider",
+                                                                    'data-slider-id':"cutoffSlider",
+                                                                    'data-slider-min':"0.5",
+                                                                    'data-slider-max':"1",
+                                                                    'data-slider-step': "0.01",
+                                                                    'data-slider-value': "0.85"})}}<br/>
+                            <button type="submit" id="show_button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#loaderModal">Show correlations</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-xs-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading"><strong>Help</strong></div>
+                    <div class="panel-body">
+                        <ul>
+                            <li>Select the <strong>species</strong> first. This will enable a list of studies for this species in next selector.</li>
+                            <li>Next select a <strong>study</strong>. Note that studies are formed by combinations of runs from different literature sources.</li>
+                            <li>Next select a <strong>method</strong>. Methods can be Pearson or Spearman, to correlate microbiome and transcriptome profiles in a study.</li>
+                            <li>Set the <abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">Correlation</abbr> cutoff (recommended setting: 0.5). Higher values are stronger correlations, lower ones are weaker</li>
+                            <li>Click <strong>Show profile pairs</strong> <span class="text-muted"> When updating the slider a number will appear in the button indicating how many pairs there will be in the results</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% elif results %}
+    <ol class="breadcrumb">
+        <li><a href="{{ url_for('main.screen') }}">Home</a></li>
+        <li><a href="{{ url_for('main.features') }}">Tools</a></li>
+        <li>Correlated Profiles</li>
+    </ol>
+    <h1>Correlated profiles for study {{ study.name }} ({{ species.name }})</h1>
+
+    <div class="row">
+        <div class="col-lg-12">
+        <table class="table table-striped" id="results_table">
+            <thead>
+            <tr>
+                <th data-sort="string-ins"><span class="sort-icon"></span>Host transcript</th>
+                <th data-sort="string-ins"><span class="sort-icon"></span>OTU/ASV</th>
+                <th data-sort="string-ins"><span class="sort-icon"></span>Correlation method</th>
+                <th data-sort="float"><span class="sort-icon"></span><abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">P-value</abbr></th>
+                <th data-sort="float"><span class="sort-icon"></span><abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">Q-value</abbr></th>
+                <th data-sort="float"><span class="sort-icon"></span><abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">Pearson</abbr> correlation coefficient</th>
+                <th>Info</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for r in results %}
+
+                <tr>
+                    <td>{{ r.expression_profile_id }} (<a href="#">view profile</a>)</td>
+                    <td>{{ r.metatax_profile_id }} (<a href="#">view profile</a>)</td>
+                    <td>{{ r.cor_method }}</td>
+                    <td>{{ r.corr_coef }}</td>
+                    <td>{{ r.pvalue }}</td>
+                    <td>{{ r.qvalue }}</td>
+                    <td></td>
+                </tr>
+
+            {% endfor %}
+            </tbody>
+        </table>
+        <a id="DownloadTable" href="#" class="btn btn-primary">Download table</a><br /><br />
+        </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script src="{{ url_for('static', filename='js/bootstrap-slider.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/table2CSV.js') }}" > </script>
+{% if form %}
+<script>
+
+    cutoff_slider = $('#cutoff').slider({
+        formatter: function(value) {
+            return 'Cutoff: ' + value;
+        }
+    }).on("slideStop", function(ev) {
+            update_count(ev.value);
+    });
+    
+</script>
+{% endif %}
+<script>
+    let species_select = document.getElementById('species_id');
+    let study_select = document.getElementById('study_id');
+    let method_select = document.getElementById('method_id');
+    
+    species_select.onchange = function() {
+        species_id = species_select.value;
+        
+        fetch("{{ url_for('study.get_species_studies', species_id='species_id', study_type='expression_metataxonomics') }}".replace('species_id', species_id)).then(function(response) {
+            response.json().then(function(data) {
+                
+                let optionHTML = '';
+                
+                optionHTML += '<option value="' + 0 + '">' + 'Select Study first' + '</option>';
+
+                for (let study of data.studies) {
+                    optionHTML += '<option value="' + study.id + '">' + study.name + '</option>';
+                }
+    
+                study_select.innerHTML = optionHTML;
+    
+            })
+        })
+    }
+
+    study_select.onchange = function() {
+        study_id = study_select.value;
+        
+        fetch("{{ url_for('profile_correlations.get_study_cor_methods', study_id='study_id', study_type='expression_metataxonomics') }}".replace('study_id', study_id)).then(function(response) {
+            response.json().then(function(data) {
+                
+                let optionHTML = '';
+                
+                for (let method of data.methods) {
+                    optionHTML += '<option value="' + method.id + '">' + method.method_tool + '</option>';
+                }
+    
+                method_select.innerHTML = optionHTML;
+    
+            })
+        })
+    }
+</script>
+{% endblock %}

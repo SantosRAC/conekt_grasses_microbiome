@@ -63,9 +63,9 @@ def cazyme_sequences(cazyme_id, page=1):
     :param page: Page number
     """
     sequences = CAZYme.query.get(cazyme_id).sequences.\
-        group_by(Sequence.id).paginate(page,
-                                       g.page_items,
-                                       False).items
+        group_by(Sequence.id).paginate(page=page,
+                                       per_page=g.page_items,
+                                       error_out=False).items
 
     return render_template('pagination/sequences.html', sequences=sequences)
 

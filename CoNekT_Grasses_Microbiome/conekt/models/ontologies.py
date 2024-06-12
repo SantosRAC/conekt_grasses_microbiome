@@ -110,7 +110,7 @@ class PlantExperimentalConditionsOntology(db.Model):
             for line in fin:
                 if line.startswith('PECO:'):
                     parts = line.strip().split('\t')
-                    if len(parts) == 5:
+                    if len(parts) == 3:
                         peco_id, peco_name, peco_defn = parts[0], parts[1], parts[2]
                         print("'",peco_id,"'")
                         peco = PlantExperimentalConditionsOntology(peco_term=peco_id, peco_class=peco_name, peco_annotation=peco_defn)

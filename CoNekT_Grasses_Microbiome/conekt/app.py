@@ -102,8 +102,8 @@ def configure_blueprints(app):
     from conekt.controllers.expression_cluster import expression_cluster
     from conekt.controllers.expression_profile import expression_profile
     from conekt.controllers.expression_network import expression_network
-    # from conekt.controllers.search import search
-    # TODO: add search to configure_blueprints after Solr is up and running
+    from conekt.controllers.search import search
+    # TODO: Configure Solr to replace Whoosh !
     from conekt.controllers.help import help
     from conekt.controllers.heatmap import heatmap
     from conekt.controllers.profile_comparison import profile_comparison
@@ -116,6 +116,10 @@ def configure_blueprints(app):
     from conekt.controllers.tree import tree
     from conekt.controllers.study import study
     from conekt.controllers.microbiome.asvs_profile import asvs_profile
+    from conekt.controllers.microbiome.otu_profiles import otus_profile
+    from conekt.controllers.microbiome.otus import otu
+    from conekt.controllers.omics_integration.profile_correlations import profile_correlations
+    from conekt.controllers.literature import literature
 
     LOGIN_ENABLED = app.config['LOGIN_ENABLED']
     BLAST_ENABLED = app.config['BLAST_ENABLED']
@@ -141,7 +145,7 @@ def configure_blueprints(app):
     app.register_blueprint(expression_cluster, url_prefix='/cluster')
     app.register_blueprint(expression_profile, url_prefix='/profile')
     app.register_blueprint(expression_network, url_prefix='/network')
-    #app.register_blueprint(search, url_prefix='/search')
+    app.register_blueprint(search, url_prefix='/search')
     # TODO: add URL after configuring Solr as the main search engine
     app.register_blueprint(help, url_prefix='/help')
     app.register_blueprint(heatmap, url_prefix='/heatmap')
@@ -152,7 +156,11 @@ def configure_blueprints(app):
     app.register_blueprint(ecc, url_prefix='/ecc')
     app.register_blueprint(specificity_comparison, url_prefix='/specificity_comparison')
     app.register_blueprint(tree, url_prefix='/tree')
+    app.register_blueprint(otu, url_prefix='/otu')
     app.register_blueprint(asvs_profile, url_prefix='/asvs_profile')
+    app.register_blueprint(otus_profile, url_prefix='/otus_profile')
+    app.register_blueprint(profile_correlations, url_prefix='/profile_correlations')
+    app.register_blueprint(literature, url_prefix='/literature')
 
 
 def configure_admin_panel(app):
@@ -197,7 +205,9 @@ def configure_admin_panel(app):
         from conekt.controllers.admin.views.trees import ReconcileTreesView
         from conekt.controllers.admin.views.ontology import AddOntologyView
         from conekt.controllers.admin.views.asvs import AddASVSView
+        from conekt.controllers.admin.views.otus import AddOTUSView
         from conekt.controllers.admin.views.study import BuildStudyView
+        from conekt.controllers.admin.views.omics_integration.expression_microbiome_correlations import BuildCorrelationsView
 
         from conekt.models.users import User
         from conekt.models.species import Species
@@ -293,6 +303,9 @@ def configure_admin_panel(app):
         admin.add_view(AddASVSView(name='ASVs',
                                                  endpoint='admin_add_asvs',
                                                  url='add/asvs/', category='Add Microbiome Data'))
+        admin.add_view(AddOTUSView(name='OTUs',
+                                                 endpoint='admin_add_otus',
+                                                 url='add/otus/', category='Add Microbiome Data'))
 
         # Build Menu
         admin.add_view(BuildStudyView(name='Study',
@@ -332,6 +345,10 @@ def configure_admin_panel(app):
         admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Build')
         admin.add_view(PredictGOView(name='Predict GO from neighborhood', endpoint='admin_predict_go',
                                      url='predict/go', category='Build'))
+        admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Build')
+        admin.add_menu_item(MenuLink("Integration of RNAseq and Metataxonomics", class_name="disabled", url="#"), target_category='Build')
+        admin.add_view(BuildCorrelationsView(name='Build RNAseq - Metataxonomics Profile Correlations', endpoint='admin_build_rnametataxcor',
+                                     url='build/exp_metatax_correlations', category='Build'))
 
         # Control panel
         admin.add_view(ControlsView(name='Controls', url='controls/'))

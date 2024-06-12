@@ -64,7 +64,7 @@ def interpro_sequences(interpro_id, page=1):
     """
     sequences = Interpro.query.get(interpro_id).sequences.group_by(Sequence.id)\
         .options(joinedload('species'))\
-        .paginate(page, g.page_items, False).items
+        .paginate(page=page, per_page=g.page_items, error_out=False).items
 
     return render_template('pagination/sequences.html', sequences=sequences)
 

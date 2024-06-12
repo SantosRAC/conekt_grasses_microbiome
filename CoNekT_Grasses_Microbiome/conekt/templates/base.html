@@ -49,28 +49,16 @@
                 <div id="navbar" class="navbar-collapse collapse">
                     <ul class="nav navbar-nav navbar-left">
                         <li><a href="{{ url_for('species.species_overview') }}">Species</a></li>
-                        <li>
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Expression Tools <span class="caret"></span></a>
-                            <ul class="dropdown-menu">
-                                <li class="dropdown-header">Expression Profiles</li>
-                                <li><a href="{{ url_for('profile_comparison.profile_comparison_main') }}">Compare profiles</a></li>
-                                <li><a href="{{ url_for('heatmap.heatmap_main') }}">Create heatmap</a></li>
-                                <li><a href="{{url_for('expression_profile.export_expression_levels')}}">Export expression levels</a></li>
-                                <li class="divider"></li>
-                                <li class="dropdown-header">Expression Specificity</li>
-                                <li><a href="{{ url_for('specificity_comparison.specificity_comparison_main') }}">Compare specificities</a></li>
-                                <li class="divider"></li>
-                                <li class="dropdown-header">Co-expression Networks</li>
-                                <li><a href="{{ url_for('custom_network.custom_network_main') }}">Create custom network</a></li>
-
-                            </ul>
-                        </li>
+                        <li><a href="{{ url_for('study.studies_overview') }}">Studies</a></li>
                         <li>
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Microbiome Tools <span class="caret"></span></a>
                             <ul class="dropdown-menu">
-                                <li class="dropdown-header">Amplicon Sequence Variant Profiles</li>
+                                <li class="dropdown-header">Amplicon Sequence Variant (ASV) Profiles</li>
                                 <li><a href="{{ url_for('asvs_profile.asvs_profile_compare') }}">Compare ASV profiles</a></li>
                                 <li><a href="#">Export ASVs</a></li>
+                                <li class="dropdown-header">Operational Taxonomic Unit (OTU) Profiles</li>
+                                <li><a href="#">Compare OTU profiles</a></li>
+                                <li><a href="#">Export OTUs</a></li>
                             </ul>
                         </li>
                         <li>
@@ -78,6 +66,7 @@
                             <ul class="dropdown-menu">
                                 <li class="dropdown-header">Analyze Correlations</li>
                                 <li><a href="#">ASVs versus Transcript Expression</a></li>
+                                <li><a href="{{ url_for('search.search_correlated_profiles') }}">OTUs versus Transcript Expression</a></li>
                                 <li><a href="#">Export Correlations</a></li>
                             </ul>
                         </li>

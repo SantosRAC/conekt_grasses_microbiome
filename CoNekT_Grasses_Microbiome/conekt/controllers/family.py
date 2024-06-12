@@ -58,9 +58,9 @@ def family_sequences(family_id, page=1):
     :param page: Page number
     """
     sequences = GeneFamily.query.get(family_id).sequences.options(joinedload('species')).\
-        order_by(Sequence.name).paginate(page,
-                                         g.page_items,
-                                         False).items
+        order_by(Sequence.name).paginate(page=page,
+                                         per_page=g.page_items,
+                                         error_out=False).items
 
     return render_template('pagination/sequences.html', sequences=sequences)
 

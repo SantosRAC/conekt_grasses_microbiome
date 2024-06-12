@@ -11,4 +11,4 @@ class AddSamplesForm(FlaskForm):
     samples_file = FileField()
 
     def populate_species(self):
-        self.species_id.choices = [(s.id, s.name) for s in Species.query.order_by(Species.name)]
+        self.species_id.choices = [(0, 'Select Species')] + [(s.id, s.name) for s in Species.query.order_by(Species.name)]
