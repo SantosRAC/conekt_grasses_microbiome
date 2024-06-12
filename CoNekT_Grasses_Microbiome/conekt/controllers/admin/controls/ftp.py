@@ -6,7 +6,7 @@ from werkzeug.utils import redirect
 
 from conekt.controllers.admin.controls import admin_controls
 from conekt.ftp import export_coding_sequences, export_protein_sequences, export_go_annotation, \
-    export_interpro_annotation, export_families, export_coexpression_clusters, export_expression_networks
+    export_interpro_annotation, export_families
 
 
 @admin_controls.route('/export_ftp')
@@ -27,8 +27,6 @@ def export_ftp():
     export_interpro_annotation(ANNOTATION_PATH)
 
     export_families(FAMILIES_PATH)
-    export_coexpression_clusters(EXPRESSION_PATH)
-    export_expression_networks(EXPRESSION_PATH)
 
     flash('Successfully exported data to FTP folder', 'success')
     return redirect(url_for('controlsview.index'))

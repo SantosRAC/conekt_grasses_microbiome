@@ -10,11 +10,9 @@ from werkzeug.utils import redirect
 
 from conekt.controllers.admin.controls import admin_controls
 from conekt.forms.admin.add_go_interpro import AddFunctionalDataForm
-from conekt.forms.admin.predict_go import PredictGOForm
 from conekt.forms.admin.add_go_sequences import AddGOForm
 from conekt.forms.admin.add_interpro_sequences import AddInterProForm
 from conekt.forms.admin.add_cazyme_sequences import AddCAZYmeForm
-from conekt.models.expression.coexpression_clusters import CoexpressionCluster
 from conekt.models.go import GO
 from conekt.models.interpro import Interpro
 from conekt.models.cazyme import CAZYme
@@ -206,25 +204,6 @@ def delete_enrichment():
     flash('Successfully removed GO enrichment for co-expression clusters', 'success')
     return redirect(url_for('controlsview.index'))
 
-
-@admin_controls.route('/network_predict', methods=['POST'])
-@admin_required
-def predict_from_network():
-    form = PredictGOForm(request.form)
-    form.populate_networks()
-
-    if request.method == 'POST':
-        network_method_id = int(request.form.get('network_id'))
-        description = request.form.get('description')
-        p_cutoff = float(request.form.get('p_cutoff'))
-        try:
-            GO.predict_from_network_enrichment(network_method_id, cutoff=p_cutoff, source=description)
-            flash('Predicted GO terms from network %d' % network_method_id, 'success')
-        except Exception as e:
-            print(e)
-            flash('Failed to predicted GO terms from network %d' % network_method_id, 'danger')
-
-    return redirect(url_for('admin.index'))
 
 @admin_controls.route('/add/cazyme', methods=['POST'])
 @admin_required
