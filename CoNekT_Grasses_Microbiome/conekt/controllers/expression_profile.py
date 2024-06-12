@@ -10,7 +10,6 @@ import os
 
 from conekt import cache
 from conekt.helpers.chartjs import prepare_expression_profile, prepare_profile_comparison
-from conekt.models.expression.cross_species_profile import CrossSpeciesExpressionProfile
 from conekt.models.expression.profiles import ExpressionProfile
 from conekt.forms.export_condition import ExportConditionForm
 

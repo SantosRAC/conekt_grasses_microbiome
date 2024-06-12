@@ -103,7 +103,6 @@ def configure_blueprints(app):
     from conekt.controllers.search import search
     # TODO: Configure Solr to replace Whoosh !
     from conekt.controllers.help import help
-    from conekt.controllers.heatmap import heatmap
     from conekt.controllers.clade import clade
     from conekt.controllers.admin.controls import admin_controls
     from conekt.controllers.tree import tree
@@ -140,7 +139,6 @@ def configure_blueprints(app):
     app.register_blueprint(search, url_prefix='/search')
     # TODO: add URL after configuring Solr as the main search engine
     app.register_blueprint(help, url_prefix='/help')
-    app.register_blueprint(heatmap, url_prefix='/heatmap')
     app.register_blueprint(profile_comparison, url_prefix='/profile_comparison')
     app.register_blueprint(clade, url_prefix='/clade')
     app.register_blueprint(tree, url_prefix='/tree')
@@ -163,8 +161,6 @@ def configure_admin_panel(app):
         from conekt.controllers.admin.views.functional_data import AddGOView
         from conekt.controllers.admin.views.functional_data import AddCAZYmeView
         from conekt.controllers.admin.views.functional_data import AddFunctionalDataView
-        from conekt.controllers.admin.views.functional_data import GOEnrichmentView
-        from conekt.controllers.admin.views.functional_data import PredictGOView
         from conekt.controllers.admin.views.taxonomy import AddTaxonomyView
         from conekt.controllers.admin.views.families import AddFamiliesView, AddFamilyAnnotationView
         from conekt.controllers.admin.views.families import GeneFamilyMethodAdminView
@@ -289,9 +285,6 @@ def configure_admin_panel(app):
         admin.add_view(ReconcileTreesView(name='Reconcile Trees', endpoint='admin_reconcile_trees',
                                           url='build/reconciled_trees', category='Build'))
 
-        admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Build')
-        admin.add_view(PredictGOView(name='Predict GO from neighborhood', endpoint='admin_predict_go',
-                                     url='predict/go', category='Build'))
         admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Build')
         admin.add_menu_item(MenuLink("Integration of RNAseq and Metataxonomics", class_name="disabled", url="#"), target_category='Build')
         admin.add_view(BuildCorrelationsView(name='Build RNAseq - Metataxonomics Profile Correlations', endpoint='admin_build_rnametataxcor',
