@@ -9,7 +9,6 @@ class SearchCorrelatedProfilesForm(FlaskForm):
     species_id = SelectField('Species', coerce=int)
     study_id = SelectField('Study', coerce=int)
     method_id = SelectField('Method', coerce=int)
-    #TODO: when a method is selected, show the correlation method options ?
     cutoff = TextAreaField('Correlation Coefficient Cutoff', validators=[InputRequired()])
 
     def populate_form(self):
