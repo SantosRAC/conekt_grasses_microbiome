@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    CoNekT - Features
+    CoNekT Grasses Microbiome - Features
 {% endblock %}
 
 {% block container %}
@@ -10,11 +10,11 @@
         <li><a href="{{ url_for('main.screen') }}">Home</a></li>
         <li class="active"><strong>Features</strong></li>
     </ol>
-    <h1>CoNekT Features</h1>
+    <h1>CoNekT Grasses Microbiome Features</h1>
 
     <h3 class="banner-green" >Search</h3>
 
-    <p>CoNekT comes packed with functions to quickly find relevant data. A general keyword search is available on
+    <p>CoNekT Grasses Microbiome comes packed with functions to quickly find relevant data. A general keyword search is available on
     each page (search box top right corner), though for more complex searches users have the tools below at their
     disposal.</p>
 
@@ -34,17 +34,9 @@
         {% endif %}
         <div class="col-lg-3 col-md-3 col-sm-6 col-xs-6" >
             <div class="panel panel-default panel-card">
-            <div class="panel-heading">Enriched clusters</div>
+            <div class="panel-heading">Correlated profiles</div>
             <div class="panel-body">
-                <p>Find <strong>clusters</strong> enriched for a selected GO-term</p>
-            </div>
-        </div>
-        </div>
-        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-6" >
-            <div class="panel panel-default panel-card">
-            <div class="panel-heading">Specific profiles</div>
-            <div class="panel-body">
-                <p>Find <strong>sequences</strong> which are expressed specifically in certain conditions or tissues</p>
+                <p>Find <strong>correlated</strong> profiles for microbiome and expression data for a selected study</p>
             </div>
         </div>
         </div>
@@ -67,41 +59,6 @@
             </div>
         </div>
 
-        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-6 panel-card" >
-            <div class="panel panel-default">
-                <div class="panel-heading">Conserved specificity</div>
-                <a href="{{ url_for('specificity_comparison.specificity_comparison_main') }}">
-                    <img class="img-responsive img-card" src="{{ url_for('static', filename='img/cards/specificity.png') }}" />
-                </a>
-                <div class="panel-body">
-                    <p><strong>Compare genes specifically expressed</strong> in a certain conditions in two species</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-6 panel-card" >
-            <div class="panel panel-default">
-                <div class="panel-heading">Custom network</div>
-                <a href="{{ url_for('custom_network.custom_network_main') }}">
-                    <img class="img-responsive img-card" src="{{ url_for('static', filename='img/cards/network.png') }}" />
-                </a>
-                <div class="panel-body">
-                    <p><strong>Show co-expression network</strong> only taking a custom set of genes into account</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-6 panel-card" >
-            <div class="panel panel-default">
-                <div class="panel-heading">Heatmap</div>
-                <a href="{{ url_for('heatmap.heatmap_main') }}">
-                    <img class="img-responsive img-card" src="{{ url_for('static', filename='img/cards/heatmap.png') }}" />
-                </a>
-                <div class="panel-body">
-                    <p>Allows users to <strong>compare the expression profiles</strong> from a custom set of genes in a heatmap</p>
-                </div>
-            </div>
-        </div>
     </div>
 
 </div>

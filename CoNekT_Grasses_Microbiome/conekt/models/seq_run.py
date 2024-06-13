@@ -59,8 +59,8 @@ class SeqRun(db.Model):
                     run_name = parts[0]
                     sample_name = parts[1]
                     doi = parts[2]
-                    seq_layout = parts[3]
-                    seq_strandness = parts[4]
+                    seq_strandness = parts[3]
+                    seq_layout = parts[4]
                     seq_platform = parts[5]
 
                     sample = Sample.query.filter_by(name=sample_name).\

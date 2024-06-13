@@ -1,0 +1,10 @@
+SampleID	DOI	ConditionDescription	Replicate	PO_anatomy	PO_dev_stage	PECO	ENVO	Collection_Date	Genotype	Additional_Info
+spl00017	10.1038/nature25966	testing purposes, run id 14A0247_8	1	PO:0025034			ENVO:00000078	Aug-8-2014	Va22	random group 1
+spl00018	10.1038/nature25966	testing purposes, run id 14A0051_8	1	PO:0025034			ENVO:00000078	Aug-8-2014	SD44	random group 2
+spl00019	10.1038/nature25966	testing purposes, run id 14A0381_26	1	PO:0025034			ENVO:00000078	Aug-26-2014	B73	random group 3
+spl00020	10.1038/nature25966	testing purposes, run id 14A0533_26	1	PO:0025034			ENVO:00000078	Aug-26-2014	CML228	random group 1
+spl00021	10.1038/nature25966	testing purposes, run id 14A0281_8	1	PO:0025034			ENVO:00000078	Aug-8-2014	B68	random group 2
+spl00022	10.1038/nature25966	testing purposes, run id 14A0295_8	1	PO:0025034			ENVO:00000078	Aug-8-2014	NC358	random group 3
+spl00023	10.1038/nature25966	testing purposes, run id 14A0169_26	1	PO:0025034			ENVO:00000078	Aug-26-2014	CML 10	random group 1
+spl00024	10.1038/nature25966	testing purposes, run id 14A0069_8	1	PO:0025034			ENVO:00000078	Aug-8-2014	W153R	random group 3
+spl00025	10.1038/nature25966	testing purposes, run id 14A0497_26	1	PO:0025034			ENVO:00000078	Aug-26-2014	CML 38	random group 2

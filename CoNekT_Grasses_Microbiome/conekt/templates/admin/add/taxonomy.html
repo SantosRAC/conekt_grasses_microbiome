@@ -16,10 +16,18 @@
 
             <br />
             <div class="form-group">
-                <p>Add txt file containing NCBI Taxonomy information.</p>
-                <label class="btn btn-default" for="ncbi_taxonomy_file" id="my-file-button-ncbi-taxonomy">
-                    {{ form.ncbi_taxonomy_file(style="display:none;", onchange="")}}
-                    <span id="file-selector-text-ncbi-taxonomy">Select NCBI Taxonomy File</span>
+                <p>Add NCBI Taxonomy nodes file.</p>
+                <label class="btn btn-default" for="ncbi_taxonomy_nodes_file" id="my-file-button-ncbi-taxonomy-nodes">
+                    {{ form.ncbi_taxonomy_nodes_file(style="display:none;", onchange="")}}
+                    <span id="file-selector-text-ncbi-taxonomy-nodes">Select NCBI Taxonomy Nodes File</span>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <p>Add NCBI Taxonomy names file.</p>
+                <label class="btn btn-default" for="ncbi_taxonomy_names_file" id="my-file-button-ncbi-taxonomy-names">
+                    {{ form.ncbi_taxonomy_names_file(style="display:none;", onchange="")}}
+                    <span id="file-selector-text-ncbi-taxonomy-names">Select NCBI Taxonomy Names File</span>
                 </label>
             </div>
 
@@ -30,10 +38,26 @@
 
             <br />
             <div class="form-group">
-                <p>Add txt file containing SILVA Taxonomy information.</p>
+                <p>Add file containing SILVA Taxonomy information (e.g. tax_slv_ssu_138.1.txt).</p>
+                <p>File has five columns (path, taxid, rank, remark and release - only first three are used).</p>
                 <label class="btn btn-default" for="silva_taxonomy_file" id="my-file-button-silva-taxonomy">
                     {{ form.silva_taxonomy_file(style="display:none;", onchange="")}}
                     <span id="file-selector-text-silva-taxonomy">Select SILVA Taxonomy File</span>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>{{ form.gg_release.label }}</label>
+                {{form.gg_release(class_="form-control", placeholder="GreenGenes Release") }}
+            </div>
+
+            <br />
+            <div class="form-group">
+                <p>Add file containing GreenGenes Taxonomy information (e.g. gg_13_5_taxonomy.txt).</p>
+                <p>File has two columns (GG taxonomy id and GG taxonomy path).</p>
+                <label class="btn btn-default" for="gg_taxonomy_file" id="my-file-button-gg-taxonomy">
+                    {{ form.gg_taxonomy_file(style="display:none;", onchange="")}}
+                    <span id="file-selector-text-gg-taxonomy">Select GG Taxonomy File</span>
                 </label>
             </div>
 
@@ -59,14 +83,26 @@
 <script>
     
 $(function() {
-    $("#ncbi_taxonomy_file").change(function() {
-        $('#file-selector-text-ncbi-taxonomy').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#my-file-button-ncbi-taxonomy').toggleClass('btn-default btn-success');
+    $("#ncbi_taxonomy_nodes_file").change(function() {
+        $('#file-selector-text-ncbi-taxonomy-nodes').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#my-file-button-ncbi-taxonomy-nodes').toggleClass('btn-default btn-success');
+    });
+});
+
+$(function() {
+    $("#ncbi_taxonomy_names_file").change(function() {
+        $('#file-selector-text-ncbi-taxonomy-names').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#my-file-button-ncbi-taxonomy-names').toggleClass('btn-default btn-success');
     });
 });
 
 $(function() {
     $("#silva_taxonomy_file").change(function() {
         $('#file-selector-text-silva-taxonomy').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#my-file-button-silva-taxonomy').toggleClass('btn-default btn-success');
+    });
+});
+
+$(function() {
+    $("#gg_taxonomy_file").change(function() {
+        $('#file-selector-text-gg-taxonomy').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#my-file-button-gg-taxonomy').toggleClass('btn-default btn-success');
     });
 });
 

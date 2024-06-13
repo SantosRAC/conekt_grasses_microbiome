@@ -39,7 +39,7 @@ def tree_sequences(tree_id, page=1):
     """
     sequences = Tree.query.get(tree_id).sequences.group_by(Sequence.id)\
         .options(joinedload('species'))\
-        .paginate(page, g.page_items, False).items
+        .paginate(page=page, per_page=g.page_items, error_out=False).items
 
     return render_template('pagination/sequences.html', sequences=sequences)
 
@@ -64,7 +64,7 @@ def tree_sequences_table(tree_id):
 @cache.cached()
 def tree_associations(tree_id, page=1):
     relations = SequenceSequenceCladeAssociation.query.filter(SequenceSequenceCladeAssociation.tree_id == tree_id).\
-        paginate(page, g.page_items, False).items
+        paginate(page=page, per_page=g.page_items, error_out=False).items
 
     return render_template('pagination/clade_relations.html', relations=relations)
 

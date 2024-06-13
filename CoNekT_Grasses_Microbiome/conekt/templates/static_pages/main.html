@@ -2,6 +2,7 @@
 
 {% block title %}
     CoNekT PaGeD : Network Toolkit for Microbiome in Oil Supply Chain
+
 {% endblock %}
 
 {% block container %}
@@ -14,8 +15,13 @@
         <div class="col-lg-12">
 
             <div style="overflow:hidden">
+<<<<<<< HEAD
                 <img src="{{ url_for('static', filename='img/icon-192x192.jpg') }}" style="float:left;margin-right:25px;margin-top:0px;margin-bottom:20px" />
                 <div><h1>Welcome to <strong>P</strong>etroleum-<strong>A</strong>ssociated <strong>G</strong>enome <strong>D</strong>atabase.<br /> <small>A platform dedicated to the visualization and analysis of Oil & Gas associated microbiomes </small></h1>
+=======
+                <img src="{{ url_for('static', filename='img/conekt_grasses_microbiome_logo_0_25.png') }}" style="float:left;margin-right:25px;margin-top:-5px;margin-bottom:20px" />
+                </br><div><h1><b>CoNekT Grasses Microbiome</b> derived from <b><a href="https://conekt.sbs.ntu.edu.sg/">CoNeKT</a></b> and is dedicated to the visualization and analysis of microbiome and integration of microbiome and transcriptome for species in <b><a href="https://conekt.cena.usp.br">CoNeKT Grasses</a></b>.</h1>
+>>>>>>> main
                     {% if g.msg %}
                     <div><span class="global-message"><strong>{{ g.msg_title|safe }}: </strong>{{ g.msg|safe }}</span></div>
                     {% endif %}
@@ -56,7 +62,7 @@
                     <div class="row">
                         <div class="col-xs-2"><div style="margin-top:30px"><span style="color:#fff;font-size:36px;background-color:#337ab7;border-radius:4px;padding:10px"><i class="fa fa-search" ></i></span></div></div>
                         <div class="col-xs-10">
-                            <h3>Quickly retrieve genes</h3>
+                            <h3>Quickly retrieve genes and microbes</h3>
                         </div>
                     </div>
                 </div>
@@ -64,19 +70,13 @@
 
               <div class="item">
                 <div class="carousel-div">
-                    <h3>Expression profiles and expression specificity</h3>
+                    <h3>Microbiome data</h3>
                 </div>
               </div>
 
               <div class="item">
                 <div class="carousel-div">
-                    <h3>Co-expression networks</h3>
-                </div>
-              </div>
-
-              <div class="item">
-                <div class="carousel-div">
-                    <h3>Co-expression clusters</h3>
+                    <h3>Integration between microbiome and gene expression</h3>
                 </div>
               </div>
 
@@ -91,8 +91,8 @@
                 <div class="carousel-div">
                     <div class="col-xs-2"><div style="margin-top:30px"><span style="color:#fff;font-size:36px;background-color:#337ab7;border-radius:4px;padding:10px"><i class="fa fa-github"></i></span></div></div>
                     <div class="col-xs-10">
-                        <h3>CoNekT is open-source</h3>
-                        <p>Head to <a href="https://github.molgen.mpg.de/proost/CoNekT">GitHub</a> for a copy of the source if you want to host your own version with in-house data or other species!</p>
+                        <h3>CoNekT Grasses Microbiome is open-source</h3>
+                        <p>Head to <a href="https://github.com/SantosRAC/conekt_grasses_microbiome">GitHub</a> for a copy of the source if you want to host your own version with in-house data or other species!</p>
                     </div>
                 </div>
               </div>

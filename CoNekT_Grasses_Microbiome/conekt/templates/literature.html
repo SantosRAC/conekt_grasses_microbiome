@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if literature.qtd_author > 1 %}
+        {{ literature.author_names }} et al. ( {{ literature.public_year }} ) details
+    {% else %}
+        {{ literature.author_names }} ( {{ literature.public_year }} ) details
+    {% endif %}
+{% endblock %}
+
+{% block container %}
+{% import 'macros/pagination.html' as macro %}
+<div class="top-pad">
+
+    {% if literature %}
+        <ol class="breadcrumb">
+            <li><a href="{{ url_for('main.screen') }}">Home</a></li>
+            {% if literature.qtd_author > 1 %}
+                <li class="active"><strong><em>{{ literature.author_names }} et al. ( {{ literature.public_year }} )</em></strong></li>
+            {% else %}
+                <li class="active"><strong><em>{{ literature.author_names }} ( {{ literature.public_year }} )</em></strong></li>
+            {% endif %}
+
+        </ol>
+        <h1><strong><em>{{ literature.title }}</em></strong> <small><a href = "http://doi.org/{{ literature.doi }}">{{ literature.doi }}</a></small></h1>
+
+        <br />
+
+
+        {{ macro.pagination('Literature OTUs', url_for('literature.literature_otus', literature_id=literature.id), 0, none, 'literature') }}
+
+    {% endif %}
+</div>
+
+</div>
+{% endblock %}
+
+{% block extrajs %}
+
+{% endblock %}

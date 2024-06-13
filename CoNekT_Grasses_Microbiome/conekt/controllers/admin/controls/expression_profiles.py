@@ -25,6 +25,8 @@ def add_expression_profiles():
     if request.method == 'POST':
         species_id = int(request.form.get('species_id'))
 
+        normalization_method = request.form.get('normalization_method')
+
         matrix_file = request.files[form.matrix_file.name].read()
         annotation_file = request.files[form.annotation_file.name].read()
 
@@ -44,7 +46,7 @@ def add_expression_profiles():
                                   'rnaseq')
 
             ExpressionProfile.add_profile_from_lstrap(temp_matrix_path, temp_annotation_path,
-                                                          species_id)
+                                                          species_id, normalization_method)
 
             os.close(fd_annotation)
             os.remove(temp_annotation_path)
@@ -52,6 +54,7 @@ def add_expression_profiles():
             os.remove(temp_matrix_path)
 
             flash('Added expression profiles for species %d' % species_id, 'success')
+            flash('Added %d runs' % added_runs_count, 'success')
         else:
             flash('Empty file or no file provided, cannot add expression profiles for species', 'warning')
         return redirect(url_for('admin.index'))
