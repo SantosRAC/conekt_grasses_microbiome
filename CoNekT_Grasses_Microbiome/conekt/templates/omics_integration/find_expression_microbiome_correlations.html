@@ -75,10 +75,9 @@
                 <th data-sort="string-ins"><span class="sort-icon"></span>Host transcript</th>
                 <th data-sort="string-ins"><span class="sort-icon"></span>OTU/ASV</th>
                 <th data-sort="string-ins"><span class="sort-icon"></span>Correlation method</th>
+                <th data-sort="float"><span class="sort-icon"></span>Correlation coefficient</th>
                 <th data-sort="float"><span class="sort-icon"></span><abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">P-value</abbr></th>
                 <th data-sort="float"><span class="sort-icon"></span><abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">Q-value</abbr></th>
-                <th data-sort="float"><span class="sort-icon"></span><abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">Pearson</abbr> correlation coefficient</th>
-                <th>Info</th>
                 <th>Action</th>
             </tr>
             </thead>
@@ -88,7 +87,7 @@
                 <tr>
                     <td>{{ r.expression_profile_id }} (<a href="#">view profile</a>)</td>
                     <td>{{ r.metatax_profile_id }} (<a href="#">view profile</a>)</td>
-                    <td>{{ r.cor_method }}</td>
+                    <td>{{ correlation_method.stat_method }}</td>
                     <td>{{ r.corr_coef }}</td>
                     <td>{{ r.pvalue }}</td>
                     <td>{{ r.qvalue }}</td>
