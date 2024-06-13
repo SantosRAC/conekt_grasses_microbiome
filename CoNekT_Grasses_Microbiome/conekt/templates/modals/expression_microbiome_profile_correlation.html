@@ -1,0 +1,19 @@
+<div class="modal-header">
+    <h4 class="modal-title" id="myModalLabel">Expression profile for: <strong>{{ expression_profile.probe }}</strong> and <strong> {{ metatax_profile.probe }}</strong></h4>
+
+</div>
+<div class="modal-body" syle="width:400px">
+    <canvas id="profile_correlation_modal" class="center-block" width="800" height="600"/>
+</div>
+<div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+</div>
+<script>
+    $(document).ready(function () { 
+        $.getJSON( "{{ url_for('profile_correlations.profiles_scatter_modal_json', expression_profile_id=expression_profile.id, metatax_profile_id=metatax_profile.id) }}", function( data ) {
+        var ctx = document.getElementById("profile_correlation_modal");
+        var myChart = new Chart(ctx, data);
+        console.log(data);
+        });
+    });
+</script>
