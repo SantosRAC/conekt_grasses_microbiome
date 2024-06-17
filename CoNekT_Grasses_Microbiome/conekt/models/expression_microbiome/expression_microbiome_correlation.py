@@ -8,6 +8,7 @@ from conekt.models.studies import Study
 from conekt.models.relationships.study_sample import StudySampleAssociation
 from conekt.models.expression.profiles import ExpressionProfile
 from conekt.models.microbiome.otu_profiles import OTUProfile
+from conekt.models.sequences import Sequence
 
 from corals.threads import set_threads_for_external_libraries
 set_threads_for_external_libraries(n_threads=1)
@@ -26,6 +27,12 @@ class ExpMicroCorrelationMethod(db.Model):
     rnaseq_norm = db.Column(db.Enum('numreads', 'cpm', 'tpm', 'tmm', name='RNA-seq Normalization'), default='tpm')
     metatax_norm = db.Column(db.Enum('numreads', 'cpm', 'tpm', 'tmm', name='Metataxonomic Normalization'), default='numreads')
     study_id = db.Column(db.Integer, db.ForeignKey('studies.id', ondelete='CASCADE'), index=True)
+
+    exp_microbiome_correlations = db.relationship('ExpMicroCorrelation',
+                                    backref=db.backref('method', lazy='joined'),
+                                    lazy='dynamic',
+                                    cascade="all, delete-orphan",
+                                    passive_deletes=True)
 
     def __init__(self, description, tool_name, stat_method,
                  multiple_test_cor_method, rnaseq_norm,
@@ -154,4 +161,45 @@ class ExpMicroCorrelation(db.Model):
 
         # Return the calculated correlations
         return True
+
+    @staticmethod
+    def create_custom_network(cor_method_id, probes):
+        """
+        Return a network dict for a certain set of probes/sequences, for a certain study and method
+
+        :param method_id: network method to extract information from
+        :param probes: list of probe/sequence names
+        :return: network dict
+        """
+        nodes = []
+        edges = []
+
+        probes = Sequence.query.filter(Sequence.name.in_(probes)).all()
+
+        valid_nodes = []
+
+        for p in probes:
+            node = {"id": p.id,
+                    "name": p.name,
+                    "node_type": "gene",
+                    "depth": 0}
+
+            valid_nodes.append(p.name)
+            nodes.append(node)
+
+        existing_edges = []
+
+        for p in probes:
+            source = p.id
+            expression_microbiome_correlations = ExpMicroCorrelation.query.filter_by(exp_micro_correlation_method_id=cor_method_id).all()
+            for cor_result in expression_microbiome_correlations:
+                edges.append({"source": source,
+                                "target": cor_result.metatax_profile_id,
+                                "depth": 0,
+                                "link_pcc": cor_result.corr_coef,
+                                "edge_type": cor_result.method.stat_method})
+                existing_edges.append([source, cor_result.metatax_profile_id])
+                existing_edges.append([cor_result.metatax_profile_id, source])
+
+        return {"nodes": nodes, "edges": edges}
 

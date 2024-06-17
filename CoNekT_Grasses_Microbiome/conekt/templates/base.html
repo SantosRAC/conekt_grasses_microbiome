@@ -66,7 +66,7 @@
                             <ul class="dropdown-menu">
                                 <li class="dropdown-header">Analyze OTU Correlations</li>
                                 <li><a href="{{ url_for('search.search_correlated_profiles') }}">Find Correlations (OTUs vs. Expression)</a></li>
-                                <li><a href="#">Draw Network of Correlations (OTUs vs. Expression)</a></li>
+                                <li><a href="{{ url_for('custom_network.expression_microbiome_correlation') }}">Draw Network of Correlations (OTUs vs. Expression)</a></li>
                                 <li class="dropdown-header">Analyze ASV Correlations</li>
                                 <li><a href="#">Find Correlations (ASVs vs. Expression)</a></li>
                                 <li><a href="#">Draw Network of Correlations (ASVs vs. Expression)</a></li>

@@ -11,7 +11,7 @@ class CustomExpMicrobiomeNetworkForm(FlaskForm):
     method_id = SelectField('Method', coerce=int)
     probes = TextAreaField('probes', [InputRequired()])
 
-    def populate_form(self):
+    def populate_species(self):
         self.species_id.choices = [(0, 'Select Species first')] + [(s.id, s.name) for s in Species.query.order_by(Species.name)]
 
 

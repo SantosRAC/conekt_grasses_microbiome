@@ -1,8 +1,10 @@
 import json
 
 from flask import Blueprint, request, render_template, Response
+from markupsafe import Markup
 
 from conekt.forms.omics_integration.expression_microbiome_network import CustomExpMicrobiomeNetworkForm
+from conekt.models.expression_microbiome.expression_microbiome_correlation import ExpMicroCorrelation
 from conekt.helpers.cytoscape import CytoscapeHelper
 from conekt.models.sequences import Sequence
 
@@ -10,7 +12,7 @@ custom_network = Blueprint('custom_network', __name__)
 
 
 @custom_network.route('/', methods=['GET', 'POST'])
-def custom_network_main():
+def expression_microbiome_correlation():
     """
     Custom network tool, accepts a species, a study, a method and a list of probes and plots the network
     """
@@ -33,42 +35,18 @@ def custom_network_main():
         # make probe list unique
         probes = list(set(probes))
 
-        network_method = ExpressionNetworkMethod.query.get_or_404(method_id)
-        network = ExpressionNetwork.get_custom_network(method_id, probes)
+        network = ExpMicroCorrelation.create_custom_network(method_id, probes)
+
+        print(network)
+        exit(1)
 
         network_cytoscape = CytoscapeHelper.parse_network(network)
-        network_cytoscape = CytoscapeHelper.add_lc_data_nodes(network_cytoscape)
-        network_cytoscape = CytoscapeHelper.add_descriptions_nodes(network_cytoscape)
 
-        return render_template("expression_graph.html", graph_data=Markup(json.dumps(network_cytoscape)),
-                               cutoff=network_method.hrr_cutoff)
+        return render_template("omics_integration/expression_microbiome_graph.html")
+
     else:
-
-        example = {
-            'method_id': None,
-            'probes': None
-        }
-
-        data = ExpressionNetwork.query.order_by(ExpressionNetwork.method_id).limit(20).all()
-
-        probes = []
-
-        for d in data:
-            example['method_id'] = d.method_id
-
-            if d.probe not in probes:
-                probes.append(d.probe)
-
-            network = json.loads(d.network)
-            for n in network:
-                if "gene_name" in n and "gene_name" not in probes and len(probes) < 35:
-                    probes.append(n["gene_name"])
-
-            if len(probes) >= 35:
-                break
-        example['probes'] = ' '.join(probes)
-
-        return render_template("omics_integration/custom_expression_microbiome_network.html", form=form, example=example)
+        
+        return render_template("omics_integration/custom_expression_microbiome_network.html", form=form)
 
 
 @custom_network.route('/form_data')
