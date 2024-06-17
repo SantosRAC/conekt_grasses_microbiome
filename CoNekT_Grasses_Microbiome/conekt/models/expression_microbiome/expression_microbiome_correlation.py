@@ -174,27 +174,36 @@ class ExpMicroCorrelation(db.Model):
         nodes = []
         edges = []
 
-        probes = Sequence.query.filter(Sequence.name.in_(probes)).all()
+        sequences = Sequence.query.filter(Sequence.name.in_(probes)).filter_by(type='protein_coding').all()
 
         valid_nodes = []
 
-        for p in probes:
-            node = {"id": p.id,
-                    "name": p.name,
+        for s in sequences:
+            gene_node = {"id": s.id,
+                    "name": s.name,
                     "node_type": "gene",
                     "depth": 0}
 
-            valid_nodes.append(p.name)
-            nodes.append(node)
+            valid_nodes.append(s.name)
+            nodes.append(gene_node)
 
         existing_edges = []
 
-        for p in probes:
-            source = p.id
+        for s in sequences:
+            source = s.id
             expression_microbiome_correlations = ExpMicroCorrelation.query.filter_by(exp_micro_correlation_method_id=cor_method_id).all()
             for cor_result in expression_microbiome_correlations:
+                otu_profile = OTUProfile.query.filter_by(id=cor_result.metatax_profile_id).first()
+                if otu_profile.probe in valid_nodes:
+                    continue
+                otu_node = {"id": otu_profile.otu_id,
+                    "name": str(otu_profile.probe),
+                    "node_type": "otu",
+                    "depth": 0}
+                nodes.append(otu_node)
+                valid_nodes.append(str(otu_profile.probe))
                 edges.append({"source": source,
-                                "target": cor_result.metatax_profile_id,
+                                "target": otu_profile.otu_id,
                                 "depth": 0,
                                 "link_pcc": cor_result.corr_coef,
                                 "edge_type": cor_result.method.stat_method})

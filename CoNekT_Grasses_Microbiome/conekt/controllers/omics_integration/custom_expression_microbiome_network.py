@@ -26,23 +26,21 @@ def expression_microbiome_correlation():
         probes = terms
 
         # also do search by gene ID
-        sequences = Sequence.query.filter(Sequence.name.in_(terms)).all()
+        sequences = Sequence.query.filter(Sequence.name.in_(terms)).filter_by(type='protein_coding').all()
 
         for s in sequences:
-            for ep in s.expression_profiles:
-                probes.append(ep.probe)
+            probes.append(s.name)
 
         # make probe list unique
         probes = list(set(probes))
 
         network = ExpMicroCorrelation.create_custom_network(method_id, probes)
 
-        print(network)
-        exit(1)
-
         network_cytoscape = CytoscapeHelper.parse_network(network)
 
-        return render_template("omics_integration/expression_microbiome_graph.html")
+
+        return render_template("omics_integration/expression_microbiome_graph.html",
+                               graph_data=Markup(json.dumps(network_cytoscape)))
 
     else:
         

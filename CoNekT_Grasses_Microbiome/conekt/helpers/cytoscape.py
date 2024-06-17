@@ -33,11 +33,11 @@ class CytoscapeHelper:
         # add basic colors and shapes to nodes and url to gene pages
 
         for n in output["nodes"]:
-            if n["data"]["gene_id"] is not None:
-                n["data"]["gene_link"] = url_for("sequence.sequence_view", sequence_id=n["data"]["gene_id"])
-
-            if n["data"]["id"] != n["data"]["gene_name"]:
-                n["data"]["profile_link"] = url_for("expression_profile.expression_profile_find", probe=n["data"]["id"])
+            if n["data"]["id"] is not None and n["data"]["node_type"] == "gene":
+                n["data"]["gene_link"] = url_for("sequence.sequence_view", sequence_id=n["data"]["id"])
+            
+            if n["data"]["id"] is not None and n["data"]["node_type"] == "otu":
+                n["data"]["gene_link"] = url_for("otu.otu_view", otu_id=n["data"]["id"])
 
             n["data"]["color"] = "#CCC"
             n["data"]["shape"] = "ellipse"
