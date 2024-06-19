@@ -1,6 +1,5 @@
 from conekt import db
 from conekt.models.sequences import Sequence
-from conekt.models.condition_tissue import ConditionTissue
 from conekt.models.sample import Sample
 from conekt.models.seq_run import SeqRun
 from conekt.models.ontologies import PlantOntology, PlantExperimentalConditionsOntology
@@ -26,11 +25,6 @@ class ExpressionProfile(db.Model):
     sequence_id = db.Column(db.Integer, db.ForeignKey('sequences.id', ondelete='CASCADE'), index=True)
     profile = db.deferred(db.Column(db.Text))
 
-    specificities = db.relationship('ExpressionSpecificity',
-                                    backref=db.backref('profile', lazy='joined'),
-                                    lazy='dynamic',
-                                    cascade="all, delete-orphan",
-                                    passive_deletes=True)
 
     def __init__(self, species_id, probe, sequence_id, profile, normalization_method='tpm'):
         self.species_id = species_id
@@ -154,23 +148,6 @@ class ExpressionProfile(db.Model):
                 'colors': condition_to_tissue['colors'],
                 'data': output}
 
-    def tissue_profile(self, condition_tissue_id, use_means=True):
-        """
-        Applies a conversion to the profile, grouping several condition into one more general feature (e.g. tissue).
-
-        :param condition_tissue_id: identifier of the conversion table
-        :param use_means: store the mean of the condition rather than individual values. The matches the spm
-        calculations better.
-        :return: parsed profile
-        """
-        ct = ConditionTissue.query.get(condition_tissue_id)
-
-        condition_to_tissue = json.loads(ct.data)
-        profile_data = json.loads(self.profile)
-
-        output = ExpressionProfile.convert_profile(condition_to_tissue, profile_data, use_means=use_means)
-
-        return output
 
     @staticmethod
     def get_heatmap(species_id, probes, zlog=True, raw=False):

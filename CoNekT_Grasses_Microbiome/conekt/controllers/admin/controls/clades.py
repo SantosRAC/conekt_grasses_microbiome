@@ -8,7 +8,6 @@ from werkzeug.utils import redirect
 from conekt.controllers.admin.controls import admin_controls
 from conekt.forms.admin.add_clades import AddCladesForm
 from conekt.models.clades import Clade
-from conekt.models.expression.coexpression_clusters import CoexpressionCluster
 
 
 @admin_controls.route('/update/clades')

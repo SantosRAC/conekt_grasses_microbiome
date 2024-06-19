@@ -473,6 +473,54 @@ def prepare_doughnut(counts):
 
     return output
 
+
+def prepare_profiles_scatterplot(exp_profile, metatax_profile):
+    """
+    Prepare a scatterplot with two profiles
+
+    :param profile_1: first profile (expression profile)
+    :param profile_2: second profile (metatax profile)
+
+    """
+
+    exp_profile_p = json.loads(exp_profile.profile)
+    metatax_profile_p = json.loads(metatax_profile.profile)
+
+    common_sample_ids = set(exp_profile_p['data']['sample_id'].values()).intersection(set(metatax_profile_p['data']['sample_id'].values()))
+
+    profile_points = []
+
+    for sample_id in common_sample_ids:
+        exp_run = [key for key, value in exp_profile_p['data']['sample_id'].items() if value == sample_id][0]
+        metatax_run = [key for key, value in metatax_profile_p['data']['sample_id'].items() if value == sample_id][0]
+        profile_points.append({
+            'x': exp_profile_p['data']['exp_value'][exp_run],
+            'y': metatax_profile_p['data']['count'][metatax_run]
+        })
+
+    datasets = [{'label': 'Scatterplot of Profiles',
+            'backgroundColor': 'rgb(255, 99, 132)',
+            'data': profile_points}]
+
+    output = {
+        'type': 'scatter',
+        'data': {
+            'datasets': datasets
+        },
+        'options': {
+            'scales': {
+                'xAxes': [{
+                    'type': 'linear',
+                    'position': 'bottom'
+                }]
+            }
+        }
+
+    }
+
+    return output
+
+
 def prepare_asv_profiles(profiles, xlabel='', ylabel=''):
     """
     Function to convert a list of ASV Profiles to a dict compatible with chart.js

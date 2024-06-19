@@ -75,10 +75,9 @@
                 <th data-sort="string-ins"><span class="sort-icon"></span>Host transcript</th>
                 <th data-sort="string-ins"><span class="sort-icon"></span>OTU/ASV</th>
                 <th data-sort="string-ins"><span class="sort-icon"></span>Correlation method</th>
+                <th data-sort="float"><span class="sort-icon"></span>Correlation coefficient</th>
                 <th data-sort="float"><span class="sort-icon"></span><abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">P-value</abbr></th>
                 <th data-sort="float"><span class="sort-icon"></span><abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">Q-value</abbr></th>
-                <th data-sort="float"><span class="sort-icon"></span><abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">Pearson</abbr> correlation coefficient</th>
-                <th>Info</th>
                 <th>Action</th>
             </tr>
             </thead>
@@ -88,11 +87,11 @@
                 <tr>
                     <td>{{ r.expression_profile_id }} (<a href="#">view profile</a>)</td>
                     <td>{{ r.metatax_profile_id }} (<a href="#">view profile</a>)</td>
-                    <td>{{ r.cor_method }}</td>
+                    <td>{{ correlation_method.stat_method }}</td>
                     <td>{{ r.corr_coef }}</td>
                     <td>{{ r.pvalue }}</td>
                     <td>{{ r.qvalue }}</td>
-                    <td></td>
+                    <td><li><a href="{{ url_for('profile_correlations.profiles_scatter_modal', expression_profile_id=r.expression_profile_id, metatax_profile_id=r.metatax_profile_id) }}" data-target="#profileModal" id="profileModalURL">Show scatterplot</a></li></td>
                 </tr>
 
             {% endfor %}
@@ -101,6 +100,16 @@
         <a id="DownloadTable" href="#" class="btn btn-primary">Download table</a><br /><br />
         </div>
         </div>
+
+        <div class="modal" id="profileModal" tabindex="-1" role="dialog" aria-labelledby="profileModalLabel">
+            <div class="modal-dialog" role="document" style="width:1000px;height:800px;">
+              <div class="modal-content">
+          
+              </div>
+          
+            </div>
+          </div>
+
     {% endif %}
 </div>
 {% endblock %}
@@ -108,6 +117,8 @@
 {% block extrajs %}
 <script src="{{ url_for('static', filename='js/bootstrap-slider.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/table2CSV.js') }}" > </script>
+<script src="{{ url_for('static', filename='js/Chart.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/chartjs-plugin-zoom.min.js') }}"></script>
 {% if form %}
 <script>
 
@@ -121,6 +132,23 @@
     
 </script>
 {% endif %}
+
+<script>
+$(function () {
+    $("#results_table").stupidtable();
+    $('a[data-target=#profileModal]').click(function(ev) {
+      ev.preventDefault();
+      var target = $(this).attr("href");
+  
+      // load the url and show modal on success
+      $("#profileModal .modal-content").load(target, function() {
+           $("#profileModal").modal("show");
+      });
+  });
+
+})
+</script>
+
 <script>
     let species_select = document.getElementById('species_id');
     let study_select = document.getElementById('study_id');

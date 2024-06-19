@@ -2,7 +2,6 @@ from flask import Blueprint, redirect, url_for, render_template, g, Response
 
 from conekt import cache
 from conekt.models.clades import Clade
-from conekt.models.relationships.cluster_clade import ClusterCladeEnrichment
 from conekt.models.species import Species
 from conekt.models.gene_families import GeneFamily
 from conekt.models.interpro import Interpro

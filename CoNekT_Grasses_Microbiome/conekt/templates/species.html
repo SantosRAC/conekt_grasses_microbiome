@@ -51,9 +51,7 @@
 
         {{ macro.pagination('Sequences', url_for('species.species_sequences', species_id=species.id), species.sequence_count, none, 'species') }}
 
-        {{ macro.pagination('RNA-Seq Dataset Papers', url_for('species.species_expression_papers', species_id=species.id), 0, none, 'species') }}
-
-        {{ macro.pagination('Microbiome Dataset Papers', url_for('species.species_microbiome_papers', species_id=species.id), 0, none, 'species') }}
+        {{ macro.pagination('Studies integrating Host Expression and Microbiome', url_for('study.species_studies', species_id=species.id, study_type='expression_metataxonomics'), 0, none, 'studies') }}
 
     {% elif all_species %}
         <ol class="breadcrumb">

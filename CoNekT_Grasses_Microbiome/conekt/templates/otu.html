@@ -141,13 +141,6 @@ $("#navbar-side a").on('click', function(event) {
 })
 
 {% import "macros/chartjs.html" as chartjs %}
-{% if expression_profiles|count > 0 %}
-        {% for profile in expression_profiles %}
-            {% if loop.first %}
-                {{ chartjs.expression_profile("expression-profile", url_for('expression_profile.expression_profile_plot_json', profile_id=profile.id), enable_zoom="enable_zoom", enable_pan="enable_pan") }}
-            {% endif %}
-        {% endfor %}
-{% endif %}
 </script>
 
 {% endblock %}

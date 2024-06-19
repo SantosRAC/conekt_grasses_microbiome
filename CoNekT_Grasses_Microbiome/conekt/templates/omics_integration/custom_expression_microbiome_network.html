@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Custom Network
+{% endblock %}
+
+{% block container %}
+<div class="top-pad">
+    <ol class="breadcrumb">
+        <li><a href="{{ url_for('main.screen') }}">Home</a></li>
+        <li><a href="{{ url_for('main.features') }}">Tools</a></li>
+        <li class="active"><strong>Custom Expression Microbiome Network</strong></li>
+    </ol>
+<h1>Custom network</h1>
+    <p>Using the form below you can draw a network which only included selected genes and associated
+    microbes in a specific study. Edges will represent correlations between genes and microbes.</p>
+<div class="row">
+    <div class="col-md-6 col-md-offset-1 col-xs-8">
+        <div class="panel panel-primary">
+            <div class="panel-heading"><strong>Options</strong></div>
+            <div class="panel-body">
+                <form method="POST"  action="{{ url_for('custom_network.expression_microbiome_correlation') }}"  role="form">
+                    {{ form.csrf_token }}
+                    <label>Species</label>
+                    {{form.species_id(class_="form-control")}}<br/>
+                    <label>Study</label>
+                    {{form.study_id(class_="form-control")}}<br/>
+                    <label>Method</label>
+                    {{form.method_id(class_="form-control")}}<br/>
+                    <label>Enter Gene IDs:</label><br />
+                    {{form.probes(class_="form-control") }}<br />
+                    <button type="submit" class="btn btn-primary"  data-toggle="modal" data-target="#loaderModal">Draw network</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    <div class="col-md-4 col-xs-8">
+        <div class="panel panel-default">
+            <div class="panel-heading"><strong>Help</strong></div>
+            <div class="panel-body">
+                <ul>
+                    <li>Select the <strong>species</strong> first. This will enable a list of studies for this species in next selector.</li>
+                    <li>Next select a <strong>study</strong>. Note that studies are formed by combinations of runs from different literature sources.</li>
+                    <li>Next select a <strong>method</strong>. Methods can be Pearson or Spearman, to correlate microbiome and transcriptome profiles in a study.</li>
+                    <li>Click <strong>Draw network</strong></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}
+{% block extrajs %}
+<script>
+    let species_select = document.getElementById('species_id');
+    let study_select = document.getElementById('study_id');
+    let method_select = document.getElementById('method_id');
+    
+    species_select.onchange = function() {
+        species_id = species_select.value;
+        
+        fetch("{{ url_for('study.get_species_studies', species_id='species_id', study_type='expression_metataxonomics') }}".replace('species_id', species_id)).then(function(response) {
+            response.json().then(function(data) {
+                
+                let optionHTML = '';
+                
+                optionHTML += '<option value="' + 0 + '">' + 'Select Study first' + '</option>';
+
+                for (let study of data.studies) {
+                    optionHTML += '<option value="' + study.id + '">' + study.name + '</option>';
+                }
+    
+                study_select.innerHTML = optionHTML;
+    
+            })
+        })
+    }
+
+    study_select.onchange = function() {
+        study_id = study_select.value;
+        
+        fetch("{{ url_for('profile_correlations.get_study_cor_methods', study_id='study_id', study_type='expression_metataxonomics') }}".replace('study_id', study_id)).then(function(response) {
+            response.json().then(function(data) {
+                
+                let optionHTML = '';
+                
+                for (let method of data.methods) {
+                    optionHTML += '<option value="' + method.id + '">' + method.method_tool + '</option>';
+                }
+    
+                method_select.innerHTML = optionHTML;
+    
+            })
+        })
+    }
+</script>
+{% endblock %}

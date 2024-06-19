@@ -14,3 +14,6 @@ class AddTaxonomyForm(FlaskForm):
     
     gg_release = StringField('GreenGenes Release', [InputRequired()])
     gg_taxonomy_file = FileField('GreenGenes Taxonomy File')
+
+    gtdb_release = StringField('GTDB Release', [InputRequired()])
+    gtdb_taxonomy_file = FileField('GTDB Taxonomy File')

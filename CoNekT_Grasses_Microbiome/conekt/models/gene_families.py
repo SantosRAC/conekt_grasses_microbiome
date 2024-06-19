@@ -1,7 +1,6 @@
 from conekt import db
 from conekt.models.relationships import sequence_family, family_xref, family_interpro
 from conekt.models.relationships.sequence_family import SequenceFamilyAssociation
-from conekt.models.relationships.sequence_sequence_ecc import SequenceSequenceECCAssociation
 from conekt.models.relationships.family_interpro import FamilyInterproAssociation
 from conekt.models.relationships.family_go import FamilyGOAssociation
 from conekt.models.sequences import Sequence
