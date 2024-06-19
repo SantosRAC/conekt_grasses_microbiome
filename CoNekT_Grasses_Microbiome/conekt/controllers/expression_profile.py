@@ -97,22 +97,6 @@ def expression_profile_download_tissue_plot(profile_id, condition_tissue_id):
     return Response(current_profile.tissue_table(condition_tissue_id))
 
 
-@expression_profile.route('/json/plot/<profile_id>')
-@cache.cached()
-def expression_profile_plot_json(profile_id):
-    """
-    Generates a JSON object that can be rendered using Chart.js line plots
-
-    :param profile_id: ID of the profile to render
-    """
-    current_profile = ExpressionProfile.query.options(undefer('profile')).get_or_404(profile_id)
-    data = json.loads(current_profile.profile)
-
-    plot = prepare_expression_profile(data, show_sample_count=True, ylabel='TPM')
-
-    return Response(json.dumps(plot), mimetype='application/json')
-
-
 @expression_profile.route('/json/plot/<profile_id>/<condition_tissue_id>')
 @cache.cached()
 def expression_profile_plot_tissue_json(profile_id, condition_tissue_id):
