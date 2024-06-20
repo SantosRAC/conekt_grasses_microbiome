@@ -181,6 +181,7 @@ def configure_admin_panel(app):
         from conekt.controllers.admin.views.ontology import AddOntologyView
         from conekt.controllers.admin.views.asvs import AddASVSView
         from conekt.controllers.admin.views.otus import AddOTUSView
+        from conekt.controllers.admin.views.otus import AddOTUClassificationView
         from conekt.controllers.admin.views.study import BuildStudyView
         from conekt.controllers.admin.views.omics_integration.expression_microbiome_correlations import BuildCorrelationsView
 
@@ -268,6 +269,9 @@ def configure_admin_panel(app):
         admin.add_view(AddOTUSView(name='OTUs',
                                                  endpoint='admin_add_otus',
                                                  url='add/otus/', category='Add Microbiome Data'))
+        admin.add_view(AddOTUClassificationView(name='OTU Classification',
+                                                 endpoint='admin_add_otu_classification',
+                                                 url='add/otu_classification/', category='Add Microbiome Data'))
 
         # Build Menu
         admin.add_view(BuildStudyView(name='Study',

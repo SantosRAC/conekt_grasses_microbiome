@@ -8,16 +8,19 @@ from werkzeug.exceptions import abort
 from werkzeug.utils import redirect
 
 from conekt.forms.admin.add_otus import AddOTUSForm
+from conekt.forms.admin.add_otu_classification import AddOTUClassificationForm
 from conekt.models.microbiome.operational_taxonomic_unit import OperationalTaxonomicUnit
 from conekt.models.seq_run import SeqRun
 from conekt.models.microbiome.otu_profiles import OTUProfile
-from conekt.models.relationships_microbiome.otu_classification import OTUClassificationGG
+from conekt.models.relationships_microbiome.otu_classification import\
+                    OTUClassificationGG, OTUClassificationGTDB
+
 
 @admin_controls.route('/add/otus', methods=['POST'])
 @admin_required
 def add_otus():
     """
-    Add OTUs based on data from a FASTA, a OTU table and a classification file
+    Add OTUs based on data from a FASTA and a OTU table
 
     :return: Redirect to admin panel interface
     """
@@ -108,14 +111,39 @@ def add_otus():
         os.close(fd_feature_table)
         os.remove(temp_feature_table_path)
 
-        # Add feature table
-        fd_classification_file, temp_classification_file_path = mkstemp()
+        flash('Added %d OTUs' % (added_otus_count), 'success')
+        flash('Added %d Runs' % (added_runs_count), 'success')
+        flash('Added %d OTU profiles' % (added_profiles_count), 'success')
 
-        with open(temp_classification_file_path, 'wb') as otu_classification_file_writer:
-            otu_classification_file_writer.write(otu_classification_file)
+        return redirect(url_for('admin.index'))
+    else:
+        if not form.validate():
+            flash('Unable to validate data, potentially missing fields', 'danger')
+            return redirect(url_for('admin.index'))
+        else:
+            abort(405)
 
-        if classification_ref_db == 'greengenes':
-            OTUClassificationGG.add_otu_classification_from_table(temp_classification_file_path,
+
+@admin_controls.route('/add/otu_classification', methods=['POST'])
+@admin_required
+def add_otu_classification():
+    """
+    Add OTU classification file
+
+    :return: Redirect to admin panel interface
+    """
+
+    form = AddOTUClassificationForm(request.form)
+
+    if request.method == 'POST' and form.validate():
+
+        # Add GTDB classification file for OTUs
+        fd_gtdb_classification_file, temp_gtdb_classification_file_path = mkstemp()
+
+        with open(temp_gtdb_classification_file_path, 'wb') as otu_gtdb_classification_file_writer:
+            otu_gtdb_classification_file_writer.write(otu_gtdb_classification_file)
+
+        OTUClassificationGTDB.add_otu_classification_from_table(temp_gtdb_classification_file_path,
                                     otu_classification_description,
                                     otu_classification_method,
                                     classifier_version,
@@ -123,10 +151,6 @@ def add_otus():
 
         os.close(fd_classification_file)
         os.remove(temp_classification_file_path)
-
-        flash('Added %d OTUs' % (added_otus_count), 'success')
-        flash('Added %d Runs' % (added_runs_count), 'success')
-        flash('Added %d OTU profiles' % (added_profiles_count), 'success')
 
         return redirect(url_for('admin.index'))
     else:
