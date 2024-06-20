@@ -12,7 +12,7 @@ class SampleLitAssociation(db.Model):
     sample_id = db.Column(db.Integer, db.ForeignKey('samples.id', ondelete='CASCADE'))
     literature_id = db.Column(db.Integer, db.ForeignKey('literature.id', ondelete='CASCADE'))
     species_id = db.Column(db.Integer, db.ForeignKey('species.id', ondelete='CASCADE'))
-    literature_information = db.relationship('LiteratureItem', backref=db.backref('lit_associations',
+    literature_information = db.relationship('LiteratureItem', backref=db.backref('sample_lit_associations',
                                                               lazy='dynamic',
                                                               passive_deletes=True), lazy='joined')
 
