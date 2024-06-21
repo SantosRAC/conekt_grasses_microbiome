@@ -41,16 +41,6 @@ class AddOTUSForm(FlaskForm):
                                                                         ('cpm', 'CPM'),
                                                                         ('tmm', 'TMM'),
                                                                         ('numreads', 'NumReads')])
-    
-    # Fields for the ASV classification method
-    otu_classification_description = StringField('OTU Classification Method Description', [InputRequired()])
-    otu_classification_method = SelectField('OTU classifier', choices=[('uclust', 'uclust'),
-                                                    ('other', 'Other'),])
-
-    classifier_version = StringField('Classifier version', [InputRequired()])
-    classification_ref_db = SelectField('Reference used in OTU classification', choices=[('silva', 'SILVA'),
-                                            ('greengenes', 'GreenGenes')])
-    classification_ref_db_release = StringField('Reference Database release', [InputRequired()])
 
     otu_classification_file = FileField()
 

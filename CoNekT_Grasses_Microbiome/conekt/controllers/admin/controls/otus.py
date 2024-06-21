@@ -45,27 +45,14 @@ def add_otus():
 
         fasta_data_otus = request.files[form.otus_file.name].read()
 
-        otu_classification_description = request.form.get('otu_classification_description')
-        otu_classification_method = request.form.get('otu_classification_method')
-
-        classifier_version = request.form.get('classifier_version')
-        classification_ref_db = request.form.get('classification_ref_db')
-        classification_ref_db_release = request.form.get('classification_ref_db_release')
-
         run_annotation = request.files[form.run_annotation_file.name].read()
         feature_table = request.files[form.feature_table_file.name].read()
         normalization_method = request.form.get('normalization_method')
-        otu_classification_file = request.files[form.otu_classification_file.name].read()
 
         if not fasta_data_otus or\
               not feature_table or\
-              not otu_classification_file or\
               not run_annotation:
             flash('Missing File. Please, upload all files before submission.', 'danger')
-            return redirect(url_for('admin.add.otus.index'))
-
-        if not classification_ref_db_release:
-            flash('Please, select method for OTU classification before submission.', 'danger')
             return redirect(url_for('admin.add.otus.index'))
 
         # Add OTUs
@@ -74,7 +61,7 @@ def add_otus():
         with open(temp_path, 'wb') as fasta_writer:
             fasta_writer.write(fasta_data_otus)
 
-        added_otus_count, otu_method_id = OperationalTaxonomicUnit.add_otus_from_fasta(temp_path,
+        added_otus_count = OperationalTaxonomicUnit.add_otus_from_fasta(temp_path,
                                                     otu_method_description,
                                                     clustering_method,
                                                     clustering_threshold,
