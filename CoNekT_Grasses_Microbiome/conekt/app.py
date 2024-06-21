@@ -142,8 +142,6 @@ def configure_blueprints(app):
     # TODO: add URL after configuring Solr as the main search engine
     app.register_blueprint(help, url_prefix='/help')
     app.register_blueprint(profile_comparison, url_prefix='/profile_comparison')
-    app.register_blueprint(clade, url_prefix='/clade')
-    app.register_blueprint(tree, url_prefix='/tree')
     app.register_blueprint(otu, url_prefix='/otu')
     app.register_blueprint(asvs_profile, url_prefix='/asvs_profile')
     app.register_blueprint(otus_profile, url_prefix='/otus_profile')
@@ -164,20 +162,13 @@ def configure_admin_panel(app):
         from conekt.controllers.admin.views.functional_data import AddCAZYmeView
         from conekt.controllers.admin.views.functional_data import AddFunctionalDataView
         from conekt.controllers.admin.views.taxonomy import AddTaxonomyView
-        from conekt.controllers.admin.views.families import AddFamiliesView, AddFamilyAnnotationView
+        from conekt.controllers.admin.views.families import AddFamilyAnnotationView
         from conekt.controllers.admin.views.families import GeneFamilyMethodAdminView
         from conekt.controllers.admin.views.samples import AddSamplesView
         from conekt.controllers.admin.views.species import AddSpeciesView
         from conekt.controllers.admin.views.species import SpeciesAdminView
-        from conekt.controllers.admin.views.trees import AddTreesView
-        from conekt.controllers.admin.views.clades import AddCladesView
-        from conekt.controllers.admin.views.clades import CladesAdminView
-        from conekt.controllers.admin.views.xrefs import AddXRefsFamiliesView
-        from conekt.controllers.admin.views.xrefs import AddXRefsView
         from conekt.controllers.admin.views.controls import ControlsView
         from conekt.controllers.admin.views.news import NewsAdminView
-        from conekt.controllers.admin.views.trees import TreeMethodAdminView
-        from conekt.controllers.admin.views.trees import ReconcileTreesView
         from conekt.controllers.admin.views.ontology import AddOntologyView
         from conekt.controllers.admin.views.asvs import AddASVSView
         from conekt.controllers.admin.views.otus import AddOTUSView
@@ -235,32 +226,6 @@ def configure_admin_panel(app):
                                                  endpoint='admin_add_expression_profiles',
                                                  url='add/expression_profiles/', category='Add Expression'))
 
-        admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Add')
-        admin.add_menu_item(MenuLink("Comparative Genomics", class_name="disabled", url="#"), target_category='Add')
-
-        admin.add_view(AddFamiliesView(name='Gene Families',
-                                       endpoint='admin_add_families',
-                                       url='add/families/', category='Add'))
-
-        admin.add_view(AddTreesView(name='Trees',
-                                    endpoint='admin_add_trees',
-                                    url='add/trees/', category='Add'))
-
-        admin.add_view(AddCladesView(name='Clades',
-                                     endpoint='admin_add_clades',
-                                     url='add/clades/', category='Add'))
-
-        admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Add')
-        admin.add_menu_item(MenuLink("Misc.", class_name="disabled", url="#"), target_category='Add')
-
-        admin.add_view(AddXRefsView(name='XRefs Genes',
-                                    endpoint='admin_add_xrefs',
-                                    url='add/xrefs/', category='Add'))
-
-        admin.add_view(AddXRefsFamiliesView(name='XRefs Families',
-                                            endpoint='admin_add_xrefs_families',
-                                            url='add/xrefs_families/', category='Add'))
-
         # Add Microbiome data
         admin.add_menu_item(MenuLink("Microbiome", class_name="disabled", url="#"), target_category='Add Microbiome Data')
         admin.add_view(AddASVSView(name='ASVs',
@@ -288,9 +253,6 @@ def configure_admin_panel(app):
                                                endpoint='admin_add_family_annotation',
                                                url='build/family_annotation/', category='Build'))
 
-        admin.add_view(ReconcileTreesView(name='Reconcile Trees', endpoint='admin_reconcile_trees',
-                                          url='build/reconciled_trees', category='Build'))
-
         admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Build')
         admin.add_menu_item(MenuLink("Integration of RNAseq and Metataxonomics", class_name="disabled", url="#"), target_category='Build')
         admin.add_view(BuildCorrelationsView(name='Build RNAseq - Metataxonomics Profile Correlations', endpoint='admin_build_rnametataxcor',
@@ -304,15 +266,13 @@ def configure_admin_panel(app):
                                      endpoint='admin_news',
                                      url='news', category='Browse'))
         admin.add_view(SpeciesAdminView(Species, db.session, url='species', category='Browse'))
-        admin.add_view(CladesAdminView(Clade, db.session, url='clades', category='Browse', name='Clades'))
         
         admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Browse')
         admin.add_menu_item(MenuLink("Methods", class_name="disabled", url="#"), target_category='Browse')
 
         admin.add_view(GeneFamilyMethodAdminView(GeneFamilyMethod, db.session, url='families', category="Browse",
                                                  name='Gene Families'))
-        admin.add_view(TreeMethodAdminView(TreeMethod, db.session, url='trees', category="Browse",
-                                           name='Tree Methods'))
+
 
 
 def configure_error_handlers(app):
