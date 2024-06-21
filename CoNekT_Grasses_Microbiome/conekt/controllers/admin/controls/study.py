@@ -4,6 +4,9 @@ from werkzeug.exceptions import abort
 from werkzeug.utils import redirect
 from conekt.extensions import admin_required
 
+import os
+from tempfile import mkstemp
+
 from conekt.controllers.admin.controls import admin_controls
 
 from conekt.forms.admin.build_study import BuildStudyForm
@@ -32,9 +35,20 @@ def build_study():
 
         literature_ids = request.form.getlist('literature_list')
 
+        krona_file = request.files[form.krona_file.name].read()
+
+        # Add Krona plot to study
+        fd, temp_path = mkstemp()
+
+        with open(temp_path, 'wb') as file_writer:
+            file_writer.write(krona_file)
+
         # Add study to database
         literature_count_study, samples_count = Study.build_study(species_id, study_name, study_description,
-                                      study_type, literature_ids)
+                                      study_type, literature_ids, krona_file)
+
+        os.close(fd)
+        os.remove(temp_path)
         
         flash(f'Added {study_type} study with {literature_count_study} associated papers', 'success')
         flash(f'Added {samples_count} associated samples', 'success')

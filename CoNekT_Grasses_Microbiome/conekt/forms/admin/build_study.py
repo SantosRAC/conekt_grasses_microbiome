@@ -8,7 +8,7 @@ from conekt.models.species import Species
 from conekt.models.sample import Sample
 from conekt.models.seq_run import SeqRun
 
-class BuildStudyForm(FlaskForm):
+class BuildStudyForm(FlaskForm):    
     
     species_id = SelectField('Species', coerce=int, choices=[], validate_choice=False)
 
@@ -20,7 +20,9 @@ class BuildStudyForm(FlaskForm):
                                                     ('expression_metataxonomics', 'Both'),])
     
     # Admin can select multiple literature if needed
-    literature_list = SelectMultipleField('Literature', coerce=int, choices=[], validate_choice=False)
+    literature_list = SelectMultipleField('Literature (will change according to study type)', coerce=int, choices=[], validate_choice=False)
+
+    krona_file = FileField('Krona File')
 
     def populate_species(self):
         # Get distinct species ids from sample table, only if any runs exist

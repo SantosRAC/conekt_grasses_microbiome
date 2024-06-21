@@ -30,6 +30,14 @@
         {{ form.literature_list(class_="form-control") }}
     </div>
 
+    <div class="form-group">
+        <p>Add Krona file containing for the study (GTDB).</p>
+        <label class="btn btn-default" for="krona_file" id="my-file-button-krona">
+            {{ form.krona_file(style="display:none;", onchange="")}}
+            <span id="file-selector-text-krona">Select Krona File</span>
+        </label>
+    </div>
+
     <button type="submit" class="btn btn-success">Build Study</button>
 </form>
 {% endif %}
@@ -71,6 +79,13 @@
             $("#literature_list").hide();
         }
     }
+
+
+$(function() {
+    $("#krona_file").change(function() {
+            $('#file-selector-text-krona').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#my-file-button-krona').toggleClass('btn-default btn-success');
+    });
+});
 </script>
 
 {{ super() }}
