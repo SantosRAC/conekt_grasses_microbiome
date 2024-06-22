@@ -22,7 +22,7 @@
         <h1><strong><em>{{ study.name }}</em></strong></h1>
 
         {% if description %}
-            {{ description }}
+            {{ description | safe}}
             <br />
         {% endif %}
         <br />

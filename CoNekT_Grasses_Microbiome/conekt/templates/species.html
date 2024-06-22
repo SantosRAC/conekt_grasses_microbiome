@@ -21,7 +21,7 @@
         <h1><strong><em>{{ species.name }}</em></strong> <small>({{ species.code }})</small></h1>
 
         {% if description %}
-            {{ description }}
+            {{ description | safe }}
             <br />
         {% endif %}
         <br />
