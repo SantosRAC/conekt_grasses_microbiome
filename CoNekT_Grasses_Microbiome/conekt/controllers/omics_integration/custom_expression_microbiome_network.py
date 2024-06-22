@@ -34,12 +34,12 @@ def expression_microbiome_correlation():
         # make probe list unique
         probes = list(set(probes))
 
-        network = ExpMicroCorrelation.create_custom_network(method_id, probes)
+        expression_microbiome_network = ExpMicroCorrelation.create_custom_network(method_id, probes)
 
-        network_cytoscape = CytoscapeHelper.parse_network(network)
-
+        network_cytoscape = CytoscapeHelper.parse_network(expression_microbiome_network)
 
         return render_template("omics_integration/expression_microbiome_graph.html",
+                               expression_microbiome_network=expression_microbiome_network,
                                graph_data=Markup(json.dumps(network_cytoscape)))
 
     else:
