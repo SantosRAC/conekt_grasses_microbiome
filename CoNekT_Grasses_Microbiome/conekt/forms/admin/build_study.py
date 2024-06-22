@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 
-from wtforms import StringField, SelectField, SelectMultipleField
+from wtforms import StringField, SelectField, SelectMultipleField, TextAreaField
 from flask_wtf.file import FileField
 from wtforms.validators import InputRequired
 
@@ -14,7 +14,7 @@ class BuildStudyForm(FlaskForm):
 
     # study Description and type (RNAseq, metataxonomic, both)
     study_name = StringField('Study Name', [InputRequired()])
-    study_description = StringField('Study Description', [InputRequired()])
+    study_description = TextAreaField('Study Description')
     study_type = SelectField('Study Type', choices=[('rnaseq', 'RNA-seq'),
                                                     ('metataxonomics', 'Metataxonomics'),
                                                     ('expression_metataxonomics', 'Both'),])
