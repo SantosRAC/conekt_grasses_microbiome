@@ -6,7 +6,7 @@
 CoNekT Grasses Microbiome derives from [CoNekT Grasses](https://github.com/labbces/conekt_grasses) that, in turn, was built based on [CoNekT](https://github.com/sepro/conekt) [(Proost & Mutwil, 2018)](https://academic.oup.com/nar/article/46/W1/W133/4990637).
 
 
-CoNekT Grasses Microbiome is under development in a collaboration between [LabBCES (SP, Brazil)](labbces.netlify.app/) and the [Wallace Lab (UGA, GA, USA)](https://wallacelab.uga.edu/), and is being led by [Dr. Renato Santos](https://santosrac.netlify.app/), under supervision of Prof. Dr. Diego M. Riaño-Pachón and Prof. Dr. Jason Wallace.
+CoNekT Grasses Microbiome is under development in a collaboration between [LabBCES (SP, Brazil)](https://labbces.cena.usp.br/) and the [Wallace Lab (UGA, GA, USA)](https://wallacelab.uga.edu/), and is being led by [Dr. Renato Santos](https://santosrac.netlify.app/), under supervision of Prof. Dr. Diego M. Riaño-Pachón and Prof. Dr. Jason Wallace.
 
 ## Setting up the environment
 

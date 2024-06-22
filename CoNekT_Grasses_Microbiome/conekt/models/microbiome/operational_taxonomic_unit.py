@@ -140,6 +140,6 @@ class OperationalTaxonomicUnit(db.Model):
         # add the last set of sequences
         db.session.commit()
 
-        return len(fasta_data.sequences.keys()), new_otu_method.id
+        return len(fasta_data.sequences.keys())
 
 

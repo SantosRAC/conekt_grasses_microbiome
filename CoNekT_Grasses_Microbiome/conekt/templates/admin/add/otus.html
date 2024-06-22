@@ -100,44 +100,6 @@
                 </label>
             </div>
 
-            <label>Add a description for OTU classification</label>
-            <div class="form-group">
-                {{ form.otu_classification_description.label }}
-                {{ form.otu_classification_description(class_="form-control") }}
-            </div>
-
-            <label>Choose method used to classify OTUs</label>
-            <div class="form-group">
-                {{ form.otu_classification_method.label }}
-                {{ form.otu_classification_method(class_="form-control") }}
-            </div>
-
-            <label>Add version of the OTU classifier</label>
-            <div class="form-group">
-                {{ form.classifier_version.label }}
-                {{ form.classifier_version(class_="form-control") }}
-            </div>
-
-            <label>Select database used in OTU classification. Currently, SILVA and GreenGenes are available.</label>
-            <div class="form-group">
-                {{ form.classification_ref_db.label }}
-                {{ form.classification_ref_db(class_="form-control") }}
-            </div>
-
-            <label>Add the release of reference database used in OTU classification</label>
-            <div class="form-group">
-                {{ form.classification_ref_db_release.label }}
-                {{ form.classification_ref_db_release(class_="form-control") }}
-            </div>            
-
-            <div class="form-group">
-                <label>OTU Classification file</label>
-                <p>Text file with tab-delimited columns with one line header.</p>
-                <label class="btn btn-default" for="otu_classification_file" id="otu-classification-file-button">
-                    {{ form.otu_classification_file(style="display:none;", onchange="")}}
-                    <span id="otu-classification-file-selector-text">Select File</span>
-                </label>
-            </div>
             <button type="submit" class="btn btn-success pull-right">Add OTU Profiles</button>
         </form>
     </div>
@@ -148,7 +110,7 @@
                 <li>Adds <strong>OTU profiles</strong> to the database</li>
                 <li>It is mandatory to provide technical details on how OTUs were generated</li>
                 <li>A reference database is mandatory if method involves
-                open or closed reference clutering.</li>
+                open or closed reference clustering.</li>
             </div>
         </div>
     </div>
@@ -168,9 +130,6 @@
         });
         $("#feature_table_file").change(function() {
             $('#feature-table-file-selector-text').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#feature-table-file-button').toggleClass('btn-default btn-success');
-        });
-        $("#otu_classification_file").change(function() {
-            $('#otu-classification-file-selector-text').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#otu-classification-file-button').toggleClass('btn-default btn-success');
         });
     });
 </script>
