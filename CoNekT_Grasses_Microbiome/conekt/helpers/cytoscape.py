@@ -35,11 +35,12 @@ class CytoscapeHelper:
         for n in output["nodes"]:
             if n["data"]["id"] is not None and n["data"]["node_type"] == "gene":
                 n["data"]["gene_link"] = url_for("sequence.sequence_view", sequence_id=n["data"]["id"])
+                n["data"]["color"] = "#26837c"
             
             if n["data"]["id"] is not None and n["data"]["node_type"] == "otu":
-                n["data"]["gene_link"] = url_for("otu.otu_view", otu_id=n["data"]["id"])
+                n["data"]["otu_link"] = url_for("otu.otu_view", otu_id=n["data"]["id"])
+                n["data"]["color"] = "#852e2e"
 
-            n["data"]["color"] = "#CCC"
             n["data"]["shape"] = "ellipse"
 
         for e in output["edges"]:
@@ -92,75 +93,3 @@ class CytoscapeHelper:
                     node["data"]["tokens"] = None
 
         return completed_network
-
-
-    @staticmethod
-    def add_species_data_nodes(network):
-        """
-        Colors nodes in a cytoscape compatible network (dict) based on species
-
-        :param network: dict containing the network
-        :return: Cytoscape.js compatible network with depth information for edges added
-        """
-        colors = {s.id: s.color for s in Species.query.all()}
-        colored_network = deepcopy(network)
-
-        for node in colored_network["nodes"]:
-            if "data" in node.keys() and "species_id" in node["data"].keys():
-                node["data"]["species_color"] = colors[node["data"]["species_id"]]
-
-        return colored_network
-
-
-
-    @staticmethod
-    def prune_unique_lc(network):
-        """
-        Remove genes from network that have a unique label (label co-occ.). Requires a Cytoscape.js compatible network
-        and will return a purned copy in the same format. Note that label co-occ. need to be present in the
-        network *before* applying this function. (e.g. using add_lc_data_nodes in this class)
-
-        :param network: dict containing the network
-        :return: Cytoscape.js compatible network with the pruned network
-        """
-
-        lc_labels = []
-        for node in network["nodes"]:
-            if 'lc_label' in node['data'].keys():
-                lc_labels.append(node['data']['lc_label'])
-
-        lc_counter = Counter(lc_labels)
-
-        print(lc_counter)
-
-        pruned_network = {'nodes': [], 'edges': []}
-
-        good_nodes = []
-
-        for node in network['nodes']:
-            if 'lc_label' in node['data'].keys():
-                if lc_counter[node['data']['lc_label']] > 1:
-                    good_nodes.append(node['data']['name'])
-                    pruned_network['nodes'].append(deepcopy(node))
-            else:
-                good_nodes.append(node['data']['name'])
-                pruned_network['nodes'].append(deepcopy(node))
-
-        for edge in network['edges']:
-            if edge['data']['source'] in good_nodes and edge['data']['target'] in good_nodes:
-                pruned_network['edges'].append(deepcopy(edge))
-
-        return pruned_network
-
-
-    @staticmethod
-    def get_families(network):
-        """
-        Extracts gene families from a cytoscape.js compatible network object
-
-        :param network: network to extract families from
-        :return: List of all families that occur in the network
-        """
-        return [f["data"]["family_name"] for f in network["nodes"] if 'data' in f.keys() and
-                'family_name' in f["data"].keys() and
-                f["data"]["family_name"] is not None]
