@@ -41,12 +41,10 @@
                                 <button class="btn btn-default dropdown-toggle" type="button"  data-toggle="dropdown"><i class="fa fa-link" aria-hidden="true" data-toggle="tooltip" title="Edge Options"></i> <span class="caret"></span></button>
                                 <ul class="dropdown-menu dropdown-menu-right cy-option-menu" style="width:250px">
                                     <li class="dropdown-header">Edge Color</li>
-                                    <li><a href="#" class="cy-edge-color" attr="color">No Feature <span class="text-muted">(default)</span></a></li>
                                     {% if expression_microbiome_network %}
                                     <li><a href="#" class="cy-edge-color" attr="link_pcc">PCC</a></li>
                                     {% endif %}
                                     <li class="dropdown-header">Edge Width</li>
-                                    <li><a href="#" class="cy-edge-width" attr="default_width">Default</a></li>
                                     {% if expression_microbiome_network %}
                                     <li><a href="#" class="cy-edge-width" attr="link_pcc">PCC</a></li>
                                     {% endif %}
@@ -149,14 +147,6 @@
 $( document ).ready(function() {
                 $('#footer').hide(2000);
                 $('[data-toggle="tooltip"]').tooltip();
-                $('#cy-edge-score').slider({
-                    formatter: function(value) {
-                        return 'Cut-off: ' + value;
-                    }
-                });
-                $('#cy-edge-score').on("slide", function(slideEvt) {
-                    $("#cy-edge-score-value").text(slideEvt.value);
-                });
 });
 </script>
 {% if graph_data %}

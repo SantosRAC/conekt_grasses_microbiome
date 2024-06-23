@@ -179,7 +179,7 @@ class ExpMicroCorrelation(db.Model):
         valid_nodes = []
 
         for s in sequences:
-            gene_node = {"id": s.id,
+            gene_node = {"id": str(s.id) + "_gene",
                     "name": s.name,
                     "node_type": "gene",
                     "depth": 0}
@@ -190,23 +190,26 @@ class ExpMicroCorrelation(db.Model):
         existing_edges = []
 
         for s in sequences:
-            source = s.id
+            source = str(s.id) + "_gene"
             expression_microbiome_correlations = ExpMicroCorrelation.query.filter_by(exp_micro_correlation_method_id=cor_method_id).all()
             for cor_result in expression_microbiome_correlations:
                 otu_profile = OTUProfile.query.filter_by(id=cor_result.metatax_profile_id).first()
                 if otu_profile.probe in valid_nodes:
                     continue
-                otu_node = {"id": otu_profile.otu_id,
+                otu_node = {"id": str(otu_profile.otu_id) + "_otu",
                     "name": str(otu_profile.probe),
                     "node_type": "otu",
                     "depth": 0}
                 nodes.append(otu_node)
                 valid_nodes.append(str(otu_profile.probe))
                 edges.append({"source": source,
-                                "target": otu_profile.otu_id,
+                                "target": str(otu_profile.otu_id) + "_otu",
+                                "source_name": s.name,
+                                "target_name": otu_profile.probe,
                                 "depth": 0,
                                 "link_pcc": cor_result.corr_coef,
-                                "edge_type": cor_result.method.stat_method})
+                                "edge_type": "correlation",
+                                "correlation_method": cor_result.method.stat_method})
                 existing_edges.append([source, cor_result.metatax_profile_id])
                 existing_edges.append([cor_result.metatax_profile_id, source])
 

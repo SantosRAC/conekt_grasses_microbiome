@@ -6,7 +6,7 @@ function select_neighborhood(ev, node_name) {
     ev.preventDefault();
 
     // Select all nodes in the neighborhood
-    cy.nodes('[gene_name = \'' + node_name + '\']').neighborhood().select();
+    cy.nodes('[name = \'' + node_name + '\']').neighborhood().select();
 
     // Reset all nodes in the legend
     svg_legend.find(".legend_node").transform('scale', null);
@@ -19,44 +19,6 @@ function click_edge(ev) {
     ev.preventDefault();
     // Reset all nodes in the legend
     svg_legend.find(".legend_node").transform('scale', null);
-};
-
-function select_homologs(ev, family) {
-    ev.preventDefault();
-
-    // Select all nodes in the neighborhood
-    cy.nodes('[family_name = \'' + family + '\' ]').select();
-
-    // Reset all nodes in the legend
-    svg_legend.find(".legend_node").transform('scale', null);
-
-    // Find node matching to family
-    var family_match = svg_legend.find(".legend_node_"+ family);
-    // Increase size of that node
-    family_match.transform('scale', 1.5);
-
-
-    // Close tooltip
-    $('div.qtip:visible').qtip('hide');
-};
-
-function select_lc(ev, lc_label) {
-    ev.preventDefault();
-
-    // Select all nodes in the neighborhood
-    cy.nodes('[lc_label = \'' + lc_label + '\' ]').select();
-
-    // Reset all nodes in the legend
-    svg_legend.find(".legend_node").transform('scale', null);
-
-    // Find node matching to family
-    var family_match = svg_legend.find(".legend_node_"+ lc_label.split(';').join('_'));
-    // Increase size of that node
-    family_match.transform('scale', 1.5);
-
-
-    // Close tooltip
-    $('div.qtip:visible').qtip('hide');
 };
 
 $(function () { // on dom ready
@@ -78,65 +40,21 @@ $(function () { // on dom ready
         ready: function () {
             window.cy = this;
 
-            var has_ecc = false;
             initial_json = JSON.stringify(cy.json(), null, '\t');
 
             cy.nodes('[^compound]').forEach(function (n) {
                 // code to add tooltips to the selected node
                 var content = [
                     {
-                        value: n.data('gene_id') !== null ? '<strong>Gene ID:</strong> <a href="' + n.data('gene_link') + '">' + n.data('gene_name') + '</a>' : '<span class="text-muted">No sequence linked to probe</span>'
-                    },
-                    {
-                        value: n.data('description') !== null ? '<em>' + (n.data('description').length > 90 ? n.data('description').substring(0, 87) + "..." :  n.data('description')) + '</em><br />' : '<span class="text-muted">No description available</span>'
-                    },
-                    {
-                        value: n.data('tokens') !== null ? '<strong>Other names:</strong> ' + n.data('tokens') + '<br />' : '<span class="text-muted">No alias available</span>'
+                        value: '<strong>Name:</strong> ' + n.data('name')
                     }];
 
-                if (n.data('profile_link') !== undefined) {
-                    content.push({value: '<strong>Profile:</strong> <a href="' + n.data('profile_link') + '">' + n.data('id') + '</a>'});
+                if (n.data('gene_link') !== undefined) {
+                    content.push({value: '<strong><a href=' + n.data('gene_link') + '">Link to Gene Page</a></strong>'});
                 }
 
-                if (n.data('cluster_id') !== undefined) {
-                    content.push({value: '<strong>Cluster:</strong> <a href="' + n.data('cluster_url') + '">' + n.data('cluster_name') + '</a>'});
-                }
-
-                if (n.data('spm_condition') !== undefined) {
-                    content.push({value: '<strong>Expression specificity:</strong> ' + n.data('spm_condition') + '(' + n.data('spm_score').toFixed(2) + ')'});
-                }
-
-                content.push(
-                    {
-                        value: n.data('family_name') !== null ? '<strong>Family:</strong> <a href="' + n.data('family_url') + '">' + n.data('family_name') + '</a>' : '<span class="text-muted">No family found</span>'
-                    },
-                    {
-                        value: n.data('family_clade') !== 'None' ? '<strong>Clade:</strong> ' + n.data('family_clade') : '<span class="text-muted">No clade assigned</span>'
-                    },
-                    {
-                        value: ''
-                    },
-                    {
-                        value: '<span class="text-muted">Select:</span>'
-                    },
-                    {
-                        value: '<a href="#" onclick="select_neighborhood(event, \'' + n.data('gene_name') + '\')">Direct neighbors</a>'
-                    }
-                );
-
-                if (n.data('family_name') !== null) {
-                    content.push(
-                    {
-                        value: '<a href="#" onclick="select_homologs(event, \'' + n.data('family_name') + '\')">Homologs</a>'
-                    }
-                    )
-                }
-                if (n.data('lc_label') !== null) {
-                    content.push(
-                    {
-                        value: '<a href="#" onclick="select_lc(event, \'' + n.data('lc_label') + '\')">Same label</a>'
-                    }
-                    )
+                if (n.data('otu_link') !== undefined) {
+                    content.push({value: '<strong><a href=' + n.data('otu_link') + '">Link to OTU Page</a></strong>'});
                 }
 
                 n.qtip({
@@ -157,37 +75,16 @@ $(function () { // on dom ready
                 });
             }); /* End nodes.forEach */
 
-            cy.edges('[^homology]').forEach(function (e) {
+            cy.edges('[^correlation]').forEach(function (e) {
                 // code to add tooltips to the selected node
                 var content = [{
-                        value: 'Edge: ' + e.data('source') + ' and ' + e.data('target')
+                        value: 'Edge: ' + e.data('source_name') + ' and ' + e.data('target_name')
                     }];
-
-                if (e.data('profile_comparison') !== undefined) {
-                    content.push({value: '<a href="' + e.data('profile_comparison') + '">Compare expression profiles</a>'});
-                }
-
-                if (e.data('hrr') !== undefined) {
-                    if (e.data('hrr') !== null) {
-                        content.push({ value: 'Rank (HRR): ' + e.data('hrr') });
-                    } else {
-                        content.push({ value: 'Couldn\'t determine HRR' })
-                    }
-                }
 
                 if (e.data('link_pcc') !== undefined) {
                     if (e.data('link_pcc') !== null) {
                         content.push({ value: 'Correlation (PCC): ' + e.data('link_pcc').toFixed(3) });
                     }
-                }
-
-                if (e.data('depth') !== undefined) {
-                    content.push({ value: 'Depth: ' + e.data('depth') });
-                }
-
-                if (e.data('ecc_score') !== undefined) {
-                    content.push({ value: 'ECC: ' + e.data('ecc_score').toFixed(2) });
-                    has_ecc = true;
                 }
 
                 e.qtip({
@@ -237,31 +134,11 @@ $(function () { // on dom ready
 
             // Fill data for legend
             var svg_families = [],
-                svg_labels = [],
-                svg_species = [],
-                svg_spm = [],
-                svg_clusters = [],
-                svg_clades = [];
+                svg_species = [];
             cy.nodes('[^compound]').forEach(function (n) {
                 var family_color = n.data('family_color'),
                     family_shape = n.data('family_shape'),
                     family = n.data('family_name'),
-
-                    lc_color = n.data('lc_color'),
-                    lc_shape = n.data('lc_shape'),
-                    lc_label = n.data('lc_label'),
-
-                    spm_color = n.data('spm_condition_color'),
-                    spm_shape = n.data('spm_condition_shape'),
-                    spm = n.data('spm_condition'),
-
-                    cluster_color = n.data('cluster_color'),
-                    cluster_shape = n.data('cluster_shape'),
-                    cluster = n.data('cluster_name'),
-
-                    clade = n.data('family_clade'),
-                    clade_color = n.data('family_clade_color'),
-                    clade_shape = n.data('family_clade_shape'),
 
                     species = n.data('species_name'),
                     species_color = n.data('species_color'),
@@ -281,104 +158,15 @@ $(function () { // on dom ready
                     svg_families[family_color][family_shape] = family;
                 }
 
-                if (clade !== undefined) {
-                    if (!svg_clades.hasOwnProperty(clade_color)) {
-                        svg_clades[clade_color] = [];
-                    }
-                    svg_clades[clade_color][clade_shape] = clade;
-                }
-
-                if (lc_color !== undefined) {
-                    if (!svg_labels.hasOwnProperty(lc_color)) {
-                        svg_labels[lc_color] = [];
-                    }
-                    svg_labels[lc_color][lc_shape] = lc_label;
-                }
-                if (cluster_color !== undefined) {
-                    if (!svg_clusters.hasOwnProperty(cluster_color)) {
-                        svg_clusters[cluster_color] = [];
-                    }
-                    svg_clusters[cluster_color][cluster_shape] = cluster;
-                }
-                if (spm_color !== undefined) {
-                    if (!svg_spm.hasOwnProperty(spm_color)) {
-                        svg_spm[spm_color] = [];
-                    }
-                    svg_spm[spm_color][spm_shape] = spm;
-                }
             }); //end cy.nodes.forEach
 
-            if (Object.keys(svg_clades).length > 0) { generate_legend(svg_clades, 'family_clade_color', 'family_clade'); }
-            if (Object.keys(svg_labels).length > 0) { generate_legend(svg_labels, 'lc_color', 'lc_label'); }
-            if (Object.keys(svg_families).length > 0) { generate_legend(svg_families, 'family_color', 'family_name'); }
-            if (Object.keys(svg_clusters).length > 0) { generate_legend(svg_clusters, 'cluster_color', 'cluster'); }
-            if (Object.keys(svg_spm).length > 0) { generate_legend(svg_spm, 'spm_color', 'spm'); }
             if (Object.keys(svg_species).length > 0) { generate_legend(svg_species, 'species_color', 'species'); }
 
-            if (has_ecc) {
-                $('.cy-node-color[attr="species_color"]').click();
-                $('.cy-edge-color[attr="ecc_type"]').click();
-            } else {
-                $('.cy-node-color[attr="family_color"]').click();
-            }
-
+            $('.cy-node-color[attr="link_pcc"]').click();
 
             $('#loading').addClass('loaded');
             $('#legend').show();
 
-            $('g[family_name]').click( function(ev) {
-                var family_name = $(this).attr('family_name');
-                svg_legend.find(".legend_node").transform('scale', null);
-                svg_legend.find(".legend_node_" + family_name).transform('scale', 1.5);
-                cy.nodes().unselect();
-                cy.nodes('[family_name="' + family_name + '"]').select();
-            } );
-
-            $('g[family_clade]').click( function(ev) {
-                var family_clade = $(this).attr('family_clade');
-                svg_legend.find(".legend_node").transform('scale', null);
-                svg_legend.find(".legend_node_" + family_clade).transform('scale', 1.5);
-                cy.nodes().unselect();
-                cy.nodes('[family_clade="' + family_clade + '"]').select();
-            } );
-
-            $('g[lc_label]').click( function(ev) {
-                var lc_label = $(this).attr('lc_label');
-                svg_legend.find(".legend_node").transform('scale', null);
-                svg_legend.find(".legend_node_" + lc_label.split(';').join('_')).transform('scale', 1.5);
-                cy.nodes().unselect();
-                cy.nodes('[lc_label="' + lc_label + '"]').select();
-            } );
-
-            $('g[species]').click( function(ev) {
-                var species = $(this).attr('species');
-                svg_legend.find(".legend_node").transform('scale', null);
-                svg_legend.find('g[species="' + species + '"]').transform('scale', 1.5);
-                cy.nodes().unselect();
-                cy.nodes('[species_name="' + species + '"]').select();
-            } );
-        }
-    });
-
-    $('.cy-node-color').click(function (ev) {
-        ev.preventDefault();
-        $(this).closest('.cy-option-menu').find('.cy-node-color').each(function () {
-            cy.nodes('[^compound]').removeClass($(this).attr('attr'));
-        });
-        cy.nodes('[^compound]').addClass($(this).attr('attr'));
-
-        if ($(this).attr('attr') === 'family_color') {
-            $('.cy-node-shape[attr="family_shape"]').click();
-        } else if ($(this).attr('attr') === 'lc_color') {
-            $('.cy-node-shape[attr="lc_shape"]').click();
-        } else if ($(this).attr('attr') === 'spm_color') {
-            $('.cy-node-shape[attr="spm_shape"]').click();
-        } else if ($(this).attr('attr') === 'cluster_color') {
-            $('.cy-node-shape[attr="cluster_shape"]').click();
-        }else if ($(this).attr('attr') === 'family_clade_color') {
-            $('.cy-node-shape[attr="family_clade_shape"]').click();
-        } else {
-            $('.cy-node-shape[attr="shape"]').click();
         }
     });
 
@@ -407,18 +195,18 @@ $(function () { // on dom ready
     $('.cy-edge-color').click(function (ev) {
         ev.preventDefault();
         $(this).closest('.cy-option-menu').find('.cy-edge-color').each(function () {
-            cy.edges('[^homology]').removeClass($(this).attr('attr'));
+            cy.edges('[^correlation]').removeClass($(this).attr('attr'));
         });
-        cy.edges('[^homology]').addClass($(this).attr('attr'));
+        cy.edges('[^correlation]').addClass($(this).attr('attr'));
     });
 
     $('.cy-edge-width').click(function (ev) {
         ev.preventDefault();
         $(this).closest('.cy-option-menu').find('.cy-edge-width').each(function () {
-            cy.edges('[^homology]').removeClass($(this).attr('attr'));
+            cy.edges('[^correlation]').removeClass($(this).attr('attr'));
         });
 
-        cy.edges('[^homology]').addClass($(this).attr('attr'));
+        cy.edges('[^correlation]').addClass($(this).attr('attr'));
     });
 
     $('#cy-edge-score').on("slideStop", function (slideEvt) {
@@ -426,20 +214,6 @@ $(function () { // on dom ready
 
         cy.edges("[hrr>" + cutoff + "]").style('display', 'none');
         cy.edges("[hrr<=" + cutoff + "]").style('display', 'element');
-    });
-
-    $('.cy-depth-filter').click(function (ev) {
-        ev.preventDefault();
-        $('.cy-depth-filter').removeClass('active');
-        $(this).addClass('active');
-
-        var cutoff = $(this).attr('cutoff');
-
-        cy.nodes("[depth>" + (cutoff - 1) + "]").style('display', 'none');
-        cy.nodes("[depth<=" + (cutoff - 1) + "]").style('display', 'element');
-
-        cy.edges("[depth>" + cutoff + "]").style('display', 'none');
-        cy.edges("[depth<=" + cutoff + "]").style('display', 'element');
     });
 
     $('.cy-layout').click(function (ev) {
