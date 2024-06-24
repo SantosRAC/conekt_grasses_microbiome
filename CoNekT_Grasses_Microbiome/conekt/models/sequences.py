@@ -1,7 +1,7 @@
 from conekt import db
 
-from conekt.models.relationships import sequence_go, sequence_interpro, sequence_cazyme, sequence_family, sequence_coexpression_cluster
-from conekt.models.relationships import sequence_xref, sequence_sequence_ecc
+from conekt.models.relationships import sequence_go, sequence_interpro, sequence_cazyme, sequence_family
+from conekt.models.relationships import sequence_xref
 from utils.sequence import translate
 from utils.parser.fasta import Fasta
 
@@ -29,11 +29,6 @@ class Sequence(db.Model):
                                           lazy='dynamic',
                                           cascade="all, delete-orphan",
                                           passive_deletes=True)
-    network_nodes = db.relationship('ExpressionNetwork',
-                                    backref=db.backref('sequence', lazy='joined'),
-                                    lazy='dynamic',
-                                    cascade="all, delete-orphan",
-                                    passive_deletes=True)
 
     # Other properties
     #
@@ -47,20 +42,6 @@ class Sequence(db.Model):
     interpro_domains = db.relationship('Interpro', secondary=sequence_interpro, lazy='dynamic')
     cazymes = db.relationship('CAZYme', secondary=sequence_cazyme, lazy='dynamic')
     families = db.relationship('GeneFamily', secondary=sequence_family, lazy='dynamic')
-
-    coexpression_clusters = db.relationship('CoexpressionCluster', secondary=sequence_coexpression_cluster,
-                                            backref=db.backref('sequences', lazy='dynamic'),
-                                            lazy='dynamic')
-
-    ecc_query_associations = db.relationship('SequenceSequenceECCAssociation',
-                                             primaryjoin="SequenceSequenceECCAssociation.query_id == Sequence.id",
-                                             backref=db.backref('query_sequence', lazy='joined'),
-                                             lazy='dynamic')
-
-    ecc_target_associations = db.relationship('SequenceSequenceECCAssociation',
-                                              primaryjoin="SequenceSequenceECCAssociation.target_id == Sequence.id",
-                                              backref=db.backref('target_sequence', lazy='joined'),
-                                              lazy='dynamic')
 
     clade_associations_one = db.relationship('SequenceSequenceCladeAssociation',
                                              primaryjoin="SequenceSequenceCladeAssociation.sequence_one_id == Sequence.id",

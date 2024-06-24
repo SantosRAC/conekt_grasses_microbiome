@@ -1,0 +1,12 @@
+<div class="table-responsive">
+    <table class="table table-striped table-separated">
+        <tbody>
+            {% for otu in otus %}
+                    <tr>
+                        <td><a href="{{ url_for('otu.otu_view', otu_id=otu.id) }}">{{ otu.original_id }}</a></td>
+                        <td>{{ otu.representative_sequence }}</td>
+                    </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

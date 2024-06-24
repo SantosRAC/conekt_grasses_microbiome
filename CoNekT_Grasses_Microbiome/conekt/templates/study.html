@@ -9,6 +9,7 @@
 {% endblock %}
 
 {% block container %}
+{% import 'macros/pagination.html' as macro %}
 
 <div class="top-pad">
 
@@ -21,10 +22,14 @@
         <h1><strong><em>{{ study.name }}</em></strong></h1>
 
         {% if description %}
-            {{ description }}
+            {{ description | safe}}
             <br />
         {% endif %}
         <br />
+
+        {{ study.krona_html | safe }}
+    
+        {{ macro.pagination('OTUs', url_for('study.study_otus', study_id=study.id), 0, none, 'otus') }}
 
     {% elif all_studies %}
         <ol class="breadcrumb">

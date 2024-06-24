@@ -228,6 +228,75 @@ class NCBITaxon(db.Model):
         TODO: implement update counts for NCBI taxonomy
         """
 
+class GTDBTaxon(db.Model):
+    """Table for GTDB taxonomy.
+
+    taxid: GTDB taxonomy ID
+    taxon_path: Taxon path  
+    """
+    __tablename__ = 'gtdb_taxonomy'
+    id = db.Column(db.Integer, primary_key=True)
+    gtdb_id = db.Column(db.String(255), default='')
+    taxon_path = db.Column(db.String(255), default='')
+
+    def __init__(self, gtdb_id, taxon_path):
+        self.gtdb_id = gtdb_id
+        self.taxon_path = taxon_path
+
+    def __init__(self, gtdb_id, taxon_path):
+        self.gtdb_id = gtdb_id
+        self.taxon_path = taxon_path
+
+    @staticmethod
+    def add_gtdb_taxonomy(gtdb_taxonomy_data, empty=True):
+        """
+        Adds GTDB taxonomy information to the database.
+
+        :param taxonomy_data: GTDB taxonomy data (e.g., bac120_taxonomy_r220.tsv, for Bacteria)
+        :param empty: Empty the database first when true (default: True)
+        :return: 
+        """
+
+        # If required empty the table first
+        if empty:
+            try:
+                db.session.query(GTDBTaxon).delete()
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                print(e)
+
+        new_taxons = []
+        taxon_count = 0
+
+        # read the taxonomy file
+        with open(gtdb_taxonomy_data, 'r') as file:
+            lines = file.readlines()
+
+            for line in lines:
+
+                # split the line into the taxonomy information
+                line = line.strip().split('\t')
+
+                # add the taxonomy information to the database
+                new_taxon = GTDBTaxon(**{"gtdb_id": line[0],
+                                       "taxon_path": line[1]})
+
+                db.session.add(new_taxon)
+                new_taxons.append(new_taxon)
+                taxon_count += 1
+
+            # add 400 taxons at the time, more can cause problems with some database engines
+            if len(new_taxons) > 400:
+                db.session.commit()
+                new_taxons = []
+
+        # add the last set of sequences
+        db.session.commit()
+
+        return taxon_count
+
+
 class GGTaxon(db.Model):
     __tablename__ = 'gg_taxonomy'
     id = db.Column(db.Integer, primary_key=True)
@@ -242,6 +311,7 @@ class GGTaxon(db.Model):
     
     def __repr__(self):
         return str(self.id) + ". " + self.taxon_path
+    
 
     @staticmethod
     def add_gg_taxonomy(gg_taxonomy_data, empty=True):

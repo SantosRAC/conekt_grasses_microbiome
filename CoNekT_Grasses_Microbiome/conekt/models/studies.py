@@ -7,20 +7,24 @@ from conekt.models.seq_run import SeqRun
 from conekt.models.relationships.study_literature import StudyLiteratureAssociation
 from conekt.models.relationships.study_sample import StudySampleAssociation
 
+from sqlalchemy.dialects.mysql import LONGTEXT
 
 class Study(db.Model):
     __tablename__ = 'studies'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255, collation=SQL_COLLATION))
     description = db.Column(db.Text)
-    data_type = db.Column(db.Enum('rnaseq', 'metataxonomics', 'expression_metataxonomics', name='data_type'))
+    data_type = db.Column(db.Enum('metataxonomics', 'expression_metataxonomics', name='data_type'))
+    krona_html = db.deferred(db.Column(LONGTEXT))
     species_id = db.Column(db.Integer, db.ForeignKey('species.id', ondelete='CASCADE'), index=True)
 
     def __init__(self, name, description,
-                 data_type, species_id):
+                 data_type, species_id,
+                 krona_html=None):
         self.name = name
         self.description = description
         self.data_type = data_type
+        self.krona_html = krona_html
         self.species_id = species_id
 
     def __repr__(self):
@@ -31,11 +35,11 @@ class Study(db.Model):
     
     @staticmethod
     def build_study(species_id, study_name, study_description,
-                    study_type, literature_ids):
+                    study_type, literature_ids, krona_file):
         
         species = Species.query.get(species_id)
 
-        new_study = Study(study_name, study_description, study_type, species.id)
+        new_study = Study(study_name, study_description, study_type, species.id, krona_file)        
 
         db.session.add(new_study)
         db.session.commit()
@@ -43,19 +47,7 @@ class Study(db.Model):
         associated_literature = 0
         associated_samples = 0
 
-        if study_type == 'rnaseq':
-
-            for lit_id in literature_ids:
-
-                literature_rnaseq_runs = SeqRun.query.filter_by(species_id=species.id, data_type='rnaseq', literature_id=lit_id).all()
-
-                for run in literature_rnaseq_runs:
-
-                    new_study_run = StudySampleAssociation(new_study.id, run.id, 'rnaseq')
-                    db.session.add(new_study_run)
-                    db.session.commit()
-                        
-        elif study_type == 'metataxonomics':
+        if study_type == 'metataxonomics':
 
             for lit_id in literature_ids:
 

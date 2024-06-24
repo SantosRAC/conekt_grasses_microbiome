@@ -64,10 +64,12 @@
                         <li>
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Integration of Expression and Microbiome Tools <span class="caret"></span></a>
                             <ul class="dropdown-menu">
-                                <li class="dropdown-header">Analyze Correlations</li>
-                                <li><a href="#">ASVs versus Transcript Expression</a></li>
-                                <li><a href="{{ url_for('search.search_correlated_profiles') }}">OTUs versus Transcript Expression</a></li>
-                                <li><a href="#">Export Correlations</a></li>
+                                <li class="dropdown-header">Analyze OTU Correlations</li>
+                                <li><a href="{{ url_for('search.search_correlated_profiles') }}">Find Correlations (OTUs vs. Expression)</a></li>
+                                <li><a href="{{ url_for('custom_network.expression_microbiome_correlation') }}">Draw Network of Correlations (OTUs vs. Expression)</a></li>
+                                <li class="dropdown-header">Analyze ASV Correlations</li>
+                                <li><a href="#">Find Correlations (ASVs vs. Expression)</a></li>
+                                <li><a href="#">Draw Network of Correlations (ASVs vs. Expression)</a></li>
                             </ul>
                         </li>
                         <li>

@@ -1,0 +1,116 @@
+{% extends 'admin/my_base.html' %}
+
+{% block body %}
+{% if form %}
+<h1>Add OTU Classification</h1>
+<div class="row">
+    <div class="col-lg-8 col-md-8 col-sm-6 col-xs-12">
+        <form method="POST"  action="{{ url_for('admin_controls.add_otus') }}"  role="form" enctype="multipart/form-data">
+            {{ form.csrf_token }}
+            <label>Select a grass species</label>
+            <div class="form-group">
+                {{ form.species_id.label }}
+                {{ form.species_id(class_="form-control") }}
+            </div>
+
+            <label>Select a literature</label>
+            <div class="form-group">
+                {{ form.literature_id.label }}
+                {{ form.literature_id(class_="form-control") }}
+            </div>
+
+            <label>Select a OTU generation method</label>
+            <div class="form-group">
+                {{ form.otu_method_id.label }}
+                {{ form.otu_method_id(class_="form-control") }}
+            </div>
+
+            <label>Choose method used to classify OTUs using GTDB</label>
+            <div class="form-group">
+                {{ form.otu_classification_method_gtdb.label }}
+                {{ form.otu_classification_method_gtdb(class_="form-control") }}
+            </div>
+
+            <label>Add version of the OTU classifier</label>
+            <div class="form-group">
+                {{ form.classifier_version_gtdb.label }}
+                {{ form.classifier_version_gtdb(class_="form-control") }}
+            </div>
+
+            <label>Add the GTDB release</label>
+            <div class="form-group">
+                {{ form.release_gtdb.label }}
+                {{ form.release_gtdb(class_="form-control") }}
+            </div>
+
+            <div class="form-group">
+                <label>GTDB OTU Classification file</label>
+                <p>Text file with tab-delimited columns with one line header.</p>
+                <label class="btn btn-default" for="gtdb_otu_classification_file" id="gtdb-otu-classification-file-button">
+                    {{ form.gtdb_otu_classification_file(style="display:none;", onchange="")}}
+                    <span id="gtdb-otu-classification-file-selector-text">Select File</span>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>{{ form.additional_classification.label }}</label><br />
+                {% for option in form.additional_classification %}
+                    <div class="radio-inline" name="additional_classification_form" id="additional_classification_form">
+                        <label>
+                        {{ option }}
+                        {{ option.label }}
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div id="additional_classification">
+                <p>Please, add additional classification files</p>
+                <p>Currently, this is a TEST only.</p>
+            </div>            
+
+            <button type="submit" class="btn btn-success pull-right">Add OTU Classification</button>
+        </form>
+    </div>
+    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-heading"><strong>Help</strong></div>
+            <div class="panel-body">
+                <li>Adds <strong>OTU classification</strong> to the database</li>
+                <li>It is mandatory to provide at least a GTDB classification file</li>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block tail %}
+<script>
+    $(function() {
+        $("#otu_classification_file").change(function() {
+            $('#otu-classification-file-selector-text').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#otu-classification-file-button').toggleClass('btn-default btn-success');
+        });
+    });
+
+$(function() {
+    $("#additional_classification").hide();
+});
+
+$(function() {
+    $('input[name="additional_classification"]').change(function() {
+        var selectedOption = $(this).val();
+        
+        if (selectedOption === "yes") {
+            $("#additional_classification").show();
+        } else if (selectedOption === "no") {
+            $("#additional_classification").hide();
+        }
+
+    });
+});
+
+</script>
+{{ super() }}
+{% endblock%}

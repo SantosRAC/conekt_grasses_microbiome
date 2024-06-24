@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 
-from wtforms import StringField, SelectField, SelectMultipleField
+from wtforms import StringField, SelectField, SelectMultipleField, TextAreaField
 from flask_wtf.file import FileField
 from wtforms.validators import InputRequired
 
@@ -8,19 +8,21 @@ from conekt.models.species import Species
 from conekt.models.sample import Sample
 from conekt.models.seq_run import SeqRun
 
-class BuildStudyForm(FlaskForm):
+class BuildStudyForm(FlaskForm):    
     
     species_id = SelectField('Species', coerce=int, choices=[], validate_choice=False)
 
     # study Description and type (RNAseq, metataxonomic, both)
     study_name = StringField('Study Name', [InputRequired()])
-    study_description = StringField('Study Description', [InputRequired()])
+    study_description = TextAreaField('Study Description')
     study_type = SelectField('Study Type', choices=[('rnaseq', 'RNA-seq'),
                                                     ('metataxonomics', 'Metataxonomics'),
                                                     ('expression_metataxonomics', 'Both'),])
     
     # Admin can select multiple literature if needed
-    literature_list = SelectMultipleField('Literature', coerce=int, choices=[], validate_choice=False)
+    literature_list = SelectMultipleField('Literature (will change according to study type)', coerce=int, choices=[], validate_choice=False)
+
+    krona_file = FileField('Krona File')
 
     def populate_species(self):
         # Get distinct species ids from sample table, only if any runs exist

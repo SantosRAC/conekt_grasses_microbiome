@@ -3,8 +3,6 @@ from conekt.models.sequences import Sequence
 from conekt.models.clades import Clade
 from conekt.models.relationships.sequence_sequence_clade import SequenceSequenceCladeAssociation
 
-from conekt.models.expression.cross_species_profile import CrossSpeciesExpressionProfile
-
 import utils.phylo as phylo
 
 from flask import url_for

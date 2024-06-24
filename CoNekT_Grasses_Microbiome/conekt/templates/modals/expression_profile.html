@@ -15,6 +15,5 @@
 </div>
 <script>
 {% import "macros/chartjs.html" as chartjs %}
-{{ chartjs.expression_profile("profile-chart", url_for('expression_profile.expression_profile_plot_json', profile_id=profile.id)) }}
 </script>
 {% endif %}

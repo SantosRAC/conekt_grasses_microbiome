@@ -31,6 +31,8 @@ def search_correlated_profiles():
         species = Species.query.get_or_404(species_id)
         study = Study.query.get_or_404(study_id)
 
+        correlation_method = ExpMicroCorrelationMethod.query.get_or_404(method_id)
+
         results = ExpMicroCorrelation.query.\
             filter(ExpMicroCorrelation.exp_micro_correlation_method_id == method_id).\
             filter(ExpMicroCorrelation.corr_coef>=cutoff)
@@ -38,4 +40,5 @@ def search_correlated_profiles():
         return render_template("omics_integration/find_expression_microbiome_correlations.html",
                                results=results,
                                species=species,
-                               study=study)
+                               study=study,
+                               correlation_method=correlation_method)

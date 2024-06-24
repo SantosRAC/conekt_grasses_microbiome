@@ -9,10 +9,7 @@ from flask import current_app
 from sqlalchemy.orm import joinedload, noload
 
 from conekt import create_app, db
-from conekt.models.expression.coexpression_clusters import CoexpressionClusteringMethod
-from conekt.models.expression.networks import ExpressionNetworkMethod, ExpressionNetwork
 from conekt.models.gene_families import GeneFamilyMethod
-from conekt.models.relationships.sequence_cluster import SequenceCoexpressionClusterAssociation
 from conekt.models.relationships.sequence_family import SequenceFamilyAssociation
 from conekt.models.relationships.sequence_go import SequenceGOAssociation
 from conekt.models.relationships.sequence_cazyme import SequenceCAZYmeAssociation
@@ -189,75 +186,6 @@ def export_families(FAMILIES_PATH):
                 print(method, family, ";".join(members), file=f, sep='\t')
 
 
-def export_coexpression_clusters(EXPRESSION_PATH):
-    """
-    Export coexpression clusters and an overview of the methods to generate them
-    """
-    if not os.path.exists(EXPRESSION_PATH):
-        os.makedirs(EXPRESSION_PATH)
-
-    methods = CoexpressionClusteringMethod.query.all()
-
-    methodsfile = os.path.join(EXPRESSION_PATH, 'clustering_methods_overview.txt')
-
-    with open(methodsfile, "w") as f:
-        for m in methods:
-            print(m.id, m.network_method.species.code, m.method, m.cluster_count, file=f, sep='\t')
-
-    associations = SequenceCoexpressionClusterAssociation.query.all()
-
-    output = {}
-
-    for a in associations:
-        if a.coexpression_cluster.method_id not in output.keys():
-            output[a.coexpression_cluster.method_id] = {}
-
-        if a.coexpression_cluster.name not in output[a.coexpression_cluster.method_id].keys():
-            output[a.coexpression_cluster.method_id][a.coexpression_cluster.name] = []
-
-        if a.sequence is not None:
-            output[a.coexpression_cluster.method_id][a.coexpression_cluster.name].\
-                append(a.sequence.name + "(" + a.probe + ")")
-        else:
-            output[a.coexpression_cluster.method_id][a.coexpression_cluster.name].\
-                append("None(" + a.probe + ")")
-
-    for method, clusters in sorted(output.items()):
-        clusterfile = os.path.join(EXPRESSION_PATH, 'clustering_method_'+str(method)+'.tab')
-        with open(clusterfile, "w") as f:
-            for cluster, members in sorted(clusters.items()):
-                print(method, cluster, ";".join(members), file=f, sep='\t')
-
-
-def export_expression_networks(EXPRESSION_PATH):
-    """
-    Export expression networks and an overview of the methods to generate them
-    """
-    if not os.path.exists(EXPRESSION_PATH):
-        os.makedirs(EXPRESSION_PATH)
-
-    networks = ExpressionNetworkMethod.query.all()
-
-    methodsfile = os.path.join(EXPRESSION_PATH, 'network_methods_overview.txt')
-    with open(methodsfile, "w") as f:
-        for n in networks:
-            print(n.id, n.species.code, n.description, n.probe_count, file=f, sep='\t')
-
-    for n in networks:
-        networkfile = os.path.join(EXPRESSION_PATH, 'network_method_'+str(n.id)+'.tab.gz')
-        with gzip.open(networkfile, "wb") as f:
-            # Get all probes for the network (using a joined load to avoid hammering the database)
-            probes = ExpressionNetwork.query.filter(ExpressionNetwork.method_id == n.id).\
-                options(joinedload('sequence').load_only('name')).all()
-            for probe in probes:
-                if probe.sequence_id is not None:
-                    out = '\t'.join([n.species.code, probe.probe, probe.sequence.name, probe.network]) + '\n'
-                    f.write(bytes(out, 'UTF-8'))
-                else:
-                    out = '\t'.join([n.species.code, probe.probe, "None", probe.network]) + '\n'
-                    f.write(bytes(out, 'UTF-8'))
-
-
 def export_ftp_data(configuration):
     """
     Export all data
@@ -282,5 +210,3 @@ def export_ftp_data(configuration):
         export_cazyme_annotation(ANNOTATION_PATH)
 
         export_families(FAMILIES_PATH)
-        export_coexpression_clusters(EXPRESSION_PATH)
-        export_expression_networks(EXPRESSION_PATH)
