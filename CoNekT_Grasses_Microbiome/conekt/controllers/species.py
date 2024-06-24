@@ -1,9 +1,10 @@
-from flask import Blueprint, render_template, g, make_response, Response, flash
+from flask import Blueprint, render_template, g, make_response, Response, flash, jsonify
 from markdown import markdown
 
 from conekt import db, cache
 from conekt.models.species import Species
 from conekt.models.literature import LiteratureItem
+from conekt.models.seq_run import SeqRun
 from conekt.models.relationships.sample_literature import SampleLitAssociation
 from conekt.models.sequences import Sequence
 from conekt.models.clades import Clade
@@ -85,44 +86,34 @@ def species_sequences(species_id, page=1):
     return render_template('pagination/sequences.html', sequences=sequences)
 
 
-@species.route('/expression_papers/<species_id>/')
-@species.route('/expression_papers/<species_id>/<int:page>')
+@species.route('/get_run_papers/<species_id>/<run_data_type>/')
 @cache.cached()
-def species_expression_papers(species_id, page=1):
+def get_run_papers(species_id, run_data_type, page=1):
     """
-    Returns a table with literature items from RNA-seq for the selected species
+    Returns a table with literature items from RNA-seq or metataxonomics runs for the selected species
 
     :param species_id: Internal ID of the species
+    :param run_data_type: Type of data to show (rnaseq or metataxonomics)
     :param page: Page number
     """
 
-    lit_info = SampleLitAssociation.query.with_entities(SampleLitAssociation.literature_id).filter_by(species_id=species_id).distinct().all()
+    lit_info = SeqRun.query.with_entities(SeqRun.literature_id).filter_by(species_id=species_id,
+                                                                          data_type=run_data_type).distinct().all()
 
-    literatures = LiteratureItem.query.filter(LiteratureItem.id.in_([lit_id[0] for lit_id in lit_info])).paginate(page=page,
-                                                                 per_page=g.page_items,
-                                                                 error_out=False).items
+    literatures = LiteratureItem.query.filter(LiteratureItem.id.in_([lit_id[0] for lit_id in lit_info]))
 
-    return render_template('pagination/literatures.html', literatures=literatures)
+    litArray = []
 
-
-@species.route('/microbiome_papers/<species_id>/')
-@species.route('/microbiome_papers/<species_id>/<int:page>')
-@cache.cached()
-def species_microbiome_papers(species_id, page=1):
-    """
-    Returns a table with literature items from microbiome data for the selected species
-
-    :param species_id: Internal ID of the species
-    :param page: Page number
-    """
-
-    lit_info = SampleLitAssociation.query.with_entities(SampleLitAssociation.literature_id).filter_by(species_id=species_id).distinct().all()
-
-    literatures = LiteratureItem.query.filter(LiteratureItem.id.in_([lit_id[0] for lit_id in lit_info])).paginate(page=page,
-                                                                 per_page=g.page_items,
-                                                                 error_out=False).items
-
-    return render_template('pagination/literatures.html', literatures=literatures)
+    for literature in literatures:
+        litObj = {}
+        litObj['id'] = literature.id
+        if literature.qtd_author > 1:
+            litObj['publication_detail'] = f'{literature.author_names} et al. ({literature.public_year})'
+        else:
+            litObj['publication_detail'] = f'{literature.author_names} ({literature.public_year})'
+        litArray.append(litObj)
+    
+    return jsonify({'literatures': litArray})
 
 
 @species.route('/download/coding/<species_id>')
