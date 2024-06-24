@@ -137,8 +137,8 @@ literature_select.onchange = function() {
 }
 
 $(function() {
-    $("#otu_classification_file").change(function() {
-        $('#otu-classification-file-selector-text').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#otu-classification-file-button').toggleClass('btn-default btn-success');
+    $("#gtdb_otu_classification_file").change(function() {
+        $('#gtdb-otu-classification-file-selector-text').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#gtdb-otu-classification-file-button').toggleClass('btn-default btn-success');
     });
 });
 
