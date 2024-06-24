@@ -56,7 +56,6 @@
     study_type_select.onchange = function() {
         study_type = study_type_select.value;
         species_id = species_select.value;
-        console.log(study_type);
 
         if (study_type === "metataxonomics" || study_type === "expression_metataxonomics") {
             $("#literature_list").show();

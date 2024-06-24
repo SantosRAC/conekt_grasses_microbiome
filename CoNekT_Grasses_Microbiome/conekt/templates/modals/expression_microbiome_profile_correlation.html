@@ -13,7 +13,6 @@
         $.getJSON( "{{ url_for('profile_correlations.profiles_scatter_modal_json', expression_profile_id=expression_profile.id, metatax_profile_id=metatax_profile.id) }}", function( data ) {
         var ctx = document.getElementById("profile_correlation_modal");
         var myChart = new Chart(ctx, data);
-        console.log(data);
         });
     });
 </script>
