@@ -43,9 +43,6 @@ def literature_otus(literature_id, page=1):
 
     otu_methods = OperationalTaxonomicUnitMethod.query.filter_by(literature_id=int(literature_id)).all()
 
-    print(literature_id, type(literature_id), '\n\n\n\n\n\n\n\n\n')
-    print([otu_method.id for otu_method in otu_methods], '\n\n\n\n\n\n\n\n\n')
-
     otus = OperationalTaxonomicUnit.query.filter(OperationalTaxonomicUnit.method_id.in_([otu_method.id for otu_method in otu_methods])).paginate(page=page, per_page=g.page_items, error_out=False).items
 
     return render_template('pagination/microbiome/otus.html', otus=otus)
