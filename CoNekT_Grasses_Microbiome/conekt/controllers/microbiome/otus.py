@@ -1,7 +1,7 @@
-from flask import Blueprint, redirect, url_for, render_template, make_response
+from flask import Blueprint, redirect, url_for, render_template, make_response, jsonify
 
 from conekt import cache
-from conekt.models.microbiome.operational_taxonomic_unit import OperationalTaxonomicUnit
+from conekt.models.microbiome.operational_taxonomic_unit import OperationalTaxonomicUnit, OperationalTaxonomicUnitMethod
 from conekt.models.relationships_microbiome.otu_classification import OTUClassificationGG
 from sqlalchemy.orm import undefer, noload
 
@@ -62,3 +62,26 @@ def otu_modal(otu_id):
         .get_or_404(otu_id)
 
     return render_template('modals/microbiome_sequence.html', sequence=current_sequence, otu=True)
+
+
+@otu.route('/get_lit_otus/<literature_id>/')
+@cache.cached()
+def get_lit_otus(literature_id):
+    """
+    Returns a table with OTUs for the selected literature item (paper, book, book chapter)
+
+    :param species_id: Internal ID of the species
+    :param page: Page number
+    """
+
+    otu_methods = OperationalTaxonomicUnitMethod.query.filter_by(literature_id=int(literature_id)).all()
+
+    outMethodArray = []
+
+    for otu_method in otu_methods:
+        outMethodObj = {}
+        outMethodObj['id'] = otu_method.id
+        outMethodObj['otu_method_summary']=f'{otu_method.description} ({otu_method.amplicon_marker}, {otu_method.clustering_method})'
+        outMethodArray.append(outMethodObj)
+    
+    return jsonify({'otus': outMethodArray})
