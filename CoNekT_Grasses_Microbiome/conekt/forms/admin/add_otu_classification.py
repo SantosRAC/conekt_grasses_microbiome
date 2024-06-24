@@ -14,14 +14,15 @@ class AddOTUClassificationForm(FlaskForm):
     otu_method_id = SelectField('OTU Method', coerce=int, choices=[], validate_choice=False)
 
     # Fields for the OTU classification method
-    otu_classification_method_gtdb = SelectField('OTU classifier', choices=[('uclust', 'uclust'),
+    otu_classification_description = StringField('Description', [InputRequired()])
+    otu_classification_method_gtdb = SelectField('OTU classifier (to assign GTDB taxonomy IDs)', choices=[('uclust', 'uclust'),
                                                     ('qiime2_classify-sklearn', 'qiime2_classify-sklearn'),
-                                                    ('other', 'Other'),])
+                                                    ('other', 'Other')])
 
-    classifier_version_gtdb = StringField('Classifier version', [InputRequired()])
+    classifier_version_gtdb = StringField('Classifier version (assign GTDB taxonomy IDs)', [InputRequired()])
     release_gtdb = StringField('Reference Database release', [InputRequired()])
 
-    gtdb_otu_classification_file = FileField()
+    gtdb_otu_classification_file = FileField('GTDB OTU Classification File')
 
     additional_classification = RadioField('Add Additional Classification Databases? (e.g. SILVA)', choices=[('yes', 'Yes'), ('no', 'No')], default='no')
 
