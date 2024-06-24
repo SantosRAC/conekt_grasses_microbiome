@@ -124,6 +124,12 @@ def add_otu_classification():
 
     if request.method == 'POST' and form.validate():
 
+        otu_classification_description = request.form.get('otu_classification_description')
+        otu_classification_method = request.form.get('otu_classification_method_gtdb')
+        classifier_version = request.form.get('classifier_version_gtdb')
+        classification_ref_db_release = request.form.get('release_gtdb')
+        otu_gtdb_classification_file = request.files[form.gtdb_otu_classification_file.name].read()
+
         # Add GTDB classification file for OTUs
         fd_gtdb_classification_file, temp_gtdb_classification_file_path = mkstemp()
 
@@ -136,8 +142,8 @@ def add_otu_classification():
                                     classifier_version,
                                     classification_ref_db_release)
 
-        os.close(fd_classification_file)
-        os.remove(temp_classification_file_path)
+        os.close(fd_gtdb_classification_file)
+        os.remove(temp_gtdb_classification_file_path)
 
         return redirect(url_for('admin.index'))
     else:
