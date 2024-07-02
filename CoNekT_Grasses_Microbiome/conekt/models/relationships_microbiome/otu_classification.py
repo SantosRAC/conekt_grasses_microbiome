@@ -124,27 +124,27 @@ class OTUClassificationGG(db.Model):
         return otu_taxonomy
 
 
-class OTUClassificationGTDB(db.Model):
-    __tablename__ = 'otu_classification_gtdb'
-    id = db.Column(db.Integer, primary_key=True)
-    gtdb_id = db.Column(db.Integer, db.ForeignKey('gtdb_taxonomy.id'), index=True)
-    otu_id = db.Column(db.Integer, db.ForeignKey('otus.id', ondelete='CASCADE'), index=True)
-    method_id = db.Column(db.Integer, db.ForeignKey('otu_classification_methods.id', ondelete='CASCADE'), index=True)
+# class OTUClassificationGTDB(db.Model):
+#     __tablename__ = 'otu_classification_gtdb'
+#     id = db.Column(db.Integer, primary_key=True)
+#     gtdb_id = db.Column(db.Integer, db.ForeignKey('gtdb_taxonomy.id'), index=True)
+#     otu_id = db.Column(db.Integer, db.ForeignKey('otus.id', ondelete='CASCADE'), index=True)
+#     method_id = db.Column(db.Integer, db.ForeignKey('otu_classification_methods.id', ondelete='CASCADE'), index=True)
 
-    def __init__(self, gtdb_id, otu_id, method_id):
-        self.gtdb_id = gtdb_id
-        self.otu_id = otu_id
-        self.method_id = method_id
+#     def __init__(self, gtdb_id, otu_id, method_id):
+#         self.gtdb_id = gtdb_id
+#         self.otu_id = otu_id
+#         self.method_id = method_id
     
-    def __repr__(self):
-        return str(self.id) + ". " + self.otu_id + " " + self.method_id
+#     def __repr__(self):
+#         return str(self.id) + ". " + self.otu_id + " " + self.method_id
     
-    @staticmethod
-    def add_otu_classification_from_table(otu_classification_table,
-                                    otu_classification_description,
-                                    classifier_name,
-                                    classifier_version,
-                                    classification_ref_db_release):
+#     @staticmethod
+#     def add_otu_classification_from_table(otu_classification_table,
+#                                     otu_classification_description,
+#                                     classifier_name,
+#                                     classifier_version,
+#                                     classification_ref_db_release):
         """
         Function to add OTU classification from GTDB to the database
 

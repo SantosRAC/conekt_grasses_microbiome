@@ -6,8 +6,8 @@ from conekt import db, cache
 from conekt.models.literature import LiteratureItem
 
 from conekt.models.relationships.study_literature import StudyLiteratureAssociation
-from conekt.models.microbiome.operational_taxonomic_unit import\
-                    OperationalTaxonomicUnitMethod, OperationalTaxonomicUnit
+#from conekt.models.microbiome.operational_taxonomic_unit import\
+#                    OperationalTaxonomicUnitMethod, OperationalTaxonomicUnit
 from conekt.models.seq_run import SeqRun
 from conekt.models.studies import Study
 

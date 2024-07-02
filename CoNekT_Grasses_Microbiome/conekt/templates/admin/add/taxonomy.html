@@ -5,86 +5,27 @@
 <h1>Add Taxonomy</h1>
 <div class="row">
     <div class="col-lg-8 col-md-8 col-sm-6 col-xs-12">
-        <p>Use the panel below to add new taxonomy data</p>
 
-        <form method="POST"  action="{{ url_for('admin_controls.add_taxonomy') }}"  role="form" enctype="multipart/form-data">
+        <p>Add file containing GTDB Taxonomy information (e.g. bac120_taxonomy_r220.tsv).</p>
+                <form method="POST"  action="{{ url_for('admin_controls.add_taxonomy') }}"  role="form" enctype="multipart/form-data">
             {{ form.csrf_token }}
-            <div class="form-group">
-                <label>{{ form.ncbi_release.label }}</label>
-                {{form.ncbi_release(class_="form-control", placeholder="NCBI Release") }}
-            </div>
-
-            <br />
-            <div class="form-group">
-                <p>Add NCBI Taxonomy nodes file.</p>
-                <label class="btn btn-default" for="ncbi_taxonomy_nodes_file" id="my-file-button-ncbi-taxonomy-nodes">
-                    {{ form.ncbi_taxonomy_nodes_file(style="display:none;", onchange="")}}
-                    <span id="file-selector-text-ncbi-taxonomy-nodes">Select NCBI Taxonomy Nodes File</span>
+            <p>File has two columns (GTDB taxonomy id and GTDB taxonomy path).</p>
+                <label class="btn btn-default" for="gtdb_taxonomy_data" id="gtdb_taxonomy_data-file-button">
+                    {{ form.gtdb_taxonomy_data(style="display:none;", onchange="")}}
+                    <span id="file-selector-text-gtdb-taxonomy">Select GTDB Taxonomy</span>
                 </label>
             </div>
-
-            <div class="form-group">
-                <p>Add NCBI Taxonomy names file.</p>
-                <label class="btn btn-default" for="ncbi_taxonomy_names_file" id="my-file-button-ncbi-taxonomy-names">
-                    {{ form.ncbi_taxonomy_names_file(style="display:none;", onchange="")}}
-                    <span id="file-selector-text-ncbi-taxonomy-names">Select NCBI Taxonomy Names File</span>
-                </label>
-            </div>
-
-            <div class="form-group">
-                <label>{{ form.silva_release.label }}</label>
-                {{form.silva_release(class_="form-control", placeholder="SILVA Release") }}
-            </div>
-
-            <br />
-            <div class="form-group">
-                <p>Add file containing SILVA Taxonomy information (e.g. tax_slv_ssu_138.1.txt).</p>
-                <p>File has five columns (path, taxid, rank, remark and release - only first three are used).</p>
-                <label class="btn btn-default" for="silva_taxonomy_file" id="my-file-button-silva-taxonomy">
-                    {{ form.silva_taxonomy_file(style="display:none;", onchange="")}}
-                    <span id="file-selector-text-silva-taxonomy">Select SILVA Taxonomy File</span>
-                </label>
-            </div>
-
-            <div class="form-group">
-                <label>{{ form.gg_release.label }}</label>
-                {{form.gg_release(class_="form-control", placeholder="GreenGenes Release") }}
-            </div>
-
-            <br />
-            <div class="form-group">
-                <p>Add file containing GreenGenes Taxonomy information (e.g. gg_13_5_taxonomy.txt).</p>
-                <p>File has two columns (GG taxonomy id and GG taxonomy path).</p>
-                <label class="btn btn-default" for="gg_taxonomy_file" id="my-file-button-gg-taxonomy">
-                    {{ form.gg_taxonomy_file(style="display:none;", onchange="")}}
-                    <span id="file-selector-text-gg-taxonomy">Select GG Taxonomy File</span>
-                </label>
-            </div>
-
-            <div class="form-group">
-                <label>{{ form.gtdb_release.label }}</label>
-                {{form.gtdb_release(class_="form-control", placeholder="GTDB Release") }}
-            </div>
-
-            <br />
-            <div class="form-group">
-                <p>Add file containing GTDB Taxonomy information (e.g. bac120_taxonomy_r220.tsv).</p>
-                <p>File has two columns (GTDB taxonomy id and GTDB taxonomy path).</p>
-                <label class="btn btn-default" for="gtdb_taxonomy_file" id="my-file-button-gtdb-taxonomy">
-                    {{ form.gtdb_taxonomy_file(style="display:none;", onchange="")}}
-                    <span id="file-selector-text-gtdb-taxonomy">Select GTDB Taxonomy File</span>
-                </label>
-            </div>
-
-            <button type="submit" class="btn btn-success pull-right">Add Taxonomy</button>
+        <button type="submit" class="btn btn-success pull-right">Add GTDB Taxonomy data</button>
 
         </form>
     </div>
+    <p></p>
     <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
         <div class="panel panel-default">
             <div class="panel-heading"><strong>Help</strong></div>
             <div class="panel-body">
                 Adds a new taxonomy data to the database.
+                <br>
             </div>
         </div>
     </div>
@@ -97,30 +38,6 @@
 <script src="{{ url_for('static', filename='js/jscolor.min.js') }}"></script>
 <script>
     
-$(function() {
-    $("#ncbi_taxonomy_nodes_file").change(function() {
-        $('#file-selector-text-ncbi-taxonomy-nodes').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#my-file-button-ncbi-taxonomy-nodes').toggleClass('btn-default btn-success');
-    });
-});
-
-$(function() {
-    $("#ncbi_taxonomy_names_file").change(function() {
-        $('#file-selector-text-ncbi-taxonomy-names').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#my-file-button-ncbi-taxonomy-names').toggleClass('btn-default btn-success');
-    });
-});
-
-$(function() {
-    $("#silva_taxonomy_file").change(function() {
-        $('#file-selector-text-silva-taxonomy').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#my-file-button-silva-taxonomy').toggleClass('btn-default btn-success');
-    });
-});
-
-$(function() {
-    $("#gg_taxonomy_file").change(function() {
-        $('#file-selector-text-gg-taxonomy').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#my-file-button-gg-taxonomy').toggleClass('btn-default btn-success');
-    });
-});
-
 $(function() {
     $("#gtdb_taxonomy_file").change(function() {
         $('#file-selector-text-gtdb-taxonomy').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#my-file-button-gtdb-taxonomy').toggleClass('btn-default btn-success');

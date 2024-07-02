@@ -6,8 +6,8 @@ search = Blueprint('search', __name__)
 from conekt.forms.omics_integration.profile_correlations import SearchCorrelatedProfilesForm
 from conekt.models.species import Species
 from conekt.models.studies import Study
-from conekt.models.expression_microbiome.expression_microbiome_correlation import\
-    ExpMicroCorrelationMethod, ExpMicroCorrelation
+#from conekt.models.expression_microbiome.expression_microbiome_correlation import\
+  #  ExpMicroCorrelationMethod, ExpMicroCorrelation
 
 
 @search.route('/correlated/profiles', methods=['GET', 'POST'])

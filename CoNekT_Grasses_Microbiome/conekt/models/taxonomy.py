@@ -228,6 +228,8 @@ class NCBITaxon(db.Model):
         TODO: implement update counts for NCBI taxonomy
         """
 
+SQL_COLLATION = 'NOCASE' if db.engine.name == 'sqlite' else ''
+
 class GTDBTaxon(db.Model):
     """Table for GTDB taxonomy.
 
@@ -235,16 +237,11 @@ class GTDBTaxon(db.Model):
     taxon_path: Taxon path  
     """
     __tablename__ = 'gtdb_taxonomy'
-    id = db.Column(db.Integer, primary_key=True)
-    gtdb_id = db.Column(db.String(255), default='')
+    id = db.Column(db.String(30, collation=SQL_COLLATION), primary_key=True)
     taxon_path = db.Column(db.String(255), default='')
 
-    def __init__(self, gtdb_id, taxon_path):
-        self.gtdb_id = gtdb_id
-        self.taxon_path = taxon_path
-
-    def __init__(self, gtdb_id, taxon_path):
-        self.gtdb_id = gtdb_id
+    def __init__(self, id, taxon_path):
+        self.id = id
         self.taxon_path = taxon_path
 
     @staticmethod
@@ -271,16 +268,21 @@ class GTDBTaxon(db.Model):
 
         # read the taxonomy file
         with open(gtdb_taxonomy_data, 'r') as file:
+            _ = file.readline()
+
             lines = file.readlines()
 
             for line in lines:
 
                 # split the line into the taxonomy information
-                line = line.strip().split('\t')
+                parts = line.strip().split('\t')
 
-                # add the taxonomy information to the database
-                new_taxon = GTDBTaxon(**{"gtdb_id": line[0],
-                                       "taxon_path": line[1]})
+                gtdb_id = parts[0]
+                taxon_path = parts[1]
+
+                 # add the taxonomy information to the database
+
+                new_taxon = GTDBTaxon(gtdb_id, taxon_path)
 
                 db.session.add(new_taxon)
                 new_taxons.append(new_taxon)
