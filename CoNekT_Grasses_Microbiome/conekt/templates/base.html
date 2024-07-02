@@ -5,7 +5,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width">
         <title>{% block title %}{% endblock %}</title>
-        <link rel="shortcut icon" href="{{ url_for('static', filename='img/conekt_paged_microbiome_logo_0_10.png') }}">
+        <link rel="shortcut icon" href="{{ url_for('static', filename='img/conekt_grasses_microbiome_logo_0_10.png') }}">
         <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
         <link href="{{ url_for('static', filename='css/bootstrap-slider.min.css') }}" rel="stylesheet">
         <link href="{{ url_for('static', filename='css/jquery.qtip.min.css') }}" rel="stylesheet">
@@ -42,13 +42,13 @@
                       <span class="icon-bar"></span>
                       <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand hidden-xs" href="{{ url_for('main.screen') }}"><img src="{{ url_for('static', filename='img/conekt_paged_microbiome_logo_0_10.png') }}" style="max-width:100px;margin-left:-7px;margin-top: -13px;float:left;margin-right:5px;" width="48px"/></a>
-                    <a class="navbar-brand visible-xs" href="{{ url_for('main.screen') }}"><img src="{{ url_for('static', filename='img/conekt_paged_microbiome_logo_0_10.png') }}" style="max-width:100px; margin-top: -7px;" width="32px"/></a>
+                    <a class="navbar-brand hidden-xs" href="{{ url_for('main.screen') }}"><img src="{{ url_for('static', filename='img/conekt_grasses_microbiome_logo_0_10.png') }}" style="max-width:100px;margin-left:-7px;margin-top: -13px;float:left;margin-right:5px;" width="48px"/></a>
+                    <a class="navbar-brand visible-xs" href="{{ url_for('main.screen') }}"><img src="{{ url_for('static', filename='img/conekt_grasses_microbiome_logo_0_10.png') }}" style="max-width:100px; margin-top: -7px;" width="32px"/></a>
                 </div>
 
                 <div id="navbar" class="navbar-collapse collapse">
                     <ul class="nav navbar-nav navbar-left">
-                        <li><a href="{{ url_for('species.species_overview') }}">Species</a></li>
+                        <li><a href="{{ url_for('species.species_overview') }}">Overview</a></li>
                         <li><a href="{{ url_for('study.studies_overview') }}">Studies</a></li>
                         <li>
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Microbiome Tools <span class="caret"></span></a>
