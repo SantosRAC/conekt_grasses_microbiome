@@ -15,7 +15,7 @@
     {% if species %}
         <ol class="breadcrumb">
             <li><a href="{{ url_for('main.screen') }}">Home</a></li>
-            <li><a href="{{ url_for('species.species_overview') }}">Species</a></li>
+            <li><a href="{{ url_for('species.overview') }}">Overview</a></li>
             <li class="active"><strong><em>{{ species.name }}</em></strong></li>
         </ol>
         <h1><strong><em>{{ species.name }}</em></strong> <small>({{ species.code }})</small></h1>

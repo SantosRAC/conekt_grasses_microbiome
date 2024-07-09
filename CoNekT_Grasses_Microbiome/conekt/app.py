@@ -101,6 +101,7 @@ def configure_blueprints(app):
     from conekt.controllers.family import family
     from conekt.controllers.expression_profile import expression_profile
     from conekt.controllers.search import search
+    from conekt.controllers.genome import overview
     # TODO: Configure Solr to replace Whoosh !
     from conekt.controllers.help import help
     from conekt.controllers.clade import clade
@@ -139,6 +140,7 @@ def configure_blueprints(app):
     app.register_blueprint(expression_profile, url_prefix='/profile')
     app.register_blueprint(custom_network, url_prefix='/custom_network')
     app.register_blueprint(search, url_prefix='/search')
+    app.register_blueprint(overview, url_prefix = '/overview')
     # TODO: add URL after configuring Solr as the main search engine
     app.register_blueprint(help, url_prefix='/help')
     app.register_blueprint(profile_comparison, url_prefix='/profile_comparison')

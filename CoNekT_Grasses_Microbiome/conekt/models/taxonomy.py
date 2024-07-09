@@ -239,10 +239,25 @@ class GTDBTaxon(db.Model):
     __tablename__ = 'gtdb_taxonomy'
     id = db.Column(db.String(30, collation=SQL_COLLATION), primary_key=True)
     taxon_path = db.Column(db.String(255), default='')
+    domain = db.Column(db.String(255), default='')
+    phylum = db.Column(db.String(255), default='')
+    Class = db.Column(db.String(255), default='')
+    order = db.Column(db.String(255), default='')
+    family = db.Column(db.String(255), default='')
+    genus = db.Column(db.String(255), default='')
+    species = db.Column(db.String(255), default='')
 
-    def __init__(self, id, taxon_path):
+
+    def __init__(self, id, taxon_path, domain, phylum, Class, order, family, genus, species):
         self.id = id
         self.taxon_path = taxon_path
+        self.domain = domain
+        self.phylum = phylum
+        self.Class = Class
+        self.order = order
+        self.family = family
+        self.genus = genus
+        self.species = species
 
     @staticmethod
     def add_gtdb_taxonomy(gtdb_taxonomy_data, empty=True):
@@ -279,10 +294,18 @@ class GTDBTaxon(db.Model):
 
                 gtdb_id = parts[0]
                 taxon_path = parts[1]
+                domain = parts[2]
+                phylum = parts[3]
+                Class = parts[4]
+                order = parts[5]
+                family = parts[6]
+                genus = parts[7]
+                species = parts[8]
+
 
                  # add the taxonomy information to the database
 
-                new_taxon = GTDBTaxon(gtdb_id, taxon_path)
+                new_taxon = GTDBTaxon(gtdb_id, taxon_path, domain, phylum, Class, order, family, genus, species)
 
                 db.session.add(new_taxon)
                 new_taxons.append(new_taxon)
