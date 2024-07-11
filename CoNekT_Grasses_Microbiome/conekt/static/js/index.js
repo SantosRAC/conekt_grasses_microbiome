@@ -1,0 +1,1 @@
+document.getElementById("texto").innerHTML="Teste no JS"

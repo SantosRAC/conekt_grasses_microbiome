@@ -1,0 +1,316 @@
+{% extends 'base.html' %}
+
+{% block title %}Genome Statistics{% endblock %}
+
+{% block container %}
+<div class="top-pad">
+    <ol class="breadcrumb">
+        <li><a href="{{ url_for('overview.genome_counts_page') }}">Overview</a></li>
+        <li class="active"><strong>PaGeD statistics</strong></li>
+    </ol>
+
+    <h1 class="banner-green">Interesting PaGeD statistics!</h1>
+
+    <!-- Bar Chart -->
+    <div class="d-flex justify-content-center align-items-center flex-column">
+        <h2 class="text-center">Genome Bar Chart by Taxonomic Level</h2>
+        <div class="text-center" style="max-width: 600px; margin: auto;">
+            <canvas id="genomeChart" style="width: 100%;"></canvas>
+    </div>
+
+    <!-- Polar area chart -->
+    <div class="d-flex justify-content-center align-items-center flex-column">
+        <h2 class="text-center">Proportion of Genomes by Habitat</h2>
+        <div class="text-center" style="max-width: 600px; margin: auto;">
+            <canvas id="polarChart" style="width: 100%;"></canvas>
+    </div>
+
+    <!-- Doughnut chart -->
+    
+    <div class="d-flex justify-content-center align-items-center flex-column">
+        <h2 class="text-center">Proportion of Genomes by Type</h2>
+        <div class="text-center" style="max-width: 600px; margin: auto;">
+            <canvas id="doughnutChart" style="width: 100%;"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+    <!-- Script Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        async function fetchGenomeData() {
+            console.log('Calling fetchGenomeData()...');
+            try {
+                const response = await fetch('/overview/genome_counts_by_habitat');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+                const data = await response.json();
+                console.log('Data received', data);
+                return data;
+            } catch (error) {
+                console.error('Error fetching and parsing JSON data', error);
+                return {};
+            }
+        }
+
+        async function fetchBarChartData() {
+            console.log('Calling fetchBarChartData()...');
+            try {
+                const response = await fetch('/overview/genome_counts_by_taxonomic_level');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+                const data = await response.json();
+                console.log('Data received', data);
+                return data;
+            } catch (error) {
+                console.error('Error fetching and parsing JSON data', error);
+                return {};
+            }
+        }
+
+            async function fetchGenomeTypeData() {
+            console.log('Calling fetchGenomeTypeData()...');
+            try {
+                const response = await fetch('/overview/genome_counts_by_type');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+                const data = await response.json();
+                console.log('Data received', data);
+                return data;
+            } catch (error) {
+                console.error('Error fetching and parsing JSON data', error);
+                return {};
+            }
+        }
+        
+
+        async function createDoughnutChart() {
+        const data = await fetchGenomeTypeData();
+
+        if (data.length === 0) {
+            console.error('No data available');
+            return;
+        }
+
+        const labels = data.map(item => item.genome_type);
+        const proportions = data.map(item => item.proportion);
+
+        const ctx = document.getElementById('doughnutChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Genome Types Proportion',
+                    data: proportions,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(201, 203, 207, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(201, 203, 207, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.label + ': ' + tooltipItem.raw.toFixed(2) + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+        console.log('Doughnut chart created successfully!');
+    
+
+        async function createPolarAreaChart() {
+            console.log('Creating area polar chart...');
+            const data = await fetchGenomeData();
+
+            // Check if received data is empty or invalid
+            if (Object.keys(data).length === 0) {
+                console.error('JSON data is empty or invalid.');
+                return;
+            }
+
+            console.log('Data received for polar area chart:', data);
+
+            // Extracting labels (habitats) and values (proportions)
+            const labels = data.map(item => item.envo_class);
+            const values = data.map(item => item.genome_proportion);
+
+            console.log('Labels:', labels);
+            console.log('Values:', values);
+
+            // Dataset settings for the polar area chart
+            const datasets = [{
+                label: 'Proportion of Genomes by Habitat',
+                data: values,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)',
+                    'rgba(201, 203, 207, 0.2)',
+                    'rgba(106, 90, 205, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(201, 203, 207, 1)',
+                    'rgba(106, 90, 205, 1)'
+                ],
+                borderWidth: 1
+            }];
+
+            // Chart.js configuration
+            const ctx = document.getElementById('polarChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'polarArea',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    scales: {
+                        r: {
+                            suggestedMin: 0,
+                            suggestedMax: 50
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    return `${tooltipItem.label}: ${tooltipItem.raw.toFixed(2)}%`;
+                                }
+                            }
+                        }
+                    },
+                    pointLabels: {
+                        display: true,
+                        font: {
+                            size: 14
+                        }
+                    }
+                }
+            });
+
+            console.log('Polar area chart created successfully!');
+        }
+
+        async function createBarChart() {
+            console.log('Creating bar chart...');
+            const data = await fetchBarChartData();
+
+            // Check if received data is empty or invalid
+            if (Object.keys(data).length === 0) {
+                console.error('JSON data is empty or invalid.');
+                return;
+            }
+
+            console.log('Data received for bar chart:', data);
+
+            // Defining correct order of labels
+            const labels = ['domain', 'phylum', 'Class', 'order', 'family', 'genus', 'species'];
+
+            // Creating array of values in the order of labels
+            const values = labels.map(label => data[label] || 0);
+
+            console.log('Labels:', labels);
+            console.log('Values:', values);
+
+            // Dataset settings for the bar chart
+            const datasets = [{
+                label: 'Number of Genomes by Taxonomic Level',
+                data: values,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)',
+                    'rgba(201, 203, 207, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(201, 203, 207, 1)'
+                ],
+                borderWidth: 1
+            }];
+
+            // Chart.js configuration
+            const ctx = document.getElementById('genomeChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            console.log('Bar chart created successfully!');
+        }
+
+        window.onload = function() {
+            createPolarAreaChart();
+            createBarChart();
+            createDoughnutChart();
+        };
+    </script>
+{% endblock %}

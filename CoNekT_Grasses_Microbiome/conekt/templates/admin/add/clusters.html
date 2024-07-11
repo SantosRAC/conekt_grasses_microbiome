@@ -1,0 +1,45 @@
+{% extends 'admin/my_base.html' %}
+
+{% block body %}
+{% if form %}
+<h1>Add Cluster data</h1>
+<div class="row">
+    <div class="col-lg-8 col-md-8 col-sm-6 col-xs-12">
+        <form method="POST"  action="{{ url_for('admin_controls.add_clusters') }}"  role="form" enctype="multipart/form-data">
+            {{ form.csrf_token }}
+                <p>File with Clusters descriptions and associated information, in tabular format</p>
+                <label class="btn btn-default" for="clusters_file" id="clusters-file-button">
+                    {{ form.clusters_file(style="display:none;", onchange="")}}
+                    <span id="clusters-file-selector-text">Select Clusters File</span>
+                </label>
+            </div>
+        <button type="submit" class="btn btn-success pull-right">Add Cluster data</button>
+
+        </form>
+    </div>
+    <p></p>
+    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-heading"><strong>Help</strong></div>
+            <div class="panel-body">
+                ADD DESCRIPTION.
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block tail %}
+<script src="{{ url_for('static', filename='js/jscolor.min.js') }}"></script>
+<script>
+$(function() {
+    $("#clusters_file").change(function() {
+        $('#clusters-file-selector-text').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#clusters-file-button').toggleClass('btn-default btn-success');
+    });
+});
+</script>
+{{ super() }}
+{% endblock%}
