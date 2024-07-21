@@ -243,17 +243,6 @@ def configure_admin_panel(app):
                                                endpoint='admin_build_study',
                                                url='build/study/', category='Build'))
         admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Build')
-        admin.add_menu_item(MenuLink("Update Counts", url="/admin_controls/update/counts", class_name="confirmation"),
-                            target_category='Build')
-        admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Build')
-        admin.add_menu_item(MenuLink("Assign Clades", url="/admin_controls/update/clades", class_name="confirmation"),
-                            target_category='Build')
-
-        admin.add_view(AddFamilyAnnotationView(name='Family-wise annotation',
-                                               endpoint='admin_add_family_annotation',
-                                               url='build/family_annotation/', category='Build'))
-
-        admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Build')
         admin.add_menu_item(MenuLink("Integration of RNAseq and Metataxonomics", class_name="disabled", url="#"), target_category='Build')
         admin.add_view(BuildCorrelationsView(name='Build RNAseq - Metataxonomics Profile Correlations', endpoint='admin_build_rnametataxcor',
                                      url='build/exp_metatax_correlations', category='Build'))
