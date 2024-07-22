@@ -90,7 +90,7 @@
         species_select.onchange = function() {
             species_id = species_select.value;
             
-            fetch("{{ url_for('study.get_species_studies', species_id='species_id', study_type='metataxonomics') }}".replace('species_id', species_id)).then(function(response) {
+            fetch("{{ url_for('study.get_species_studies', species_id='species_id') }}".replace('species_id', species_id)).then(function(response) {
                 response.json().then(function(data) {
                     
                     let optionHTML = '';

@@ -33,6 +33,25 @@ class OTUProfile(db.Model):
     def __repr__(self):
         return str(self.id) + ". " + str(self.otu_id)
 
+    @staticmethod
+    def get_profiles(probes, otu_profiles_ids, limit=1000):
+        """
+        Gets the data for a set of probes (including the full profiles), a limit can be provided to avoid overly
+        long queries
+
+        :param species_id: internal id of the species
+        :param probes: probe names to fetch
+        :param limit: maximum number of probes to get
+        :return: List of ExpressionProfile objects including the full profiles
+        """
+        profiles = OTUProfile.query.\
+            options(undefer(OTUProfile.profile)).\
+            filter(OTUProfile.otu_id.in_(probes), OTUProfile.id.in_(otu_profiles_ids)).\
+            options(joinedload(OTUProfile.otus).load_only(OperationalTaxonomicUnit.original_id)).\
+            limit(limit).all()
+
+        return profiles
+
     @property
     def low_abundance(self, cutoff=10):
         """
