@@ -139,10 +139,14 @@ def get_species_lits_with_runs(species_id, study_type):
 
 
 @study.route('/get_species_studies/<species_id>/<study_type>')
+@study.route('/get_species_studies/<species_id>/')
 @cache.cached()
-def get_species_studies(species_id, study_type):
+def get_species_studies(species_id, study_type=None):
 
-    studies = Study.query.with_entities(Study.id, Study.name).filter_by(species_id=species_id, data_type=study_type).all()
+    if study_type:
+        studies = Study.query.with_entities(Study.id, Study.name).filter_by(species_id=species_id, data_type=study_type).all()
+    else:
+        studies = Study.query.with_entities(Study.id, Study.name).filter_by(species_id=species_id).all()
 
     studyArray = []
     study_ids = []
