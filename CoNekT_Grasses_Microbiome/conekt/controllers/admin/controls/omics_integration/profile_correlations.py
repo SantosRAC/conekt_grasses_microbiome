@@ -28,6 +28,8 @@ def build_profile_correlations():
         multiple_test_cor_method = request.form.get('multiple_test_cor_method')
         rnaseq_norm = request.form.get('rnaseq_norm')
         metatax_norm = request.form.get('metatax_norm')
+        correlation_cutoff = float(request.form.get('correlation_cutoff'))
+        corrected_pvalue_cutoff = float(request.form.get('corrected_pvalue_cutoff'))
 
         ExpMicroCorrelation.calculate_expression_metataxonomic_correlations(study_id, description, tool, stat_method,
                                                                     multiple_test_cor_method, rnaseq_norm,

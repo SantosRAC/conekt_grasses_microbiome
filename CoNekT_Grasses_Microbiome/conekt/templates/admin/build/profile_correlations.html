@@ -42,6 +42,14 @@
         {{ form.metatax_norm.label }}
         {{ form.metatax_norm(class_="form-control") }}
     </div>
+    <div class="form-group">
+        {{ form.correlation_cutoff.label }}
+        {{ form.correlation_cutoff(class_="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.corrected_pvalue_cutoff.label }}
+        {{ form.corrected_pvalue_cutoff(class_="form-control") }}
+    </div>
 
     <button type="submit" class="btn btn-success">Build Correlations</button>
 </form>

@@ -32,8 +32,8 @@
                             {{form.study_id(class_="form-control")}}<br/>
                             <label>Method</label>
                             {{form.method_id(class_="form-control")}}<br/>
-                            <label><abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">Correlation</abbr> cutoff :</label>
-                            {{form.cutoff(class_="form-control", **{'data-provide':"slider",
+                            <label><abbr title="Click to show help" href="" data-target="#helpModal">Correlation</abbr> cutoff :</label>
+                            {{form.correlation_cutoff(class_="form-control", **{'data-provide':"slider",
                                                                     'data-slider-id':"cutoffSlider",
                                                                     'data-slider-min':"0.5",
                                                                     'data-slider-max':"1",
