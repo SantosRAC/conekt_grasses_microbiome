@@ -6,6 +6,7 @@ from conekt.models.species import Species
 from conekt.models.seq_run import SeqRun
 from conekt.models.relationships.study_literature import StudyLiteratureAssociation
 from conekt.models.relationships.study_sample import StudySampleAssociation
+from conekt.models.relationships.study_run import StudyRunAssociation
 
 from sqlalchemy.dialects.mysql import LONGTEXT
 
@@ -53,10 +54,18 @@ class Study(db.Model):
 
                 literature_metatax_runs = SeqRun.query.filter_by(species_id=species.id, data_type='metataxonomics', literature_id=lit_id).all()
 
+                new_study_lit = StudyLiteratureAssociation(new_study.id, lit_id)
+                db.session.add(new_study_lit)
+                db.session.commit()
+
                 for run in literature_metatax_runs:
 
-                    new_study_run = StudySampleAssociation(new_study.id, run.id, 'metataxonomics') 
+                    new_study_run = StudyRunAssociation(new_study.id, run.id, 'metataxonomics') 
                     db.session.add(new_study_run)
+                    db.session.commit()
+
+                    new_study_sample = StudySampleAssociation(new_study.id, run.sample_id) 
+                    db.session.add(new_study_sample)
                     db.session.commit()
                 
         else:
@@ -89,5 +98,16 @@ class Study(db.Model):
                     db.session.commit()
 
                     associated_literature+=1
+
+                for run in rnaseq_runs:
+                    new_study_run = StudyRunAssociation(new_study.id, run.id, data_type='rnaseq')
+                    db.session.add(new_study_run)
+                    db.session.commit()
+
+                for run in metatax_runs:
+                    new_study_run = StudyRunAssociation(new_study.id, run.id, data_type='metataxonomics')
+                    db.session.add(new_study_run)
+                    db.session.commit()
+
         
         return associated_literature, associated_samples
