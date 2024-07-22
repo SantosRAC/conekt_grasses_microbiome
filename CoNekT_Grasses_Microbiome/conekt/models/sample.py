@@ -5,6 +5,7 @@ import operator
 import sys
 
 from conekt.models.literature import LiteratureItem
+from conekt.models.relationships.sample_group import SampleGroupAssociation
 
 SQL_COLLATION = 'NOCASE' if db.engine.name == 'sqlite' else ''
 
@@ -15,13 +16,15 @@ class Sample(db.Model):
     description = db.Column(db.Text)
     replicate = db.Column(db.Integer, default=1)
     species_id = db.Column(db.Integer, db.ForeignKey('species.id', ondelete='CASCADE'), index=True)
+    species_genotype = db.Column(db.String(100, collation=SQL_COLLATION))
     literature_id = db.Column(db.Integer, db.ForeignKey('literature.id', ondelete='CASCADE'), index=True)
     
-    def __init__(self, name, species_id,
-                 description, literature_id, replicate = 1):
+    def __init__(self, name, description, species_id,
+                 species_genotype, literature_id, replicate = 1):
         self.name = name
         self.description = description
         self.species_id = species_id
+        self.species_genotype = species_genotype
         self.literature_id = literature_id
         self.replicate = replicate
     
@@ -76,12 +79,18 @@ class Sample(db.Model):
                 except IndexError:
                     peco_term = None
                     print("Warning: PECO term not found for this sample")
-                
+
                 try:
                     envo_term = parts[7]
                 except IndexError:
                     envo_term = None
                     print("Warning: ENVO term not found for this sample")
+                
+                try:
+                    species_genotype = parts[8]
+                except IndexError:
+                    species_genotype = None
+                    print("Warning: Genotype term not found for this sample")
 
                 literature = LiteratureItem.query.filter_by(doi=doi).first()
 
@@ -92,14 +101,27 @@ class Sample(db.Model):
 
                 # add the sample to the database
                 new_sample = Sample(sample_name,
-                                   species_id,
                                    condition_description,
+                                   species_id,
+                                   species_genotype,
                                    literature_id,
                                    replicate)
 
                 db.session.add(new_sample)
                 db.session.commit()
                 sample_count += 1
+
+                try:
+                    sample_group_definitions = parts[9]
+                    sample_groups = sample_group_definitions.split(';')
+                    for sample_group in sample_groups:
+                        group_type, group_name = sample_group.split(':')
+                        sample_group_association = SampleGroupAssociation(new_sample.id, group_type, group_name)
+                        db.session.add(sample_group_association)
+                        db.session.commit()
+                except IndexError:
+                    sample_group_definitions = None
+                    print("Warning: Group(s) was/were not defined for this sample")
 
                 if po_anatomy_term:
                     if po_anatomy_term.startswith('PO:'):
