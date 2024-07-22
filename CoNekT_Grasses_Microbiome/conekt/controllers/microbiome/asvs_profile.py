@@ -5,7 +5,7 @@ from conekt import db
 from flask import Blueprint, redirect, request, render_template, flash
 
 from conekt import cache
-from conekt.forms.microbiome.asvs_profile import ProfileComparisonForm
+from conekt.forms.microbiome.profile import ProfileComparisonForm
 
 from conekt.helpers.chartjs import prepare_asv_profiles
 
