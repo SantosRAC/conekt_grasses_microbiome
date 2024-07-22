@@ -33,7 +33,8 @@ def build_profile_correlations():
 
         ExpMicroCorrelation.calculate_expression_metataxonomic_correlations(study_id, description, tool, stat_method,
                                                                     multiple_test_cor_method, rnaseq_norm,
-                                                                    metatax_norm)
+                                                                    metatax_norm, correlation_cutoff,
+                                                                    corrected_pvalue_cutoff)
 
         flash('Succesfully build correlations between microbiome and transcriptome.', 'success')
         return redirect(url_for('admin.index'))
