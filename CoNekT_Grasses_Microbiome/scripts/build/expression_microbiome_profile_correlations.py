@@ -23,6 +23,22 @@ parser.add_argument('--study_id', type=int, metavar='1',
                     dest='study_id',
                     help='Internal id of the study',
                     required=True)
+parser.add_argument('--description', type=str, metavar='Correlations between microbiome and expression profiles in this awesome study',
+                    dest='cor_method_description',
+                    help='Description to the method used to calculate the correlations for one particular study',
+                    required=True)
+parser.add_argument('--correlation_method', type=str, metavar='pearson',
+                    dest='stat_method',
+                    help='Method used for the correlation calculation (pearson or spearman)',
+                    required=False, default='pearson')
+parser.add_argument('--expression_normalization_method', type=str, metavar='tpm',
+                    dest='rnaseq_norm',
+                    help='Method used to normalize the expression data',
+                    required=False, default='tpm')
+parser.add_argument('--microbiome_normalization_method', type=str, metavar='cpm',
+                    dest='metatax_norm',
+                    help='Method used to normalize the microbiome data',
+                    required=False, default='cpm')
 parser.add_argument('--db_admin', type=str, metavar='DB admin',
                     dest='db_admin',
                     help='The database admin user',
@@ -43,8 +59,6 @@ if args.db_password:
 else:
     db_password = input("Enter the database password: ")
 
-
-
 def calculate_expression_metataxonomic_correlations(study_id, description, tool, stat_method, multiple_test_cor_method,
                                                         rnaseq_norm, metatax_norm, correlation_cutoff=0.5,
                                                         corrected_pvalue_cutoff=0.05):
@@ -52,7 +66,7 @@ def calculate_expression_metataxonomic_correlations(study_id, description, tool,
         Function to calculate the correlations between expression and metataxonomic profiles
 
         :param study_id: internal id of the study
-        :param tool: tool used to calculate the correlation
+        :param tool: tool used to calculate the correlation (currently, only CorALS is implemented)
         :param stat_method: Pearson or Spearman correlation
         :param multiple_test_cor_method: Bonferroni (currently, FDR is not implemented due to requirements of large memory with the full correlation)
         :param rnaseq_norm: normalization method used for the RNA-seq data
@@ -61,55 +75,69 @@ def calculate_expression_metataxonomic_correlations(study_id, description, tool,
         :param corrected_pvalue_cutoff: cutoff value for the corrected p-value
         """
 
-        new_correlation_method = ExpMicroCorrelationMethod(description, tool, stat_method, multiple_test_cor_method,
-                                                            rnaseq_norm, metatax_norm, study_id)
-        
-        session.add(new_correlation_method)
+        new_correlation_method = {"description": description,
+                                    "tool_name":tool,
+                                    "stat_method":stat_method,
+                                    "multiple_test_cor_method":multiple_test_cor_method,
+                                    "rnaseq_norm":rnaseq_norm, 
+                                    "metatax_norm":metatax_norm,
+                                    "study_id":study_id}
+
+        new_correlation_method_obj = ExpMicroCorrelationMethod(**new_correlation_method)
+
+        session.add(new_correlation_method_obj)
         session.commit()
 
         # Get study
-        study = Study.query.get(study_id)
+        study = session.get(Study, study_id)
 
         # Get all sample ids associated with study
-        study_samples = StudySampleAssociation.query.filter_by(study_id=study.id).all()
-        study_sample_ids = [sample.sample_id for sample in study_samples]
+        with engine.connect() as conn:
+            stmt = select(StudySampleAssociation).\
+                where(StudySampleAssociation.__table__.c.study_id == study.id)
+            study_samples = conn.execute(stmt).all()
+            study_sample_ids = [sample.sample_id for sample in study_samples]
 
         # Get all expression profiles associated with study
-        expression_profiles = ExpressionProfile.query.filter_by(normalization_method=rnaseq_norm,
-                                                                species_id=study.species_id).all()
+        with engine.connect() as conn:
+            stmt = select(ExpressionProfile).\
+                where(ExpressionProfile.__table__.c.normalization_method == rnaseq_norm,
+                      ExpressionProfile.__table__.c.species_id == study.species_id)
+            expression_profiles = conn.execute(stmt).all()
+
         # Get all OTU profiles associated with study
-        metatax_profiles = OTUProfile.query.filter_by(normalization_method=metatax_norm,
-                                                         species_id=study.species_id).all()
+        with engine.connect() as conn:
+            stmt = select(OTUProfile).\
+                where(OTUProfile.__table__.c.normalization_method == metatax_norm,
+                      OTUProfile.__table__.c.species_id == study.species_id)
+            metatax_profiles = conn.execute(stmt).all()
         
         # Create pandas dataframe with all expression and metatax profiles associated with study
-        expression_profiles_df = pd.DataFrame()
-        exp_run2sample_id = {}
+        df_the_dict_expression = {}
+        study_runs_expression = []
 
         # Add rows to the dataframe from JSON
         for profile in expression_profiles:
             profile_dict = json.loads(profile.profile)
-            study_runs = [r for r in profile_dict['data']['sample_id'].keys() if profile_dict['data']['sample_id'][r] in study_sample_ids]
-            if expression_profiles_df.empty:
-                expression_profiles_df = pd.DataFrame(columns = study_runs)
-                exp_run2sample_id = profile_dict['data']['sample_id']
-            df_the_dict = pd.DataFrame(dict(map(lambda key: (key, profile_dict['data']['exp_value'].get(key, None)), study_runs)), index=[str(profile.probe)])
-            expression_profiles_df = pd.concat([expression_profiles_df, df_the_dict])
-
-        expression_profiles_df = expression_profiles_df.rename(columns=exp_run2sample_id)
+            if not study_runs_expression:
+                study_runs_expression = [r for r in profile_dict['data']['sample_id'].keys() if profile_dict['data']['sample_id'][r] in study_sample_ids]
+            df_the_dict_expression[str(profile.probe)] = dict(map(lambda key: (key, profile_dict['data']['exp_value'].get(key, None)), study_runs_expression))
         
-        metatax_profiles_df = pd.DataFrame()
-        metatax_run2sample_id = {}
+        expression_profiles_df = pd.DataFrame.from_dict(df_the_dict_expression, orient='index')
+        expression_profiles_df = expression_profiles_df.rename(columns=profile_dict['data']['sample_id'])
+
+        df_the_dict_metatax = {}
+        study_runs_metatax = []
 
         for profile in metatax_profiles:
             profile_dict = json.loads(profile.profile)
-            study_runs = [r for r in profile_dict['data']['sample_id'].keys() if profile_dict['data']['sample_id'][r] in study_sample_ids]
-            if metatax_profiles_df.empty:
-                metatax_profiles_df = pd.DataFrame(columns = study_runs)
-                metatax_run2sample_id = profile_dict['data']['sample_id']
-            df_the_dict = pd.DataFrame(dict(map(lambda key: (key, profile_dict['data']['count'].get(key, None)), study_runs)), index=[str(profile.probe)])
-            metatax_profiles_df = pd.concat([metatax_profiles_df, df_the_dict])
+            if not study_runs_metatax:
+                study_runs_metatax = [r for r in profile_dict['data']['sample_id'].keys() if profile_dict['data']['sample_id'][r] in study_sample_ids]
+            df_the_dict_metatax[str(profile.probe)] = dict(map(lambda key: (key, profile_dict['data']['count'].get(key, None)), study_runs_metatax))
         
-        metatax_profiles_df = metatax_profiles_df.rename(columns=metatax_run2sample_id)
+        metatax_profiles_df = pd.DataFrame.from_dict(df_the_dict_metatax, orient='index')
+        metatax_profiles_df = metatax_profiles_df.rename(columns=profile_dict['data']['sample_id'])
+
         concat_df = pd.concat([expression_profiles_df, metatax_profiles_df], axis=0)
         concatenated_transposed = concat_df.transpose()
         cor_values = cor_full(concatenated_transposed, correlation_type=stat_method)
@@ -148,14 +176,24 @@ def calculate_expression_metataxonomic_correlations(study_id, description, tool,
 
         for i in range(len(cor_pval_intersection_tuple[0])):
             if (cor_pval_intersection_tuple[1][i] > (shape_row - 1)) and (cor_pval_intersection_tuple[0][i] < shape_row):
-                otu_p = OTUProfile.query.filter_by(probe=str(cor_values.columns[cor_pval_intersection_tuple[1][i]]),
-                                                         species_id=study.species_id).first()
-                exp_p = ExpressionProfile.query.filter_by(probe=str(cor_values.index[cor_pval_intersection_tuple[0][i]]),
-                                                species_id=study.species_id).first()
-                new_correlation_pair = ExpMicroCorrelation(exp_p.id, otu_p.id, new_correlation_method.id,
-                                                           cor_values.iloc[cor_pval_intersection_tuple[0][i], cor_pval_intersection_tuple[1][i]],
-                                                           pvalues_corrected[cor_pval_intersection_tuple[0][i], cor_pval_intersection_tuple[1][i]])
-                session.add(new_correlation_pair)
+                with engine.connect() as conn:
+                    stmt = select(OTUProfile).\
+                        where(OTUProfile.__table__.c.probe == str(cor_values.columns[cor_pval_intersection_tuple[1][i]]),
+                        OTUProfile.__table__.c.species_id == study.species_id)
+                    otu_p = conn.execute(stmt).first()
+                with engine.connect() as conn:
+                    stmt = select(ExpressionProfile).\
+                        where(ExpressionProfile.__table__.c.probe == str(cor_values.index[cor_pval_intersection_tuple[0][i]]),
+                        ExpressionProfile.__table__.c.species_id == study.species_id)
+                    exp_p = conn.execute(stmt).first()
+                new_correlation_pair = {"expression_profile_id": exp_p.id,
+                                        "metatax_profile_id": otu_p.id,
+                                        "exp_micro_correlation_method_id": new_correlation_method_obj.id,
+                                        "corr_coef": cor_values.iloc[cor_pval_intersection_tuple[0][i], cor_pval_intersection_tuple[1][i]],
+                                        "pvalue": pvalues[cor_pval_intersection_tuple[0][i], cor_pval_intersection_tuple[1][i]],
+                                        "qvalue": pvalues_corrected[cor_pval_intersection_tuple[0][i], cor_pval_intersection_tuple[1][i]]}
+                new_correlation_pair_obj = ExpMicroCorrelation(**new_correlation_pair)
+                session.add(new_correlation_pair_obj)
 
                 if i % 400 == 0:
                     session.commit()
@@ -167,6 +205,15 @@ def calculate_expression_metataxonomic_correlations(study_id, description, tool,
 
 db_admin = args.db_admin
 db_name = args.db_name
+study_id = args.study_id
+description_method = args.cor_method_description
+stat_method = args.stat_method
+rnaseq_norm = args.rnaseq_norm
+metatax_norm = args.metatax_norm
+tool = 'corals'
+multiple_test_cor_method = 'bonferroni'
+correlation_cutoff=0.5
+corrected_pvalue_cutoff=0.05
 
 create_engine_string = "mysql+pymysql://"+db_admin+":"+db_password+"@localhost/"+db_name
 
@@ -184,8 +231,12 @@ OTUProfile = Base.classes.otu_profiles
 ExpMicroCorrelation = Base.classes.expression_microbiome_correlations
 ExpMicroCorrelationMethod = Base.classes.expression_microbiome_correlation_methods
 
-calculate_expression_metataxonomic_correlations()
-
 # Create a Session
 Session = sessionmaker(bind=engine)
 session = Session()
+
+calculate_expression_metataxonomic_correlations(study_id, description_method, tool, stat_method,
+                                                multiple_test_cor_method, rnaseq_norm, metatax_norm,
+                                                correlation_cutoff, corrected_pvalue_cutoff)
+
+session.close()
