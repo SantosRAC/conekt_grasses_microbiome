@@ -26,7 +26,7 @@ def search_correlated_profiles():
         species_id = request.form.get('species_id')
         study_id = request.form.get('study_id')
         method_id = request.form.get('method_id')
-        cutoff = request.form.get('cutoff')
+        cutoff = request.form.get('correlation_cutoff')
 
         species = Species.query.get_or_404(species_id)
         study = Study.query.get_or_404(study_id)
