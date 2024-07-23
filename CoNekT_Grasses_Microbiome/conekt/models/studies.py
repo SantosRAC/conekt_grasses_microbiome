@@ -56,22 +56,23 @@ class Study(db.Model):
 
                 new_study_lit = StudyLiteratureAssociation(new_study.id, lit_id)
                 db.session.add(new_study_lit)
-                db.session.commit()
 
                 for run in literature_metatax_runs:
 
                     new_study_run = StudyRunAssociation(new_study.id, run.id, 'metataxonomics') 
                     db.session.add(new_study_run)
-                    db.session.commit()
 
                     new_study_sample = StudySampleAssociation(new_study.id, run.sample_id) 
                     db.session.add(new_study_sample)
-                    db.session.commit()
+
+            db.session.commit()
                 
         else:
 
             samples_rnaseq_runs = []
             samples_metatax_runs = []
+            rnaseq_runs = []
+            metatax_runs = []
 
             for lit_id in literature_ids:
                 
@@ -88,26 +89,24 @@ class Study(db.Model):
                 for sample_id in sample_intersection:
                     new_study_sample = StudySampleAssociation(new_study.id, sample_id)
                     db.session.add(new_study_sample)
-                    db.session.commit()
 
                     associated_samples+=1
                 
                 for lit_id in literature_ids:
                     new_study_lit = StudyLiteratureAssociation(new_study.id, lit_id)
                     db.session.add(new_study_lit)
-                    db.session.commit()
 
                     associated_literature+=1
 
                 for run in rnaseq_runs:
                     new_study_run = StudyRunAssociation(new_study.id, run.id, data_type='rnaseq')
                     db.session.add(new_study_run)
-                    db.session.commit()
 
                 for run in metatax_runs:
                     new_study_run = StudyRunAssociation(new_study.id, run.id, data_type='metataxonomics')
                     db.session.add(new_study_run)
-                    db.session.commit()
+                
+                db.session.commit()               
 
         
         return associated_literature, associated_samples
