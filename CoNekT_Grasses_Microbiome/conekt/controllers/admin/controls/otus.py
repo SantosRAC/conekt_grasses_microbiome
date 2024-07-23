@@ -130,6 +130,13 @@ def add_otu_classification():
         classification_ref_db_release = request.form.get('release_gtdb')
         otu_gtdb_classification_file = request.files[form.gtdb_otu_classification_file.name].read()
 
+        exact_path_match_str = request.form.get('exact_path_match')
+
+        if exact_path_match_str == 'True':
+            exact_path_match = True
+        else:
+            exact_path_match = False
+
         # Add GTDB classification file for OTUs
         fd_gtdb_classification_file, temp_gtdb_classification_file_path = mkstemp()
 
@@ -140,7 +147,8 @@ def add_otu_classification():
                                     otu_classification_description,
                                     otu_classification_method,
                                     classifier_version,
-                                    classification_ref_db_release)
+                                    classification_ref_db_release,
+                                    exact_path_match=exact_path_match)
 
         os.close(fd_gtdb_classification_file)
         os.remove(temp_gtdb_classification_file_path)

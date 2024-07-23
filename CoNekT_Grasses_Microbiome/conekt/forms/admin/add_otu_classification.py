@@ -24,6 +24,8 @@ class AddOTUClassificationForm(FlaskForm):
 
     gtdb_otu_classification_file = FileField('GTDB OTU Classification File')
 
+    exact_path_match = RadioField('Exact Path Match?', choices=[(True, 'Yes'), (False, 'No')], default='no')
+
     additional_classification = RadioField('Add Additional Classification Databases? (e.g. SILVA)', choices=[('yes', 'Yes'), ('no', 'No')], default='no')
 
     def populate_species(self):

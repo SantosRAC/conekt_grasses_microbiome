@@ -130,11 +130,13 @@ class OTUClassificationGTDB(db.Model):
     gtdb_id = db.Column(db.Integer, db.ForeignKey('gtdb_taxonomy.id'), index=True)
     otu_id = db.Column(db.Integer, db.ForeignKey('otus.id', ondelete='CASCADE'), index=True)
     method_id = db.Column(db.Integer, db.ForeignKey('otu_classification_methods.id', ondelete='CASCADE'), index=True)
+    lowest_path_available = db.Column(db.String(255, collation=SQL_COLLATION), default='')
 
-    def __init__(self, gtdb_id, otu_id, method_id):
+    def __init__(self, gtdb_id, otu_id, method_id, lowest_path_available):
         self.gtdb_id = gtdb_id
         self.otu_id = otu_id
         self.method_id = method_id
+        self.lowest_path_available = lowest_path_available
     
     def __repr__(self):
         return str(self.id) + ". " + self.otu_id + " " + self.method_id
@@ -144,7 +146,8 @@ class OTUClassificationGTDB(db.Model):
                                     otu_classification_description,
                                     classifier_name,
                                     classifier_version,
-                                    classification_ref_db_release):
+                                    classification_ref_db_release,
+                                    exact_path_match=True):
         """
         Function to add OTU classification from GTDB to the database
 
@@ -153,6 +156,7 @@ class OTUClassificationGTDB(db.Model):
         :param classifier_name: classifier used to classify the OTUs
         :param classifier_version: version of the classifier used
         :param classification_ref_db_release: release of the reference database used
+        :param exact_path_match: whether to match the exact path or consider until genus level
         """
         
         new_classification_method = OTUClassificationMethod(otu_classification_description,
@@ -172,19 +176,36 @@ class OTUClassificationGTDB(db.Model):
             for line in fin:
                 parts = line.strip().split('\t')
 
-                if len(parts) == 2:
+                new_otu_classification = None
 
-                    otu_name, path = parts
+                if len(parts) == 3:
+                    
+                    #Output from Qiime2 classifier has three columns:
+                    #Feature ID      Taxon   Confidence
+                    otu_name, path, confidence = parts
 
                     otu_record = OperationalTaxonomicUnit.query.filter_by(original_id=otu_name).first()
 
-                    taxon_db_record = GTDBTaxon.query.filter_by(taxon_path=path).first()
-
-                    new_otu_classification = OTUClassificationGTDB(taxon_db_record.id,
+                    if exact_path_match:
+                        taxon_db_record = GTDBTaxon.query.filter_by(taxon_path=path).first()
+                        new_otu_classification = OTUClassificationGTDB(taxon_db_record.id,
                                                                  otu_record.id,
                                                                  new_classification_method.id)
+                        db.session.add(new_otu_classification)
+                    else:
+                        #d__ p__  c__ o__ f__ g__ s__ (ranks in gtdb)
+                        lowest_path_available = ''
+                        taxon_parts = path.split(';')
+                        if taxon_parts[-1].startswith('s__'):
+                            lowest_path_available = ';'.join(taxon_parts[:-2])
+                        else:
+                            lowest_path_available = path
+                        taxon_db_record = GTDBTaxon.query.filter(GTDBTaxon.taxon_path.like(f'%{lowest_path_available}%')).first()
+                        new_otu_classification = OTUClassificationGTDB(taxon_db_record.id,
+                                                                 otu_record.id,
+                                                                 new_classification_method.id,
+                                                                 lowest_path_available)
 
-                    db.session.add(new_otu_classification)
                     classified_otus+=1
                     new_otu_classifications.append(new_otu_classification)
 

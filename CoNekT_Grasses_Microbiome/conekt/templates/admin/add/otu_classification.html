@@ -53,6 +53,18 @@
             </div>
 
             <div class="form-group">
+                <label>{{ form.exact_path_match.label }}</label><br />
+                {% for option in form.exact_path_match %}
+                    <div class="radio-inline" name="exact_path_match_form" id="exact_path_match_form">
+                        <label>
+                        {{ option }}
+                        {{ option.label }}
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
                 <label>{{ form.additional_classification.label }}</label><br />
                 {% for option in form.additional_classification %}
                     <div class="radio-inline" name="additional_classification_form" id="additional_classification_form">
