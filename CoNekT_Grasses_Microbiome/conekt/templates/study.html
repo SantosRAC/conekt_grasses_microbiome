@@ -56,7 +56,7 @@
                         {% if g.debug %}<td>{{ s.id }}</td>{% endif %}
                         <td><a href="{{url_for('species.species_view', species_id=s.species_id)}}">{{ species_dict[s.species_id] }}</a></td>
                         <td>{{ s.data_type }}</td>
-                        <td>{{ s.name }}</td>
+                        <td><a href="{{url_for('study.study_view', study_id=s.id)}}">{{ s.name }}</a></td>
                         <td>{{ s.description }}</td>
                     </tr>
                 {% endfor %}
