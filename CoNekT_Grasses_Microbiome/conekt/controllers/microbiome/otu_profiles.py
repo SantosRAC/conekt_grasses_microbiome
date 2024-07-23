@@ -7,6 +7,7 @@ from flask import Blueprint, redirect, request, render_template, flash
 from conekt import cache
 
 from conekt.forms.microbiome.profile import ProfileComparisonForm
+from conekt.forms.microbiome.search_specific_profiles import SearchSpecificProfilesForm
 
 from conekt.helpers.chartjs import prepare_otu_profiles
 
@@ -93,3 +94,24 @@ def otus_profile_compare():
             example['probes'] = ' '.join([p.otus.original_id for p in otus_profiles])
 
         return render_template("microbiome/otus_profile_comparison.html", form=form, example=example)
+
+
+@otus_profile.route('/profile_specificity', methods=['GET', 'POST'])
+def find_specific_profiles():
+    """
+    TODO: add documentation
+    """
+
+    form = SearchSpecificProfilesForm(request.form)
+    form.populate_form()
+
+    if request.method == 'POST':
+        #species_id = request.form.get('species_id')
+        #study_id = request.form.get('study_id')
+        #terms = request.form.get('probes').split()
+
+        return render_template("microbiome/otus_profile_specificity.html",
+                               form=form)
+    else:
+        
+        return render_template("microbiome/otus_profile_specificity.html", form=form)

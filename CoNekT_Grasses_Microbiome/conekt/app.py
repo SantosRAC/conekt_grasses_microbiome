@@ -175,6 +175,7 @@ def configure_admin_panel(app):
         from conekt.controllers.admin.views.otus import AddOTUClassificationView
         from conekt.controllers.admin.views.study import BuildStudyView
         from conekt.controllers.admin.views.omics_integration.expression_microbiome_correlations import BuildCorrelationsView
+        from conekt.controllers.admin.views.microbiome.microbiome_profile_specificity import BuildMicrobiomeSpecificityView
 
         from conekt.models.users import User
         from conekt.models.species import Species
@@ -239,10 +240,13 @@ def configure_admin_panel(app):
                                                  url='add/otu_classification/', category='Add Microbiome Data'))
 
         # Build Menu
-        admin.add_view(BuildStudyView(name='Study',
+        admin.add_view(BuildStudyView(name='Create Study',
                                                endpoint='admin_build_study',
                                                url='build/study/', category='Build'))
         admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Build')
+        admin.add_menu_item(MenuLink("Metataxonomics", class_name="disabled", url="#"), target_category='Build')
+        admin.add_view(BuildMicrobiomeSpecificityView(name='Build Profile Specificity', endpoint='admin_build_metataxspecificity',
+                                     url='build/metatax_specificity', category='Build'))
         admin.add_menu_item(MenuLink("Integration of RNAseq and Metataxonomics", class_name="disabled", url="#"), target_category='Build')
         admin.add_view(BuildCorrelationsView(name='Build RNAseq - Metataxonomics Profile Correlations', endpoint='admin_build_rnametataxcor',
                                      url='build/exp_metatax_correlations', category='Build'))
