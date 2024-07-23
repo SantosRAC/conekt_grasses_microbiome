@@ -8,6 +8,7 @@ from conekt.models.literature import LiteratureItem
 from conekt.models.relationships.study_literature import StudyLiteratureAssociation
 from conekt.models.microbiome.operational_taxonomic_unit import\
                     OperationalTaxonomicUnitMethod, OperationalTaxonomicUnit
+from conekt.models.species import Species
 from conekt.models.seq_run import SeqRun
 from conekt.models.studies import Study
 
@@ -22,14 +23,11 @@ def studies_overview():
     """
     all_studies = Study.query.all()
 
-    '''for species in all_species:
-        if LiteratureItem.query.filter_by(id=species.literature_id).first():
-            species.paper_author_names = LiteratureItem.query.filter_by(id=species.literature_id).first().author_names
-            species.paper_public_year = LiteratureItem.query.filter_by(id=species.literature_id).first().public_year
-            species.paper_doi = LiteratureItem.query.filter_by(id=species.literature_id).first().doi
-    '''    
+    study_species_ids = Study.query.with_entities(Study.species_id).distinct()
+    study_species = Species.query.filter(Species.id.in_([species_id[0] for species_id in study_species_ids])).all()
+    species_dict = {species.id: species.name for species in study_species}
 
-    return render_template('study.html', all_studies=all_studies)
+    return render_template('study.html', all_studies=all_studies, species_dict=species_dict)
 
 
 @study.route('/view/<study_id>')
