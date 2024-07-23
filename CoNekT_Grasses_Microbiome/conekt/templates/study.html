@@ -54,10 +54,10 @@
                 {% for s in all_studies  %}
                     <tr>
                         {% if g.debug %}<td>{{ s.id }}</td>{% endif %}
-                        <td>species XXX</td>
-                        <td>type YYYY</td>
-                        <td>name UUUU</td>
-                        <td>description JJJJJ</td>
+                        <td><a href="{{url_for('species.species_view', species_id=s.species_id)}}">{{ species_dict[s.species_id] }}</a></td>
+                        <td>{{ s.data_type }}</td>
+                        <td>{{ s.name }}</td>
+                        <td>{{ s.description }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
