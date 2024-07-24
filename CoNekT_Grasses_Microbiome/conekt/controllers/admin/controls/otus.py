@@ -9,6 +9,8 @@ from werkzeug.utils import redirect
 
 from conekt.forms.admin.add_otus import AddOTUSForm
 from conekt.forms.admin.add_otu_classification import AddOTUClassificationForm
+from conekt.forms.admin.add_otu_profiles import AddOTUProfilesForm
+
 from conekt.models.microbiome.operational_taxonomic_unit import OperationalTaxonomicUnit
 from conekt.models.seq_run import SeqRun
 from conekt.models.microbiome.otu_profiles import OTUProfile
@@ -20,7 +22,7 @@ from conekt.models.relationships_microbiome.otu_classification import\
 @admin_required
 def add_otus():
     """
-    Add OTUs based on data from a FASTA and a OTU table
+    Add OTUs based on data from a FASTA
 
     :return: Redirect to admin panel interface
     """
@@ -45,15 +47,9 @@ def add_otus():
 
         fasta_data_otus = request.files[form.otus_file.name].read()
 
-        run_annotation = request.files[form.run_annotation_file.name].read()
-        feature_table = request.files[form.feature_table_file.name].read()
-        normalization_method = request.form.get('normalization_method')
-
-        if not fasta_data_otus or\
-              not feature_table or\
-              not run_annotation:
+        if not fasta_data_otus:
             flash('Missing File. Please, upload all files before submission.', 'danger')
-            return redirect(url_for('admin.add.otus.index'))
+            return redirect(url_for('admin.add.microbiome.otus.index'))
 
         # Add OTUs
         fd, temp_path = mkstemp()
@@ -74,6 +70,41 @@ def add_otus():
         os.close(fd)
         os.remove(temp_path)
 
+        flash('Added %d OTUs' % (added_otus_count), 'success')
+
+        return redirect(url_for('admin.index'))
+    else:
+        if not form.validate():
+            flash('Unable to validate data, potentially missing fields', 'danger')
+            return redirect(url_for('admin.index'))
+        else:
+            abort(405)
+
+@admin_controls.route('/add/otu_profiles', methods=['POST'])
+@admin_required
+def add_otu_profiles():
+    """
+    Add OTU profiles based on data from a OTU table and run annotation
+
+    :return: Redirect to admin panel interface
+    """
+
+    form = AddOTUProfilesForm(request.form)
+
+    if request.method == 'POST' and form.validate():
+
+        species_id = int(request.form.get('species_id'))
+        study_id = int(request.form.get('study_id'))
+
+        run_annotation = request.files[form.run_annotation_file.name].read()
+        feature_table = request.files[form.feature_table_file.name].read()
+        normalization_method = request.form.get('normalization_method')
+
+        if not feature_table or\
+              not run_annotation:
+            flash('Missing File. Please, upload all files before submission.', 'danger')
+            return redirect(url_for('admin.add.otu_profiles.index'))
+    
         # Add runs and their annotation
         fd_run_annot, temp_run_annot_path = mkstemp()
 
@@ -93,12 +124,11 @@ def add_otus():
         with open(temp_feature_table_path, 'wb') as feature_table_writer:
             feature_table_writer.write(feature_table)
         
-        added_profiles_count = OTUProfile.add_otu_profiles_from_table(temp_feature_table_path, species_id, normalization_method)
+        added_profiles_count = OTUProfile.add_otu_profiles_from_table(temp_feature_table_path, species_id, study_id, normalization_method)
 
         os.close(fd_feature_table)
         os.remove(temp_feature_table_path)
 
-        flash('Added %d OTUs' % (added_otus_count), 'success')
         flash('Added %d Runs' % (added_runs_count), 'success')
         flash('Added %d OTU profiles' % (added_profiles_count), 'success')
 

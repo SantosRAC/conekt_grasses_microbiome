@@ -7,12 +7,6 @@
     <div class="col-lg-8 col-md-8 col-sm-6 col-xs-12">
         <form method="POST"  action="{{ url_for('admin_controls.add_otu_classification') }}"  role="form" enctype="multipart/form-data">
             {{ form.csrf_token }}
-            <label>Select a grass species</label>
-            <div class="form-group">
-                {{ form.species_id.label }}
-                {{ form.species_id(class_="form-control") }}
-            </div>
-
             <div class="form-group">
                 {{ form.literature_id.label }}
                 {{ form.literature_id(class_="form-control") }}
@@ -102,30 +96,8 @@
 <script>
 $("#literature_list").hide();
 
-let species_select = document.getElementById('species_id');
 let literature_select = document.getElementById('literature_id');
 let otu_method_select = document.getElementById('otu_method_id');
-
-species_select.onchange = function() {
-    species_id = species_select.value;
-
-    fetch("{{ url_for('species.get_run_papers', species_id='species_id', run_data_type='metataxonomics') }}".replace('species_id', species_id)).then(function(response) {
-                response.json().then(function(data) {
-                    
-                    let optionHTML = '';
-
-                    optionHTML += '<option value="' + 0 + '">' + 'Select Species first' + '</option>';
-                   
-                    for (let literature of data.literatures) {
-                        optionHTML += '<option value="' + literature.id + '">' + literature.publication_detail + '</option>';
-                    }
-        
-                    literature_select.innerHTML = optionHTML;
-        
-                })
-            })
-
-}
 
 literature_select.onchange = function() {
     literature_id = literature_select.value;

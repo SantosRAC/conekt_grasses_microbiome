@@ -108,7 +108,6 @@ def configure_blueprints(app):
     from conekt.controllers.tree import tree
     from conekt.controllers.study import study
     from conekt.controllers.profile_comparison import profile_comparison
-    from conekt.controllers.microbiome.asvs_profile import asvs_profile
     from conekt.controllers.microbiome.otu_profiles import otus_profile
     from conekt.controllers.microbiome.otus import otu
     from conekt.controllers.omics_integration.profile_correlations import profile_correlations
@@ -143,7 +142,6 @@ def configure_blueprints(app):
     app.register_blueprint(help, url_prefix='/help')
     app.register_blueprint(profile_comparison, url_prefix='/profile_comparison')
     app.register_blueprint(otu, url_prefix='/otu')
-    app.register_blueprint(asvs_profile, url_prefix='/asvs_profile')
     app.register_blueprint(otus_profile, url_prefix='/otus_profile')
     app.register_blueprint(profile_correlations, url_prefix='/profile_correlations')
     app.register_blueprint(literature, url_prefix='/literature')
@@ -162,7 +160,6 @@ def configure_admin_panel(app):
         from conekt.controllers.admin.views.functional_data import AddCAZYmeView
         from conekt.controllers.admin.views.functional_data import AddFunctionalDataView
         from conekt.controllers.admin.views.taxonomy import AddTaxonomyView
-        from conekt.controllers.admin.views.families import AddFamilyAnnotationView
         from conekt.controllers.admin.views.families import GeneFamilyMethodAdminView
         from conekt.controllers.admin.views.samples import AddSamplesView
         from conekt.controllers.admin.views.species import AddSpeciesView
@@ -170,9 +167,9 @@ def configure_admin_panel(app):
         from conekt.controllers.admin.views.controls import ControlsView
         from conekt.controllers.admin.views.news import NewsAdminView
         from conekt.controllers.admin.views.ontology import AddOntologyView
-        from conekt.controllers.admin.views.asvs import AddASVSView
-        from conekt.controllers.admin.views.otus import AddOTUSView
-        from conekt.controllers.admin.views.otus import AddOTUClassificationView
+        from conekt.controllers.admin.views.microbiome.otus import AddOTUSView
+        from conekt.controllers.admin.views.microbiome.otus import AddOTUClassificationView
+        from conekt.controllers.admin.views.microbiome.otus import AddOTUProfilesView
         from conekt.controllers.admin.views.study import BuildStudyView
         from conekt.controllers.admin.views.omics_integration.expression_microbiome_correlations import BuildCorrelationsView
         from conekt.controllers.admin.views.microbiome.microbiome_profile_specificity import BuildMicrobiomeSpecificityView
@@ -180,9 +177,7 @@ def configure_admin_panel(app):
         from conekt.models.users import User
         from conekt.models.species import Species
         from conekt.models.gene_families import GeneFamilyMethod
-        from conekt.models.clades import Clade
         from conekt.models.news import News
-        from conekt.models.trees import TreeMethod
         from conekt.models.ontologies import PlantOntology
 
         admin = Admin(template_mode='bootstrap3', base_template='admin/my_base.html')
@@ -229,15 +224,16 @@ def configure_admin_panel(app):
 
         # Add Microbiome data
         admin.add_menu_item(MenuLink("Microbiome", class_name="disabled", url="#"), target_category='Add Microbiome Data')
-        admin.add_view(AddASVSView(name='ASVs',
-                                                 endpoint='admin_add_asvs',
-                                                 url='add/asvs/', category='Add Microbiome Data'))
         admin.add_view(AddOTUSView(name='OTUs',
                                                  endpoint='admin_add_otus',
                                                  url='add/otus/', category='Add Microbiome Data'))
         admin.add_view(AddOTUClassificationView(name='OTU Classification',
                                                  endpoint='admin_add_otu_classification',
                                                  url='add/otu_classification/', category='Add Microbiome Data'))
+        admin.add_menu_item(MenuLink("Study", class_name="disabled", url="#"), target_category='Add Microbiome Data')
+        admin.add_view(AddOTUProfilesView(name='OTU Profiles',
+                                                 endpoint='admin_add_otu_profiles',
+                                                 url='add/otu_profiles/', category='Add Microbiome Data'))
 
         # Build Menu
         admin.add_view(BuildStudyView(name='Create Study',

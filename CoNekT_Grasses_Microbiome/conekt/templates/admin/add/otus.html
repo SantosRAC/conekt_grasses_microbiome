@@ -2,7 +2,7 @@
 
 {% block body %}
 {% if form %}
-<h1>Add OTU Profiles</h1>
+<h1>Add OTUs and Representative Sequences</h1>
 <div class="row">
     <div class="col-lg-8 col-md-8 col-sm-6 col-xs-12">
         <form method="POST"  action="{{ url_for('admin_controls.add_otus') }}"  role="form" enctype="multipart/form-data">
@@ -76,38 +76,14 @@
                 </label>
             </div>
 
-            <div class="form-group">
-                <label>The OTU table file</label>
-                <p>OTU table file, sequence identifiers must match those in FASTA file.</p>
-                <label class="btn btn-default" for="feature_table_file" id="feature-table-file-button">
-                    {{ form.feature_table_file(style="display:none;", onchange="")}}
-                    <span id="feature-table-file-selector-text">Select File</span>
-                </label>
-            </div>
-
-            <label>Specify normalization methods used in OTU quantification</label>
-            <div class="form-group">
-                {{ form.normalization_method.label }}
-                {{ form.normalization_method(class_="form-control") }}
-            </div>
-
-            <div class="form-group">
-                <label>The run annotation file</label>
-                <p>Tabular file with runs and associated metadata.</p>
-                <label class="btn btn-default" for="run_annotation_file" id="run-annotation-file-button">
-                    {{ form.run_annotation_file(style="display:none;", onchange="")}}
-                    <span id="run-annotation-file-selector-text">Select File</span>
-                </label>
-            </div>
-
-            <button type="submit" class="btn btn-success pull-right">Add OTU Profiles</button>
+            <button type="submit" class="btn btn-success pull-right">Add OTU Definitions</button>
         </form>
     </div>
     <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
         <div class="panel panel-default">
             <div class="panel-heading"><strong>Help</strong></div>
             <div class="panel-body">
-                <li>Adds <strong>OTU profiles</strong> to the database</li>
+                <li>Adds <strong>OTU definitions</strong> to the database</li>
                 <li>It is mandatory to provide technical details on how OTUs were generated</li>
                 <li>A reference database is mandatory if method involves
                 open or closed reference clustering.</li>

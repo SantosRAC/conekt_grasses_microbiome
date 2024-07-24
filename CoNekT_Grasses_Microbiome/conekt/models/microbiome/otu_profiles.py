@@ -17,21 +17,23 @@ class OTUProfile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     normalization_method = db.Column(db.Enum('numreads', 'cpm', 'tpm', 'tmm'), default='numreads')
     species_id = db.Column(db.Integer, db.ForeignKey('species.id', ondelete='CASCADE'), index=True)
+    study_id = db.Column(db.Integer, db.ForeignKey('studies.id', ondelete='CASCADE'), index=True)
     probe = db.Column(db.String(50, collation=SQL_COLLATION), index=True)
     otu_id = db.Column(db.Integer, db.ForeignKey('otus.id', ondelete='CASCADE'), index=True)
     profile = db.deferred(db.Column(db.Text))
 
     otus = db.relationship('OperationalTaxonomicUnit', backref='otu_profiles', lazy='joined')
 
-    def __init__(self, species_id,  probe, otu_id, profile, normalization_method='numreads'):
+    def __init__(self, species_id, study_id, probe, otu_id, profile, normalization_method='numreads'):
         self.species_id = species_id
+        self.study_id = study_id
         self.probe = probe
         self.otu_id = otu_id
         self.profile = profile
         self.normalization_method = normalization_method
 
     def __repr__(self):
-        return str(self.id) + ". " + str(self.otu_id)
+        return str(self.id) + ". " + str(self.probe)
 
     @staticmethod
     def get_profiles(probes, otu_profiles_ids, limit=1000):
@@ -68,7 +70,7 @@ class OTUProfile(db.Model):
         return not any(checks)
 
     @staticmethod
-    def add_otu_profiles_from_table(feature_table, species_id, normalization_method='numreads'):
+    def add_otu_profiles_from_table(feature_table, species_id, study_id, normalization_method='numreads'):
         """
         Function to generate an OTU profile
 
@@ -119,6 +121,7 @@ class OTUProfile(db.Model):
                 new_profile = OTUProfile(**{"otu_id": otu.id,
                                 "probe": otu_name,
                                 "species_id": species_id,
+                                "study_id": study_id,
                                 "normalization_method": normalization_method,
                                 "profile": json.dumps({"data": profile})
                                 })

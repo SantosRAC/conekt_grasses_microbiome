@@ -32,18 +32,6 @@ class AddOTUSForm(FlaskForm):
     
     otus_file = FileField()
 
-    # Fields for the run annotation
-    run_annotation_file = FileField()
-
-    # Fields for the feature table
-    feature_table_file = FileField()
-    normalization_method = SelectField('Normalization Method', choices=[('tpm', 'TPM'),
-                                                                        ('cpm', 'CPM'),
-                                                                        ('tmm', 'TMM'),
-                                                                        ('numreads', 'NumReads')])
-
-    otu_classification_file = FileField()
-
     def populate_species(self):
         # Get distinct species ids from sample table
         species_ids = [species_id[0] for species_id in Sample.query.with_entities(Sample.species_id).distinct().all()]
