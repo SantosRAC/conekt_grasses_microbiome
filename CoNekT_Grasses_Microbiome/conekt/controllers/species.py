@@ -127,9 +127,10 @@ def species_download_coding(species_id):
     output = []
 
     current_species = db.session.get(Species, species_id)
-    sequences = db.engine.execute(db.select([Sequence.__table__.c.name, Sequence.__table__.c.coding_sequence]).
-                                  where(Sequence.__table__.c.species_id == current_species.id)).\
-        fetchall()
+    sequences = db.session.execute(db.select(Sequence.__table__.c.name, Sequence.__table__.c.coding_sequence).
+                                  where(Sequence.__table__.c.type == 'protein_coding',
+                                        Sequence.__table__.c.species_id == current_species.id)).\
+                                        fetchall()
 
     for (name, coding_sequence) in sequences:
         output.append(">" + name)
@@ -153,12 +154,16 @@ def species_download_protein(species_id):
     output = []
 
     current_species = db.session.get(Species, species_id)
-    sequences = current_species.sequences.options(undefer('coding_sequence')).options(noload('xrefs')).all()
+    sequences = (
+        current_species.sequences.where(Sequence.type == 'protein_coding')
+        .options(undefer(Sequence.coding_sequence))
+        .options(noload(Sequence.xrefs))
+        .all()
+    )
 
     for s in sequences:
-        if s.type == "protein_coding":
-            output.append(">" + s.name)
-            output.append(s.protein_sequence)
+        output.append(">" + s.name)
+        output.append(s.protein_sequence)
 
     response = make_response("\n".join(output))
     response.headers["Content-Disposition"] = "attachment; filename=" + current_species.code + ".aa.fasta"
@@ -178,15 +183,14 @@ def species_download_rna(species_id):
     output = []
 
     current_species = db.session.get(Species, species_id)
-    sequences = db.engine.execute(db.select([Sequence.__table__.c.name, Sequence.__table__.c.coding_sequence,
-                                             Sequence.__table__.c.type]).
-                                  where(Sequence.__table__.c.species_id == current_species.id)).\
-        fetchall()
+    sequences = db.session.execute(db.select(Sequence.__table__.c.name, Sequence.__table__.c.coding_sequence).
+                                  where(Sequence.__table__.c.type == 'RNA',
+                                        Sequence.__table__.c.species_id == current_species.id)).\
+                                        fetchall()
 
-    for (name, coding_sequence, type) in sequences:
-        if type == "RNA":
-            output.append(">" + name)
-            output.append(coding_sequence)
+    for (name, coding_sequence) in sequences:
+        output.append(">" + name)
+        output.append(coding_sequence)
 
     response = make_response("\n".join(output))
     response.headers["Content-Disposition"] = "attachment; filename=" + current_species.code + ".rna.fasta"
@@ -205,13 +209,14 @@ def species_stream_coding(species_id):
     :return: Streamed response with the fasta file
     """
     def generate(selected_species):
-        sequences = db.engine.execute(db.select([Sequence.__table__.c.name, Sequence.__table__.c.coding_sequence, Sequence.__table__.c.type]).
-                                      where(Sequence.__table__.c.species_id == selected_species)).\
-            fetchall()
+        current_species = db.session.get(Species, selected_species)
+        sequences = db.session.execute(db.select(Sequence.__table__.c.name, Sequence.__table__.c.coding_sequence).
+                                  where(Sequence.__table__.c.type == 'protein_coding',
+                                        Sequence.__table__.c.species_id == current_species.id)).\
+                                        fetchall()
 
-        for name, coding_sequence, type in sequences:
-            if type == 'protein_coding':
-                yield ">" + name + '\n' + coding_sequence + '\n'
+        for name, coding_sequence in sequences:
+            yield ">" + name + '\n' + coding_sequence + '\n'
 
     return Response(generate(species_id), mimetype='text/plain')
 
@@ -225,57 +230,17 @@ def species_stream_protein(species_id):
     :param species_id: Internal ID of the species
     :return: Streamed response with the fasta file
     """
-    import time
-
     def generate(selected_species):
-        
-        sequences = []
-        limit = 15000
-        offset = 0
-
-        counting_rows = Sequence.query\
-                .options(undefer('coding_sequence'))\
-                .options(noload('xrefs'))\
-                .filter_by(species_id=selected_species)\
-                .filter_by(type='protein_coding')\
-                .count()
-
-        start_time = time.time()
-        while True:
-            elapsed_time = time.time() - start_time
-
-            rows = Sequence.query\
-                .options(undefer('coding_sequence'))\
-                .options(noload('xrefs'))\
-                .filter_by(species_id=selected_species)\
-                .filter_by(type='protein_coding')\
-                .limit(limit)\
-                .offset(offset)
-
-            if (limit + offset) >= counting_rows:
-                sequences.extend(rows)
-                perc_recovered = (len(sequences) / counting_rows) * 100
-                print("Size of current rows in sequences: " + str(len(sequences)) + "(Perc: " + str(perc_recovered) + "%)")
-                time.sleep(1)
-                break
-            else:
-                sequences.extend(rows)
-                print("Size of current rows in sequences: " + str(len(sequences)))
-                perc_recovered = (len(sequences) / counting_rows) * 100
-                print("Size of current rows in sequences: " + str(len(sequences)) + "(Perc: " + str(perc_recovered) + "%)")
-                time.sleep(1)
-
-            if (offset + limit) <= counting_rows:
-                offset += limit
-                print("Total proteins: ", counting_rows, "Limit: ", limit, "Offset: ", offset)
-                perc_recovered = (len(sequences) / counting_rows) * 100
-                print("Size of current rows in sequences: " + str(len(sequences)) + "(Perc: " + str(perc_recovered) + "%)")
-                print(f"Elapsed time: {elapsed_time:.2f} seconds")
-                time.sleep(1)
+        current_species = db.session.get(Species, selected_species)
+        sequences = (
+            current_species.sequences.where(Sequence.type == 'protein_coding')
+            .options(undefer(Sequence.coding_sequence))
+            .options(noload(Sequence.xrefs))
+            .all()
+        )
 
         for s in sequences:
-            if s.type == "protein_coding":
-                yield ">" + s.name + '\n' + s.protein_sequence + '\n'
+            yield ">" + s.name + '\n' + s.protein_sequence + '\n'
 
     return Response(generate(species_id), mimetype='text/plain')
 
@@ -290,13 +255,14 @@ def species_stream_rna(species_id):
     :return: Streamed response with the fasta file
     """
     def generate(selected_species):
-        sequences = db.engine.execute(db.select([Sequence.__table__.c.name, Sequence.__table__.c.coding_sequence, Sequence.__table__.c.type]).
-                                      where(Sequence.__table__.c.species_id == selected_species)).\
-            fetchall()
+        current_species = db.session.get(Species, selected_species)
+        sequences = db.session.execute(db.select(Sequence.__table__.c.name, Sequence.__table__.c.coding_sequence).
+                                  where(Sequence.__table__.c.type == 'RNA',
+                                        Sequence.__table__.c.species_id == current_species.id)).\
+                                        fetchall()
 
-        for name, coding_sequence, type in sequences:
-            if type == 'RNA':
-                yield ">" + name + '\n' + coding_sequence + '\n'
+        for name, coding_sequence in sequences:
+            yield ">" + name + '\n' + coding_sequence + '\n'
 
     return Response(generate(species_id), mimetype='text/plain')
 
