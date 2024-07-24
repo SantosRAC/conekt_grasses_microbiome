@@ -53,9 +53,6 @@
                         <li>
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Microbiome Tools <span class="caret"></span></a>
                             <ul class="dropdown-menu">
-                                <li class="dropdown-header">Amplicon Sequence Variant (ASV) Profiles</li>
-                                <li><a href="{{ url_for('asvs_profile.asvs_profile_compare') }}">Compare ASV profiles</a></li>
-                                <li><a href="#">Export ASVs</a></li>
                                 <li class="dropdown-header">Operational Taxonomic Unit (OTU) Profiles</li>
                                 <li><a href="{{ url_for('otus_profile.otus_profile_compare') }}">Compare OTU profiles</a></li>
                                 <li><a href="{{ url_for('otus_profile.find_specific_profiles')}}">Find specific OTUs in a study</a></li>
@@ -68,9 +65,6 @@
                                 <li class="dropdown-header">Analyze OTU Correlations</li>
                                 <li><a href="{{ url_for('search.search_correlated_profiles') }}">Find Correlations (OTUs vs. Expression)</a></li>
                                 <li><a href="{{ url_for('custom_network.expression_microbiome_correlation') }}">Draw Network of Correlations (OTUs vs. Expression)</a></li>
-                                <li class="dropdown-header">Analyze ASV Correlations</li>
-                                <li><a href="#">Find Correlations (ASVs vs. Expression)</a></li>
-                                <li><a href="#">Draw Network of Correlations (ASVs vs. Expression)</a></li>
                                 <li class="dropdown-header">Compare studies</li>
                                 <li><a href="#">Compare Correlations Between Two Studies</a></li>
                             </ul>

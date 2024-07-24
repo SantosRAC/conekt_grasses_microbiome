@@ -32,10 +32,9 @@
                 <div class="btn-group">
                     <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Download  <span class="caret"></span></button>
                     <ul class="dropdown-menu">
-                        <li><a href="{{url_for('species.species_stream_coding', species_id=species.id)}}"  download="{{species.code}}.cds.fasta">Coding Sequences</a></li>
-                        <li><a href="{{url_for('species.species_stream_protein', species_id=species.id)}}"  download="{{species.code}}.aa.fasta">Protein Sequences</a></li>
-                        
-                        <li><a href="{{url_for('species.species_stream_rna', species_id=species.id)}}" download="{{species.code}}.rna.fasta">RNA Sequences</a></li>
+                        <li><a href="{{url_for('species.species_download_coding', species_id=species.id)}}"  download="{{species.code}}.cds.fasta">Coding Sequences</a></li>
+                        <li><a href="{{url_for('species.species_download_protein', species_id=species.id)}}"  download="{{species.code}}.aa.fasta">Protein Sequences</a></li>
+                        <li><a href="{{url_for('species.species_download_rna', species_id=species.id)}}" download="{{species.code}}.rna.fasta">RNA Sequences</a></li>
 
                         <li class="dropdown-header">Networks</li>
                         {% for n in species.networks %}
@@ -96,9 +95,9 @@
                             <div class="btn-group">
                                 <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Download  <span class="caret"></span></button>
                                 <ul class="dropdown-menu dropdown-menu-right">
-                                    <li><a href="{{url_for('species.species_stream_coding', species_id=s.id)}}" download="{{s.code}}.cds.fasta">Coding Sequences</a></li>
-                                    <li><a href="{{url_for('species.species_stream_protein', species_id=s.id)}}" download="{{s.code}}.aa.fasta">Protein Sequences</a></li>
-                                    <li><a href="{{url_for('species.species_stream_rna', species_id=s.id)}}" download="{{s.code}}.rna.fasta">RNA Sequences</a></li>
+                                    <li><a href="{{url_for('species.species_download_coding', species_id=s.id)}}" download="{{s.code}}.cds.fasta">Coding Sequences</a></li>
+                                    <li><a href="{{url_for('species.species_download_protein', species_id=s.id)}}" download="{{s.code}}.aa.fasta">Protein Sequences</a></li>
+                                    <li><a href="{{url_for('species.species_download_rna', species_id=s.id)}}" download="{{s.code}}.rna.fasta">RNA Sequences</a></li>
                                     <li class="dropdown-header">Networks</li>
                                     {% for n in s.networks %}
                                     <li><a href="{{ url_for('expression_network.expression_network_export', method_id=n.id) }}" download="network_{{n.id}}.tab">{{ n.description }}</a></li>
