@@ -195,9 +195,11 @@ class OTUClassificationGTDB(db.Model):
                     else:
                         #d__ p__  c__ o__ f__ g__ s__ (ranks in gtdb)
                         lowest_path_available = ''
+                        if path == 'Unassigned':
+                            continue
                         taxon_parts = path.split(';')
                         if taxon_parts[-1].startswith('s__'):
-                            lowest_path_available = ';'.join(taxon_parts[:-2])
+                            lowest_path_available = ';'.join(taxon_parts[:-1])
                         else:
                             lowest_path_available = path
                         taxon_db_record = GTDBTaxon.query.filter(GTDBTaxon.taxon_path.like(f'%{lowest_path_available}%')).first()
@@ -205,6 +207,7 @@ class OTUClassificationGTDB(db.Model):
                                                                  otu_record.id,
                                                                  new_classification_method.id,
                                                                  lowest_path_available)
+                        db.session.add(new_otu_classification)
 
                     classified_otus+=1
                     new_otu_classifications.append(new_otu_classification)
