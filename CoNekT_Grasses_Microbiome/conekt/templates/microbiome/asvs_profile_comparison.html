@@ -11,7 +11,7 @@
     <ol class="breadcrumb">
         <li><a href="{{ url_for('main.screen') }}">Home</a></li>
         <li><a href="{{ url_for('main.features') }}">Tools</a></li>
-        <li><a href="{{ url_for('asvs_profile.asvs_profile_compare') }}">Compare ASV Profiles in a Study</a></li>
+        <li><a href="#">Compare ASV Profiles in a Study</a></li>
         <li class="active"><strong>Results</strong></li>
     </ol>
 
@@ -43,7 +43,7 @@
                 <div class="panel panel-primary">
                     <div class="panel-heading"><strong>Select species, study and ASVs</strong></div>
                     <div class="panel-body">
-                        <form method="POST"  action="{{ url_for('asvs_profile.asvs_profile_compare') }}"  role="form">
+                        <form method="POST"  action="#"  role="form">
                             {{ form.csrf_token }}
                             {{form.species_id(class_="form-control") }}<br />
                             {{form.study_id(class_="form-control") }}<br />
