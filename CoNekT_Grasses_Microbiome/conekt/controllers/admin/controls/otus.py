@@ -113,7 +113,8 @@ def add_otu_profiles():
 
         added_runs_count = SeqRun.add_run_annotation(temp_run_annot_path,
                                   species_id,
-                                  'metataxonomics')
+                                  'metataxonomics',
+                                  study_id)
 
         os.close(fd_run_annot)
         os.remove(temp_run_annot_path)
