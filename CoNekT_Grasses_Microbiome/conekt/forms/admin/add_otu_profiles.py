@@ -10,6 +10,7 @@ from conekt.models.sample import Sample
 class AddOTUProfilesForm(FlaskForm):
     
     species_id = SelectField('Species', coerce=int, choices=[], validate_choice=False)
+    study_id = SelectField('Study', coerce=int, choices=[], validate_choice=False)
 
     # Fields for the run annotation
     run_annotation_file = FileField()

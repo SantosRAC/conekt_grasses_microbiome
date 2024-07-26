@@ -5,6 +5,10 @@ from flask import request, flash, url_for
 from conekt.models.sample import Sample
 from conekt.models.literature import LiteratureItem
 
+from conekt.models.relationships.study_run import StudyRunAssociation
+from conekt.models.relationships.study_sample import StudySampleAssociation
+from conekt.models.relationships.study_literature import StudyLiteratureAssociation
+
 from sqlalchemy.orm import undefer
 
 SQL_COLLATION = 'NOCASE' if db.engine.name == 'sqlite' else ''
@@ -37,12 +41,14 @@ class SeqRun(db.Model):
         return str(self.id) + ". " + self.accession_number
 
     @staticmethod
-    def add_run_annotation(run_annotation_file, species_id, data_type):
+    def add_run_annotation(run_annotation_file, species_id, data_type,
+                           study_id=None):
         """Function to add run information to the database from annotation file
 
         :param run_annotation_file: path to the file with runs and their metatada
         :param species_id: internal id of the species
-        :param data_type: type of data (e.g. rnaseq, metataxonomics)
+        :param data_type: type of data (rnaseq or metataxonomics)
+        :param study_id: internal id of the study (optional)
         """
 
         with open(run_annotation_file, 'r') as fin:
@@ -50,6 +56,7 @@ class SeqRun(db.Model):
             _ = fin.readline()
 
             added_runs = 0
+            all_new_runs = []
             new_runs = []
 
             for line in fin:
@@ -81,11 +88,25 @@ class SeqRun(db.Model):
                     db.session.add(new_run)
                     added_runs+=1
                     new_runs.append(new_run)
+                    all_new_runs.append(new_run)
+
+                    if study_id:
+                        new_study_sample = StudySampleAssociation(study_id, sample.id)
+                        db.session.add(new_study_sample)
+                        new_study_literature = StudyLiteratureAssociation(study_id, literature_id)
+                        db.session.add(new_study_literature)
 
                     if len(new_runs) > 400:
                         db.session.commit()
                         new_runs = []
         
+            db.session.commit()
+
+            if study_id:
+                for run in all_new_runs:
+                    new_study_run = StudyRunAssociation(study_id, run.id, 'metataxonomics')
+                    db.session.add(new_study_run)
+            
             db.session.commit()
 
         return added_runs

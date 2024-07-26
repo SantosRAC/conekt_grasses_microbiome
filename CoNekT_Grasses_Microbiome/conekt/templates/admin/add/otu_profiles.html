@@ -60,6 +60,26 @@
 
 {% block tail %}
 <script>
+    let species_select = document.getElementById('species_id');
+    let study_id_select = document.getElementById('study_id');
+
+    species_select.onchange = function() {
+        species_id = species_select.value;
+
+        fetch("{{ url_for('study.get_species_studies', species_id='species_id', study_type='expression_metataxonomics') }}".replace('species_id', species_id)).then(function(response) {
+                response.json().then(function(data) {
+                    
+                    let optionHTML = '';
+                   
+                    for (let study of data.studies) {
+                        optionHTML += '<option value="' + study.id + '">' + study.name + '</option>';
+                    }
+        
+                    study_id_select.innerHTML = optionHTML;
+        
+            })
+        })
+    }
     $(function() {
         $("#run_annotation_file").change(function() {
             $('#run-annotation-file-selector-text').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#run-annotation-file-button').toggleClass('btn-default btn-success');
