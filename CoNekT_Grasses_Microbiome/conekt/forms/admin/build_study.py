@@ -15,13 +15,9 @@ class BuildStudyForm(FlaskForm):
     # study Description and type (RNAseq, metataxonomic, both)
     study_name = StringField('Study Name', [InputRequired()])
     study_description = TextAreaField('Study Description')
-    study_type = SelectField('Study Type', choices=[('rnaseq', 'RNA-seq'),
-                                                    ('metataxonomics', 'Metataxonomics'),
+    study_type = SelectField('Study Type', choices=[('metataxonomics', 'Metataxonomics'),
                                                     ('expression_metataxonomics', 'Both'),])
     
-    # Admin can select multiple literature if needed
-    literature_list = SelectMultipleField('Literature (will change according to study type)', coerce=int, choices=[], validate_choice=False)
-
     krona_file = FileField('Krona File')
 
     def populate_species(self):
