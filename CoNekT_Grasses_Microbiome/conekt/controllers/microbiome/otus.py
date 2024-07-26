@@ -1,8 +1,10 @@
 from flask import Blueprint, redirect, url_for, render_template, make_response, jsonify
 
-from conekt import cache
+from conekt import db, cache
 from conekt.models.microbiome.operational_taxonomic_unit import OperationalTaxonomicUnit, OperationalTaxonomicUnitMethod
 from conekt.models.relationships_microbiome.otu_classification import OTUClassificationGG
+from conekt.models.studies import Study
+from conekt.models.microbiome.otu_profiles import OTUProfile
 from sqlalchemy.orm import undefer, noload
 
 otu = Blueprint('otu', __name__)
@@ -85,3 +87,32 @@ def get_lit_otus(literature_id):
         outMethodArray.append(outMethodObj)
     
     return jsonify({'otus': outMethodArray})
+
+
+@otu.route('/download/otus/<study_id>')
+def study_download_otus(study_id):
+    """
+    Generates a fasta file with all OTU representative sequences for a given study
+
+    :param study_id: ID of the study
+    :return: Response with the fasta file
+    """
+    output = []
+
+    current_study = db.session.get(Study, study_id)
+    otu_ids = db.session.execute(db.select(OTUProfile.__table__.c.otu_id).
+                                  where(OTUProfile.__table__.c.study_id == current_study.id)).\
+                                        fetchall()
+    
+    otu_ids = [otu_id[0] for otu_id in OTUProfile.query.with_entities(OTUProfile.otu_id).distinct().all()]
+    otus = OperationalTaxonomicUnit.query.filter(OperationalTaxonomicUnit.id.in_(otu_ids)).all()
+
+    for otu in otus:
+        output.append(">" + otu.original_id)
+        output.append(otu.representative_sequence)
+
+    response = make_response("\n".join(output))
+    response.headers["Content-Disposition"] = "attachment; filename=Study_" + str(current_study.id) + ".otus.fasta"
+    response.headers['Content-type'] = 'text/plain'
+
+    return response
