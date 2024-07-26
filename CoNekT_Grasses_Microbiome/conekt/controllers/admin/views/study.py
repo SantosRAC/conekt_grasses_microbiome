@@ -11,6 +11,5 @@ class BuildStudyView(AdminBaseView):
     def index(self):
         form = BuildStudyForm()
         form.populate_species()
-        form.literature_list.choices = []
 
         return self.render('admin/build/study.html', form=form)

@@ -3,7 +3,7 @@
 {% block body %}
 <h1>Build Study</h1>
 <p>Build a study to be incorporated to CoNekT Grasses Microbiome.</p>
-<p>Studies can have <strong>expression runs (RNA-seq data), metataxonomics runs (amplicon sequencing) or both!</strong></p>
+<p>Studies can have <strong>metataxonomics runs (amplicon sequencing) or integration of RNA-seq and metataxonomics!</strong></p>
 
 {% if form %}
 
@@ -25,10 +25,6 @@
         {{ form.study_type.label }}
         {{ form.study_type(class_="form-control") }}
     </div>
-    <div class="form-group">
-        {{ form.literature_list.label }}
-        {{ form.literature_list(class_="form-control") }}
-    </div>
 
     <div class="form-group">
         <p>Add Krona file containing for the study (GTDB).</p>
@@ -47,39 +43,6 @@
 {% block tail %}
 
 <script>
-    $("#literature_list").hide();
-
-    let species_select = document.getElementById('species_id');
-    let study_type_select = document.getElementById('study_type');
-    let literature_select = document.getElementById('literature_list');
-
-    study_type_select.onchange = function() {
-        study_type = study_type_select.value;
-        species_id = species_select.value;
-
-        if (study_type === "metataxonomics" || study_type === "expression_metataxonomics") {
-            $("#literature_list").show();
-        
-            fetch("{{ url_for('study.get_species_lits_with_runs', species_id='species_id', study_type='study_type') }}".replace('species_id', species_id).replace('study_type', study_type)).then(function(response) {
-                response.json().then(function(data) {
-                    
-                    let optionHTML = '';
-                    
-                    for (let literature of data.literatures) {
-                        optionHTML += '<option value="' + literature.id + '">' + literature.publication_detail + '</option>';
-                    }
-
-                    literature_select.innerHTML = optionHTML;
-
-                })
-            })
-
-        } else if (study_type === "rnaseq") {
-            $("#literature_list").hide();
-        }
-    }
-
-
 $(function() {
     $("#krona_file").change(function() {
             $('#file-selector-text-krona').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#my-file-button-krona').toggleClass('btn-default btn-success');

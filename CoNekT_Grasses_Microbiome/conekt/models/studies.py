@@ -36,7 +36,7 @@ class Study(db.Model):
     
     @staticmethod
     def build_study(species_id, study_name, study_description,
-                    study_type, literature_ids, krona_file):
+                    study_type, krona_file):
         
         species = Species.query.get(species_id)
 
@@ -44,69 +44,5 @@ class Study(db.Model):
 
         db.session.add(new_study)
         db.session.commit()
-
-        associated_literature = 0
-        associated_samples = 0
-
-        if study_type == 'metataxonomics':
-
-            for lit_id in literature_ids:
-
-                literature_metatax_runs = SeqRun.query.filter_by(species_id=species.id, data_type='metataxonomics', literature_id=lit_id).all()
-
-                new_study_lit = StudyLiteratureAssociation(new_study.id, lit_id)
-                db.session.add(new_study_lit)
-
-                for run in literature_metatax_runs:
-
-                    new_study_run = StudyRunAssociation(new_study.id, run.id, 'metataxonomics') 
-                    db.session.add(new_study_run)
-
-                    new_study_sample = StudySampleAssociation(new_study.id, run.sample_id) 
-                    db.session.add(new_study_sample)
-
-            db.session.commit()
-                
-        else:
-
-            samples_rnaseq_runs = []
-            samples_metatax_runs = []
-            rnaseq_runs = []
-            metatax_runs = []
-
-            for lit_id in literature_ids:
-                
-                rnaseq_runs = SeqRun.query.filter_by(species_id=species.id, data_type='rnaseq', literature_id=lit_id).all()
-                metatax_runs = SeqRun.query.filter_by(species_id=species.id, data_type='metataxonomics', literature_id=lit_id).all()
-
-                samples_rnaseq_runs.extend([run.sample_id for run in rnaseq_runs])
-                samples_metatax_runs.extend([run.sample_id for run in metatax_runs])
-
-            sample_intersection = set(samples_rnaseq_runs).intersection(set(samples_metatax_runs))
-
-            if list(sample_intersection).sort() == samples_rnaseq_runs.sort():
-
-                for sample_id in sample_intersection:
-                    new_study_sample = StudySampleAssociation(new_study.id, sample_id)
-                    db.session.add(new_study_sample)
-
-                    associated_samples+=1
-                
-                for lit_id in literature_ids:
-                    new_study_lit = StudyLiteratureAssociation(new_study.id, lit_id)
-                    db.session.add(new_study_lit)
-
-                    associated_literature+=1
-
-                for run in rnaseq_runs:
-                    new_study_run = StudyRunAssociation(new_study.id, run.id, data_type='rnaseq')
-                    db.session.add(new_study_run)
-
-                for run in metatax_runs:
-                    new_study_run = StudyRunAssociation(new_study.id, run.id, data_type='metataxonomics')
-                    db.session.add(new_study_run)
-                
-                db.session.commit()               
-
         
-        return associated_literature, associated_samples
+        return new_study.id

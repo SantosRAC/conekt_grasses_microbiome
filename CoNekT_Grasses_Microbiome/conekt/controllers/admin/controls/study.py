@@ -33,8 +33,6 @@ def build_study():
         study_description = request.form.get('study_description')
         study_type = request.form.get('study_type')
 
-        literature_ids = request.form.getlist('literature_list')
-
         krona_file = request.files[form.krona_file.name].read()
 
         # Add Krona plot to study
@@ -44,14 +42,13 @@ def build_study():
             file_writer.write(krona_file)
 
         # Add study to database
-        literature_count_study, samples_count = Study.build_study(species_id, study_name, study_description,
-                                      study_type, literature_ids, krona_file)
+        study_id = Study.build_study(species_id, study_name, study_description,
+                                      study_type, krona_file)
 
         os.close(fd)
         os.remove(temp_path)
         
-        flash(f'Added {study_type} study with {literature_count_study} associated papers', 'success')
-        flash(f'Added {samples_count} associated samples', 'success')
+        flash(f'Added {study_type} study (study identifier: {study_id})', 'success')
 
         return redirect(url_for('admin.index'))
     else:
