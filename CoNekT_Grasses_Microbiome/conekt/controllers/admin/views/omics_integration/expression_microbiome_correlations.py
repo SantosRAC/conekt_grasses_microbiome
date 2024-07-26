@@ -16,4 +16,5 @@ class BuildCorrelationsView(AdminBaseView):
         form = BuildExpMicrobiomeCorrelationsForm()
         form.populate_species()
 
+        flash('Please use the script in the current version of CoNekT Grasses Microbiome.', 'danger')
         return self.render('admin/build/profile_correlations.html', form=form)
