@@ -8,7 +8,7 @@
 
 {% if form %}
 
-<form method="POST"  action="{{ url_for('admin_controls.build_profile_correlations') }}"  role="form" enctype="multipart/form-data">
+<form method="POST"  action="{{ url_for('admin_controls.build_profile_specificity') }}"  role="form" enctype="multipart/form-data">
     {{ form.csrf_token }}
     <div class="form-group">
         {{ form.species_id.label }}

@@ -9,6 +9,7 @@ from .clades import update_clades, add_clades
 from .counts import update_counts
 from .expression_profiles import add_expression_profiles
 from .omics_integration.profile_correlations import build_profile_correlations
+from .microbiome.microbiome_profile_specificity import build_profile_specificity
 from .families import add_family
 from .ftp import export_ftp
 from .functional_data import add_functional_data, add_go, add_interpro, calculate_enrichment, delete_enrichment
