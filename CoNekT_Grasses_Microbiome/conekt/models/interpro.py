@@ -252,10 +252,10 @@ class Interpro(db.Model):
                     if domain["id"] in domain_hash.keys():
                         current_domain = domain_hash[domain["id"]]
 
-                        new_domain = {"sequence_id": current_sequence.id,
+                        new_domain = SequenceInterproAssociation(**{"sequence_id": current_sequence.id,
                                       "interpro_id": current_domain.id,
                                       "start": domain["start"],
-                                      "stop": domain["stop"]}
+                                      "stop": domain["stop"]})
 
                         new_domains.append(new_domain)
 
@@ -265,7 +265,9 @@ class Interpro(db.Model):
                 print("Gene", gene, "not found in the database.")
 
             if len(new_domains) > 400:
-                db.session.execute(SequenceInterproAssociation.__table__.insert(), new_domains)
+                db.session.add_all(new_domains)
+                db.session.commit()
                 new_domains = []
 
-        db.session.execute(SequenceInterproAssociation.__table__.insert(), new_domains)
+        db.session.add_all(new_domains)
+        db.session.commit()
