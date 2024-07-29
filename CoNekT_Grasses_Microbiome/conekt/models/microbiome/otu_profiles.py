@@ -76,27 +76,22 @@ class OTUProfile(db.Model):
 
         :param feature_table: path to the feature table
         :param species_id: internal id of the species
+        :param study_id: internal id of the study
         :param normalization_method: method used to normalize the data
         """
 
         added_otu_profiles = 0
-
-        # build conversion table for OTUs
-        otus = OperationalTaxonomicUnit.query.filter_by().all()
-        otu_seq_dict = {}  # key = sequence name uppercase, value internal id
-        
-        for o in otus:
-            otu_seq_dict[o.original_id.upper()] = o.id
 
         with open(feature_table, 'r') as fin:
 
             # read header
             _, *colnames = fin.readline().rstrip().split()
 
-            # build conversion table for OTUs
+            # build conversion table for runs
             runs = SeqRun.query.filter(SeqRun.accession_number.in_(colnames)).\
+                                filter_by(species_id=species_id).\
                                 all()
-            seq_run_dict = {}  # key = sequence name uppercase, value internal id
+            seq_run_dict = {}  # key = accession_number uppercase, value internal id
             for r in runs:
                 seq_run_dict[r.accession_number.upper()] = r.id
 
@@ -129,13 +124,24 @@ class OTUProfile(db.Model):
                 new_otu_profiles.append(new_profile)
                 added_otu_profiles+=1
                 db.session.add(new_profile)
-                db.session.commit()
 
+                if len(new_otu_profiles) > 400:
+                    db.session.commit()
+                    new_otu_profiles = []
+
+            db.session.commit()
+
+            added_otu_profiles_obj = OTUProfile.query.with_entities(OTUProfile.id, OTUProfile.probe).\
+                                                         filter(OTUProfile.study_id == study_id,
+                                                         OTUProfile.species_id == species_id,
+                                                         OTUProfile.normalization_method == normalization_method).all()
+
+            for added_profile in added_otu_profiles_obj:
                 for run in runs:
-                    new_otu_profile_run = {"otu_profile_id": new_profile.id,
-                                           "run_id": run.id}
+                    new_otu_profile_run = {"otu_profile_id": added_profile.id,
+                                            "run_id": run.id}
                     db.session.add(OTUProfileRunAssociation(**new_otu_profile_run))
-                
-                db.session.commit()
+
+            db.session.commit()
 
         return added_otu_profiles
