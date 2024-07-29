@@ -5,6 +5,9 @@ from conekt import db
 
 from conekt.models.microbiome.otu_profiles import OTUProfile
 
+# Importing Ontologies
+from conekt.models.ontologies import PlantOntology, PlantExperimentalConditionsOntology, EnvironmentOntology
+
 # Importing associations with Ontologies
 from conekt.models.relationships.sample_po import SamplePOAssociation
 from conekt.models.relationships.sample_peco import SamplePECOAssociation
@@ -18,7 +21,7 @@ from utils.expression import expression_specificity
 from utils.tau import tau
 
 
-class ExpressionSpecificityMethod(db.Model):
+class MicrobiomeSpecificityMethod(db.Model):
     __tablename__ = 'microbiome_specificity_method'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -26,13 +29,12 @@ class ExpressionSpecificityMethod(db.Model):
     conditions = db.Column(db.Text)
     data_type = db.Column(db.Enum('condition', 'po_anatomy',
                                   'po_dev_stage', 'peco',
-                                  'subpopulation',
+                                  'envo', 'subpopulation',
                                   name='data_type'))
     study_id = db.Column(db.Integer, db.ForeignKey('studies.id', ondelete='CASCADE'))
 
     def __repr__(self):
-        return str(self.id) + ". " + self.description + ' [' + self.species.name + ']'
-
+        return str(self.id) + ". " + self.description + ' [' + self.study_id + ']'
 
     @staticmethod
     def calculate_specificities(study_id, description, remove_background=False, use_max=True):
@@ -46,35 +48,90 @@ class ExpressionSpecificityMethod(db.Model):
         :param use_max: uses the maximum of mean values instead of the mean of all values
         :return id of the new method
         """
-        #new_method = ExpressionSpecificityMethod()
-        #new_method.study_id = study_id
-        #new_method.description = description
-        
-        sample_pos = {}
-        sample_pecos = {}
-        sample_envos = {}
-        sample_groups = {}
 
-        # get profile from the database (ORM free for speed)
-        profiles = db.engine.execute(db.select([OTUProfile.__table__.c.id, OTUProfile.__table__.c.profile]).
-                                     where(OTUProfile.__table__.c.study_id == study_id)
-                                     ).fetchall()
-        
         # detect all conditions, assuming all profiles in a study have the same ontologies and groups
-        groups_profile = db.engine.execute(db.select([OTUProfile.__table__.c.id, OTUProfile.__table__.c.profile]).
-                                     where(OTUProfile.__table__.c.study_id == study_id)
-                                     ).first()
+        groups_profile = OTUProfile.query.with_entities(OTUProfile.id, OTUProfile.profile).\
+                                                        filter(OTUProfile.study_id == study_id).first()
 
         profile_data = json.loads(groups_profile[1])
         
-        print(profile_data['data']['sample_id'].values(), '\n\n\n\n\n\n\n')
+        po_ids = SamplePOAssociation.query.with_entities(SamplePOAssociation.po_id).\
+            filter(SamplePOAssociation.sample_id.in_(list(profile_data['data']['sample_id'].values()))).distinct().all()
+        peco_ids = SamplePECOAssociation.query.with_entities(SamplePECOAssociation.peco_id).\
+            filter(SamplePECOAssociation.sample_id.in_(list(profile_data['data']['sample_id'].values()))).distinct().all()
+        envo_ids = SampleENVOAssociation.query.with_entities(SampleENVOAssociation.envo_id).\
+            filter(SampleENVOAssociation.sample_id.in_(list(profile_data['data']['sample_id'].values()))).distinct().all()
+        
+        if po_ids:
+            po_ids = [po_id for po_id in po_ids[0]]
+        if peco_ids:
+            peco_ids = [peco_id for peco_id in peco_ids[0]]
+        if envo_ids:
+            envo_ids = [envo_id for envo_id in envo_ids[0]]
+
+        sample_groups = SampleGroupAssociation.query.filter(SampleGroupAssociation.sample_id.in_(list(profile_data['data']['sample_id'].values()))).all()
+        
+        sample_groups_dict = {}
+
+        for sample_group in sample_groups:
+            if sample_group.group_type in sample_groups_dict.keys():
+                if sample_group.group_name in sample_groups_dict[sample_group.group_type].keys():
+                    sample_groups_dict[sample_group.group_type][sample_group.group_name].append(sample_group.sample_id)
+                else:
+                    sample_groups_dict[sample_group.group_type][sample_group.group_name] = [sample_group.sample_id]
+            else:
+                sample_groups_dict[sample_group.group_type] = {}
+                sample_groups_dict[sample_group.group_type][sample_group.group_name] = [sample_group.sample_id]
+
+        pos = PlantOntology.query.with_entities(PlantOntology.po_class).filter(PlantOntology.id.in_(po_ids)).distinct().all()
+        pecos = PlantExperimentalConditionsOntology.query.with_entities(PlantExperimentalConditionsOntology.peco_class).filter(PlantExperimentalConditionsOntology.id.in_(peco_ids)).distinct().all()
+        envos = EnvironmentOntology.query.with_entities(EnvironmentOntology.envo_class).filter(EnvironmentOntology.id.in_(envo_ids)).distinct().all()
+        
+        final_list = []
+        
+        if pos:
+            final_list = final_list+[po for po in pos[0]]
+        if pecos:
+            final_list = final_list+[peco for peco in pecos[0]]
+        if envos:
+            final_list = final_list+[envo for envo in envos[0]]
+        
+        # get all profile from the database for a specified study
+        profiles = OTUProfile.query.with_entities(OTUProfile.id, OTUProfile.profile).\
+                                                        filter(OTUProfile.study_id == study_id).all()
+
+        if pos and (len(pos) > 1):
+            new_method = MicrobiomeSpecificityMethod()
+            new_method.study_id = study_id
+            new_method.description = description + " - " + "PO"
+            new_method.data_type = 'po_anatomy'
+            new_method.conditions = str([po for po in pos[0]])
+            db.session.add(new_method)
+        if pecos and (len(pecos) > 1):
+            new_method = MicrobiomeSpecificityMethod()
+            new_method.study_id = study_id
+            new_method.description = description + " - " + "PECO"
+            new_method.data_type = 'peco'
+            new_method.conditions = str([peco for peco in pecos[0]])
+            db.session.add(new_method)
+        if envos and (len(envos) > 1):
+            new_method = MicrobiomeSpecificityMethod()
+            new_method.study_id = study_id
+            new_method.data_type = 'envo'
+            new_method.description = description + " - " + "ENVO"
+            new_method.conditions = str([envo for envo in envos[0]])
+            db.session.add(new_method)
+        #if 'subpopulation' in sample_groups_dict.keys() and len(sample_groups_dict['subpopulation'].keys()) > 1:
+        new_method = MicrobiomeSpecificityMethod()
+        new_method.study_id = study_id
+        new_method.data_type = 'subpopulation'
+        new_method.description = description + " - " + "Subpopulation"
+        new_method.conditions = str([group for group in sample_groups_dict['subpopulation'].keys()])
+        db.session.add(new_method)
+
+        db.session.commit()
 
         exit(1)
-            
-        #new_method.conditions = json.dumps(tissues)
-
-        #db.session.add(new_method)
-        #db.session.commit()
 
         # detect specifities and add to the database
         specificities = []
@@ -135,7 +192,7 @@ class ExpressionSpecificityMethod(db.Model):
         return new_method.id
 
 
-class ExpressionSpecificity(db.Model):
+class MicrobiomeSpecificity(db.Model):
     __tablename__ = 'microbiome_specificity'
 
     id = db.Column(db.Integer, primary_key=True)
