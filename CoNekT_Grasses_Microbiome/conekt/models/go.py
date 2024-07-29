@@ -281,11 +281,10 @@ class GO(db.Model):
                 for term in terms:
                     if term["id"] in go_hash.keys():
                         current_term = go_hash[term["id"]]
-                        association = {
-                            "sequence_id": current_sequence.id,
+                        association = SequenceGOAssociation(**{"sequence_id": current_sequence.id,
                             "go_id": current_term.id,
                             "evidence": term["evidence"],
-                            "source": term["source"]}
+                            "source": term["source"]})
                         associations.append(association)
                     else:
                         print(term, "not found in the database.")
@@ -293,8 +292,12 @@ class GO(db.Model):
                 print("Gene", gene, "not found in the database.")
 
             if len(associations) > 400:
-                db.session.execute(SequenceGOAssociation.__table__.insert(), associations)
+                db.session.add_all(associations)
+                db.session.commit()
                 associations = []
+        
+        db.session.add_all(associations)
+        db.session.commit()
 
         # Add extended GOs
         for gene, terms in go_parser.annotation.items():
@@ -317,18 +320,19 @@ class GO(db.Model):
                 for new_term in new_terms:
                     if new_term in go_hash.keys():
                         current_term = go_hash[new_term]
-                        association = {
-                            "sequence_id": current_sequence.id,
+                        association = SequenceGOAssociation(**{"sequence_id": current_sequence.id,
                             "go_id": current_term.id,
                             "evidence": None,
-                            "source": "Extended"}
+                            "source": "Extended"})
                         associations.append(association)
 
                     if len(associations) > 400:
-                        db.session.execute(SequenceGOAssociation.__table__.insert(), associations)
+                        db.session.add_all(associations)
+                        db.session.commit()
                         associations = []
 
-        db.session.execute(SequenceGOAssociation.__table__.insert(), associations)
+        db.session.add_all(associations)
+        db.session.commit()
 
     @staticmethod
     def add_go_from_tab(filename, species_id, source="Source not provided"):
@@ -355,11 +359,10 @@ class GO(db.Model):
                     current_sequence = gene_hash[gene]
                     if term in go_hash.keys():
                         current_term = go_hash[term]
-                        association = {
-                            "sequence_id": current_sequence.id,
+                        association = SequenceGOAssociation(**{"sequence_id": current_sequence.id,
                             "go_id": current_term.id,
                             "evidence": evidence,
-                            "source": source}
+                            "source": source})
                         associations.append(association)
 
                         if term not in gene_go[gene]:
@@ -371,8 +374,12 @@ class GO(db.Model):
                     print("Gene", gene, "not found in the database.")
 
                 if len(associations) > 400:
-                    db.session.execute(SequenceGOAssociation.__table__.insert(), associations)
+                    db.session.add_all(associations)
+                    db.session.commit()
                     associations = []
+
+        db.session.add_all(associations)
+        db.session.commit()
 
         # Add extended GOs
         for gene, terms in gene_go.items():
@@ -395,15 +402,16 @@ class GO(db.Model):
                 for new_term in new_terms:
                     if new_term in go_hash.keys():
                         current_term = go_hash[new_term]
-                        association = {
-                            "sequence_id": current_sequence.id,
+                        association = SequenceGOAssociation(**{"sequence_id": current_sequence.id,
                             "go_id": current_term.id,
                             "evidence": None,
-                            "source": "Extended"}
+                            "source": "Extended"})
                         associations.append(association)
 
                     if len(associations) > 400:
-                        db.session.execute(SequenceGOAssociation.__table__.insert(), associations)
+                        db.session.add_all(associations)
+                        db.session.commit()
                         associations = []
 
-        db.session.execute(SequenceGOAssociation.__table__.insert(), associations)
+        db.session.add_all(associations)
+        db.session.commit()
