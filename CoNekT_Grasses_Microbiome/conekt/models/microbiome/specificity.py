@@ -69,9 +69,12 @@ class MicrobiomeSpecificityMethod(db.Model):
         if envo_ids:
             envo_ids = [envo_id for envo_id in envo_ids[0]]
 
-        sample_groups = SampleGroupAssociation.query.filter(SampleGroupAssociation.sample_id.in_(list(profile_data['data']['sample_id'].values()))).all()
-        
         sample_groups_dict = {}
+        sample_groups_dict['po'] = {}
+        sample_groups_dict['peco'] = {}
+        sample_groups_dict['envo'] = {}
+
+        sample_groups = SampleGroupAssociation.query.filter(SampleGroupAssociation.sample_id.in_(list(profile_data['data']['sample_id'].values()))).all()
 
         for sample_group in sample_groups:
             if sample_group.group_type in sample_groups_dict.keys():
@@ -87,19 +90,7 @@ class MicrobiomeSpecificityMethod(db.Model):
         pecos = PlantExperimentalConditionsOntology.query.with_entities(PlantExperimentalConditionsOntology.peco_class).filter(PlantExperimentalConditionsOntology.id.in_(peco_ids)).distinct().all()
         envos = EnvironmentOntology.query.with_entities(EnvironmentOntology.envo_class).filter(EnvironmentOntology.id.in_(envo_ids)).distinct().all()
         
-        final_list = []
-        
-        if pos:
-            final_list = final_list+[po for po in pos[0]]
-        if pecos:
-            final_list = final_list+[peco for peco in pecos[0]]
-        if envos:
-            final_list = final_list+[envo for envo in envos[0]]
-        
-        # get all profile from the database for a specified study
-        profiles = OTUProfile.query.with_entities(OTUProfile.id, OTUProfile.profile).\
-                                                        filter(OTUProfile.study_id == study_id).all()
-
+        #TODO: Still need to implment distinctions between PO dev staget and PO anatomy
         if pos and (len(pos) > 1):
             new_method = MicrobiomeSpecificityMethod()
             new_method.study_id = study_id
@@ -107,6 +98,17 @@ class MicrobiomeSpecificityMethod(db.Model):
             new_method.data_type = 'po_anatomy'
             new_method.conditions = str([po for po in pos[0]])
             db.session.add(new_method)
+
+            sample_pos = SamplePOAssociation.query.with_entities(SamplePOAssociation.po_id,
+                                                             SamplePOAssociation.sample_id).\
+            filter(SamplePOAssociation.sample_id.in_(list(profile_data['data']['sample_id'].values()))).distinct().all()
+            
+            for sample_po in sample_pos:
+                if sample_po.po_id in sample_groups_dict['po'].keys():
+                    sample_groups_dict['po'][sample_po.po_id].append(sample_po.sample_id)
+                else:
+                    sample_groups_dict['po'][sample_po.po_id] = [sample_po.sample_id]
+
         if pecos and (len(pecos) > 1):
             new_method = MicrobiomeSpecificityMethod()
             new_method.study_id = study_id
@@ -114,6 +116,17 @@ class MicrobiomeSpecificityMethod(db.Model):
             new_method.data_type = 'peco'
             new_method.conditions = str([peco for peco in pecos[0]])
             db.session.add(new_method)
+
+            sample_pecos = SamplePECOAssociation.query.with_entities(SamplePECOAssociation.peco_id,
+                                                                 SamplePECOAssociation.sample_id).\
+            filter(SamplePECOAssociation.sample_id.in_(list(profile_data['data']['sample_id'].values()))).distinct().all()
+        
+            for sample_peco in sample_pecos:
+                if sample_peco.peco_id in sample_groups_dict['peco'].keys():
+                    sample_groups_dict['peco'][sample_peco.peco_id].append(sample_peco.sample_id)
+                else:
+                    sample_groups_dict['peco'][sample_peco.peco_id] = [sample_peco.sample_id]
+
         if envos and (len(envos) > 1):
             new_method = MicrobiomeSpecificityMethod()
             new_method.study_id = study_id
@@ -121,75 +134,97 @@ class MicrobiomeSpecificityMethod(db.Model):
             new_method.description = description + " - " + "ENVO"
             new_method.conditions = str([envo for envo in envos[0]])
             db.session.add(new_method)
-        #if 'subpopulation' in sample_groups_dict.keys() and len(sample_groups_dict['subpopulation'].keys()) > 1:
-        new_method = MicrobiomeSpecificityMethod()
-        new_method.study_id = study_id
-        new_method.data_type = 'subpopulation'
-        new_method.description = description + " - " + "Subpopulation"
-        new_method.conditions = str([group for group in sample_groups_dict['subpopulation'].keys()])
-        db.session.add(new_method)
+
+            sample_envos = SampleENVOAssociation.query.with_entities(SampleENVOAssociation.envo_id,
+                                                                 SampleENVOAssociation.envo_id).\
+            filter(SampleENVOAssociation.sample_id.in_(list(profile_data['data']['sample_id'].values()))).distinct().all()
+
+            for sample_envo in sample_envos:
+                if sample_envo.envo_id in sample_groups_dict['envo'].keys():
+                    sample_groups_dict['envo'][sample_envo.envo_id].append(sample_envo.sample_id)
+                else:
+                    sample_groups_dict['envo'][sample_envo.envo_id] = [sample_envo.sample_id]
+
+        if 'subpopulation' in sample_groups_dict.keys() and len(sample_groups_dict['subpopulation'].keys()) > 1:
+            new_method = MicrobiomeSpecificityMethod()
+            new_method.study_id = study_id
+            new_method.data_type = 'subpopulation'
+            new_method.description = description + " - " + "Subpopulation"
+            new_method.conditions = str([group for group in sample_groups_dict['subpopulation'].keys()])
+            db.session.add(new_method)
 
         db.session.commit()
 
-        exit(1)
+        # get all profile from the database for a specified study
+        profiles = OTUProfile.query.with_entities(OTUProfile.id, OTUProfile.profile).\
+                                                        filter(OTUProfile.study_id == study_id).all()
 
         # detect specifities and add to the database
         specificities = []
+        new_methods_ids = []
 
         for profile_id, profile in profiles:
             # prepare profile data for calculation
             profile_data = json.loads(profile)
             profile_means = {}
-            for t in tissues:
-                values = []
-                valid_conditions = [k for k in profile_data['data']['tpm'].keys() if k in condition_to_tissue and condition_to_tissue[k] == t]
+            for group_type in sample_groups_dict.keys():
+                if sample_groups_dict[group_type]:
 
-                for k, v in profile_data['data']['tpm'].items():
-                    if k in valid_conditions:
-                        if profile_data['data']['po_anatomy_class'][k] == t:
-                            values = values + [v]
-                
-                profile_means[t] = mean(values)
+                    profile_means[group_type] = {}
+
+                    specificity_method = MicrobiomeSpecificityMethod.query.filter(MicrobiomeSpecificityMethod.study_id == study_id,
+                                                                                  MicrobiomeSpecificityMethod.data_type == group_type).first()
+                    new_methods_ids.append(specificity_method.id)
+
+                    for group_name in sample_groups_dict[group_type].keys():
+
+                        values = []
+                        valid_runs = [k for k in profile_data['data']['count'].keys() if profile_data['data']['sample_id'][k] in sample_groups_dict[group_type][group_name]]
+
+                        for k, v in profile_data['data']['count'].items():
+                            if k in valid_runs:
+                                values = values + [v]
+                    
+                        profile_means[group_type][group_name] = mean(values)
             
-            # substract minimum value to remove background
-            # experimental code !
-            if remove_background:
-                minimum = min([v for k, v in profile_means.items()])
+                    # substract minimum value to remove background
+                    # experimental code !
+                    if remove_background:
+                        minimum = min([v for k, v in profile_means[group_type].items()])
 
-                for k in profile_means.keys():
-                    profile_means[k] -= minimum
+                        for k in profile_means.keys():
+                            profile_means[k] -= minimum
 
-            # determine spm score for each condition
-            profile_specificities = []
-            profile_tau = tau([v for v in profile_data['data']['tpm'].values()])
-            profile_entropy = entropy_from_values([v for v in profile_data['data']['tpm'].values()])
+                    # determine spm score for each condition
+                    profile_specificities = []
+                    profile_tau = tau([v for v in profile_means[group_type].values()])
+                    profile_entropy = entropy_from_values([v for v in profile_means[group_type].values()])
 
-            for t in tissues:
-                score = expression_specificity(t, profile_means)
-                new_specificity = {
-                    'profile_id': profile_id,
-                    'condition': t,
-                    'score': score,
-                    'entropy': profile_entropy,
-                    'tau': profile_tau,
-                    'method_id': new_method.id,
-                }
+                    for group_name in sample_groups_dict[group_type].keys():
+                        score = expression_specificity(group_name, profile_means[group_type])
+                        new_specificity = {
+                            'profile_id': profile_id,
+                            'condition': group_name,
+                            'score': score,
+                            'entropy': profile_entropy,
+                            'tau': profile_tau,
+                            'method_id': specificity_method.id,
+                        }
+                        profile_specificities.append(new_specificity)
+                    
+                    # sort conditions and add top one
+                    profile_specificities = sorted(profile_specificities, key=lambda x: x['score'], reverse=True)
+                    specificities.append(profile_specificities[0])
+                    db.session.add(MicrobiomeSpecificity(**profile_specificities[0]))
 
-                profile_specificities.append(new_specificity)
+                    # write specificities to db if there are more than 400 (ORM free for speed)
+                    if len(specificities) > 400:
+                        db.session.commit()
+                        specificities = []
 
-            # sort conditions and add top one
-            profile_specificities = sorted(profile_specificities, key=lambda x: x['score'], reverse=True)
-
-            specificities.append(profile_specificities[0])
-
-            # write specificities to db if there are more than 400 (ORM free for speed)
-            if len(specificities) > 400:
-                db.engine.execute(ExpressionSpecificity.__table__.insert(), specificities)
-                specificities = []
-
-        # write remaining specificities to the db
-        db.engine.execute(ExpressionSpecificity.__table__.insert(), specificities)
-        return new_method.id
+        db.session.commit()
+        
+        return new_methods_ids
 
 
 class MicrobiomeSpecificity(db.Model):
