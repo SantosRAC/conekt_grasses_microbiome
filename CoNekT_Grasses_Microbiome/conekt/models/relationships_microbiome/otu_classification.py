@@ -166,8 +166,7 @@ class OTUClassificationGTDB(db.Model):
         db.session.add(new_classification_method)
         db.session.commit()
 
-        classified_otus = 0
-        new_otu_classifications = []
+        path2otus = {}
 
         with open(otu_classification_table, 'r') as fin:
 
@@ -176,46 +175,51 @@ class OTUClassificationGTDB(db.Model):
             for line in fin:
                 parts = line.strip().split('\t')
 
-                new_otu_classification = None
-
                 if len(parts) == 3:
                     
                     #Output from Qiime2 classifier has three columns:
                     #Feature ID      Taxon   Confidence
                     otu_name, path, confidence = parts
 
-                    otu_record = OperationalTaxonomicUnit.query.filter_by(original_id=otu_name).first()
-
-                    if exact_path_match:
-                        taxon_db_record = GTDBTaxon.query.filter_by(taxon_path=path).first()
-                        new_otu_classification = OTUClassificationGTDB(taxon_db_record.id,
-                                                                 otu_record.id,
-                                                                 new_classification_method.id)
-                        db.session.add(new_otu_classification)
+                    if path in path2otus.keys():
+                        path2otus[path].append(otu_name)
                     else:
-                        #d__ p__  c__ o__ f__ g__ s__ (ranks in gtdb)
-                        lowest_path_available = ''
-                        if path == 'Unassigned':
-                            continue
-                        taxon_parts = path.split(';')
-                        if taxon_parts[-1].startswith('s__'):
-                            lowest_path_available = ';'.join(taxon_parts[:-1])
-                        else:
-                            lowest_path_available = path
-                        taxon_db_record = GTDBTaxon.query.filter(GTDBTaxon.taxon_path.like(f'%{lowest_path_available}%')).first()
-                        new_otu_classification = OTUClassificationGTDB(taxon_db_record.id,
-                                                                 otu_record.id,
-                                                                 new_classification_method.id,
-                                                                 lowest_path_available)
-                        db.session.add(new_otu_classification)
+                        path2otus[path] = [otu_name]
+        
+        new_otu_classifications = []
+        classified_otus = 0
 
-                    classified_otus+=1
-                    new_otu_classifications.append(new_otu_classification)
+        for path in path2otus.keys():
 
-                    if len(new_otu_classifications) > 400:
-                        db.session.commit()
-                        new_otu_classifications = []
+            if exact_path_match:
+                taxon_db_record = GTDBTaxon.query.filter_by(taxon_path=path).first()
+            else:
+                #d__ p__  c__ o__ f__ g__ s__ (ranks in gtdb)
+                lowest_path_available = ''
+                if path == 'Unassigned':
+                    continue
+                taxon_parts = path.split(';')
+                if taxon_parts[-1].startswith('s__'):
+                    lowest_path_available = ';'.join(taxon_parts[:-1])
+                else:
+                    lowest_path_available = path
+                taxon_db_record = GTDBTaxon.query.filter(GTDBTaxon.taxon_path.like(f'%{lowest_path_available}%')).first()
+            
+            for otu_name in path2otus[path]:
+                
+                otu_record = OperationalTaxonomicUnit.query.filter_by(original_id=otu_name).first()
+                new_otu_classification = OTUClassificationGTDB(taxon_db_record.id,
+                                                            otu_record.id,
+                                                            new_classification_method.id,
+                                                            lowest_path_available)
+                db.session.add(new_otu_classification)
+                classified_otus+=1
+                new_otu_classifications.append(new_otu_classification)
 
-            db.session.commit()
+                if len(new_otu_classifications) > 400:
+                    db.session.commit()
+                    new_otu_classifications = []
+
+        db.session.commit()
         
         return classified_otus
