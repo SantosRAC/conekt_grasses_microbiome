@@ -25,7 +25,7 @@
     {% if otu %}
     <ol class="breadcrumb">
         <li><a href="{{ url_for('main.screen') }}">Home</a></li>
-        <li><a href="{{ url_for('literature.literature_view', literature_id=otu.otu_method.id) }}"><em>Paper</em></a></li>
+        <li><a href="{{ url_for('literature.literature_view', literature_id=otu.otu_method.literature_id) }}"><em>Paper</em></a></li>
         <li>OTU</li>
         <li class="active"><strong>{{ otu.original_id }}</strong></li>
     </ol>
@@ -42,30 +42,53 @@
     <div class="panel with-nav-tabs panel-default">
     <div class="panel-heading">
             <ul class="nav nav-tabs">
-                <li class="active"><a href="#tab1default" data-toggle="tab">GreenGenes</a></li>
-                <li><a href="#tab2default" data-toggle="tab">Something else ...</a></li>
+                <li class="active"><a href="#tab1default" data-toggle="tab">GTDB</a></li>
+                <li><a href="#tab2default" data-toggle="tab">GreenGenes</a></li>
             </ul>
     </div>
     <div>
         <div class="tab-content">
 
-            <div class="tab-pane fade" id="tab1default">
-                {% if gg_associations|count > 0 %}
+            <div class="tab-pane fade in active" id="tab1default">
+                {% if taxonomy_associations['gtdb']|count > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-fixed" id="gtdb_table">
+                        <thead>
+                            <tr>
+                                <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span><abbr title="Click to show help" href="#" data-target="#helpModal">GTDB ID</abbr></th>
+                                <th class="col-xs-5" data-sort="string-ins"><span class="sort-icon"></span>Taxonomy Path (Lowest Rank Possible)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="col-xs-2"><a href="https://gtdb.ecogenomic.org/genome?gid={{ taxonomy_associations['gtdb']['gtdb_id'] | replace('GB_', '') | replace('RS_', '') }}"> {{ taxonomy_associations['gtdb']['gtdb_id'] }} </a></td>
+                                <td class="col-xs-5"> {{ taxonomy_associations['gtdb']['taxon_path'] }} </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="panel-body">
+                    <p>No GTDB taxonomy available for this OTU</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="tab-pane fade" id="tab2default">
+                {% if taxonomy_associations['gg']|count > 0 %}
                 <div class="table-responsive">
                     <table class="table table-striped table-fixed" id="gg_table">
                         <thead>
                             <tr>
-                                <th class="col-xs-3" data-sort="string-ins"><span class="sort-icon"></span><abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='interpro_domain') }}" data-target="#helpModal">GreenGenes ID</abbr></th>
-                                <th class="col-xs-5" data-sort="string-ins"><span class="sort-icon"></span>Description</th>
+                                <th class="col-xs-3" data-sort="string-ins"><span class="sort-icon"></span><abbr title="Click to show help" href="#" data-target="#helpModal">GreenGenes ID</abbr></th>
+                                <th class="col-xs-5" data-sort="string-ins"><span class="sort-icon"></span>Taxonomy Path</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for association in gg_associations %}
                             <tr>
-                                <td class="col-xs-3"><a href="#"> To be filled </a></td>
-                                <td class="col-xs-5"> To be filled </td>
+                                <td class="col-xs-3"><a href="#"> {{ taxonomy_associations['gg']['gg_id'] }} </a></td>
+                                <td class="col-xs-5"> {{ taxonomy_associations['gg']['taxon_path'] }} </td>
                             </tr>
-                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -74,6 +97,8 @@
                     <p>No GreenGenes taxonomy available for this OTU</p>
                 </div>
                 {% endif %}
+            </div>
+            
             </div>
 
         </div>
@@ -99,19 +124,6 @@
 <script src="{{ url_for('static', filename='js/chartjs-plugin-zoom.min.js') }}"></script>
 
 <script>
-$(function () {
-  $("#gg_table").stupidtable();
-
-  $('[data-toggle="tooltip"]').tooltip();
-  $('a[data-target=#profileModal]').click(function(ev) {
-    ev.preventDefault();
-    var target = $(this).attr("href");
-
-    // load the url and show modal on success
-    $("#profileModal .modal-content").load(target, function() {
-         $("#profileModal").modal("show");
-    });
-});
 
 $("#navbar-side a").on('click', function(event) {
 

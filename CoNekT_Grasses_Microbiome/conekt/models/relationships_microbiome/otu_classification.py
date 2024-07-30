@@ -27,6 +27,34 @@ class OTUClassificationMethod(db.Model):
     
     def __repr__(self):
         return str(self.id) + ". " + self.classifier_name + " " + self.classifier_version
+    
+    @staticmethod
+    def get_otu_taxonomy(otu_id, source='gtdb'):
+        """
+        Function to get the taxonomy of all OTUs
+        """
+
+        taxonomy_associations = {}
+
+        if source == 'gtdb':
+            taxonomy_associations['gtdb'] = {}
+            otu_classification = OTUClassificationGTDB.query.filter_by(otu_id=otu_id).first()
+            gtdb_record = GTDBTaxon.query.filter_by(id=otu_classification.gtdb_id).first()
+            taxonomy_associations['gtdb'] = {
+                'taxon_path': otu_classification.lowest_path_available,
+                'gtdb_id': gtdb_record.gtdb_id,
+            }
+
+        if source == 'gg':
+            taxonomy_associations['gg'] = {}
+            otu_classification = OTUClassificationGG.query.with_entities(OTUClassificationGG.gtdb_id).filter_by(otu_id=otu_id).first()
+            gg_record = GGTaxon.query.filter_by(id=otu_classification.gg_id).first()
+            taxonomy_associations['gg'] = {
+                'taxon_path': gg_record.taxon_path,
+                'gg_id': gg_record.gg_id,
+            }
+
+        return taxonomy_associations
 
 
 class OTUClassificationGG(db.Model):
@@ -104,24 +132,6 @@ class OTUClassificationGG(db.Model):
             db.session.commit()
         
         return classified_otus
-
-
-    @staticmethod
-    def get_otu_taxonomy(otu_id):
-        """
-        Function to get the taxonomy of all OTUs
-        """
-
-        otu_gg_taxa = OTUClassificationGG.query.filter_by(otu_id=otu_id).all()
-
-        otu_taxonomy = []
-
-        if otu_gg_taxa:
-            for otu_gg_taxon in otu_gg_taxa:
-                gg_taxon = GGTaxon.query.filter_by(id=otu_gg_taxon.gg_id).first()
-                otu_taxonomy.append([gg_taxon.id, gg_taxon.taxon_path])
-
-        return otu_taxonomy
 
 
 class OTUClassificationGTDB(db.Model):
