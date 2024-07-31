@@ -21,10 +21,7 @@ class BuildStudyForm(FlaskForm):
     krona_file = FileField('Krona File')
 
     def populate_species(self):
-        # Get distinct species ids from sample table, only if any runs exist
         species_ids = []
         for species_id in Sample.query.with_entities(Sample.species_id).distinct().all():
-            if SeqRun.query.with_entities(SeqRun.species_id).filter_by(species_id=species_id[0]).first():
-                species_ids.append(species_id[0])
-        
+            species_ids.append(species_id[0])
         self.species_id.choices = [(0, 'Select Species')] + [(s.id, s.name) for s in Species.query.filter(Species.id.in_(species_ids)).all()]
