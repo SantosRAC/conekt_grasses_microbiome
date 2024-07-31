@@ -184,6 +184,8 @@ def add_otu_classification():
         os.close(fd_gtdb_classification_file)
         os.remove(temp_gtdb_classification_file_path)
 
+        flash('Successfully added microbiome classification', 'success')
+
         return redirect(url_for('admin.index'))
     else:
         if not form.validate():
