@@ -44,6 +44,20 @@ def study_view(study_id):
         else markdown(current_study.description, extensions=['markdown.extensions.tables', 'markdown.extensions.attr_list'])
 
     return render_template('study.html', study=current_study, description=description)
+
+@study.route('/krona/<study_id>')
+@cache.cached()
+def study_krona(study_id):
+    """
+    Get a study based on the ID and show the Krona plot.
+
+    :param study_id: ID of the study to show
+    """
+    current_study = db.session.get(Study, study_id)
+
+    krona_html = current_study.krona_html
+
+    return render_template('study/krona.html', krona_html=krona_html, current_study=current_study)
     
 
 

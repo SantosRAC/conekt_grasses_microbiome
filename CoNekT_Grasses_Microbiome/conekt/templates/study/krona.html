@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if current_study %}
+        {{ current_study.name }} details
+    {% else %}
+        Study not found
+    {% endif %}
+{% endblock %}
+
+{% block container %}
+
+{{ current_study.krona_html | safe }}
+
+{% endblock %}
+
+{% block extrajs %}
+    
+{% endblock %}

@@ -27,7 +27,7 @@
         {% endif %}
         <br />
 
-        {{ study.krona_html | safe }}
+        <h1><strong><em><a href="{{url_for('study.study_krona', study_id=study.id)}}">View Taxonomy (Krona)</em></strong></h1>
 
         <div class="row">
             <div class="col-lg-12">
