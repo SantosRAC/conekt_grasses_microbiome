@@ -73,7 +73,6 @@
                         <th data-sort="string-ins"><span class="sort-icon"></span>Name</th>
                         <th data-sort="int"><span class="sort-icon"></span>Transcripts</th>
                         <th data-sort="int"><span class="sort-icon"></span>Profiles</th>
-                        <th data-sort="int"><span class="sort-icon"></span>Networks</th>
                         <th>Actions</th>
                         <th> <a href = "{{url_for('main.data_resources')}}"> Data Source </a> and Reference </th>
                         <th>Genome/Transcriptome version</th>
@@ -86,11 +85,6 @@
                         <td><em><a href="{{ url_for('species.species_view', species_id=s.id) }}">{{ s.name }}</a></em> <span class="'text-muted">({{ s.code }})</span></td>
                         <td>{{ s.sequence_count }}</td>
                         <td>{{ s.profile_count }}</td>
-                        {% if s.network_count > 0 %}
-                        <td><a href="{{url_for('expression_network.expression_network_species', species_id=s.id)}}">{{ s.network_count }}</a></td>
-                        {% else %}
-                        <td><span class="text-muted">0</span></td>
-                        {% endif %}
                         <td>
                             <div class="btn-group">
                                 <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Download  <span class="caret"></span></button>
@@ -98,12 +92,6 @@
                                     <li><a href="{{url_for('species.species_download_coding', species_id=s.id)}}" download="{{s.code}}.cds.fasta">Coding Sequences</a></li>
                                     <li><a href="{{url_for('species.species_download_protein', species_id=s.id)}}" download="{{s.code}}.aa.fasta">Protein Sequences</a></li>
                                     <li><a href="{{url_for('species.species_download_rna', species_id=s.id)}}" download="{{s.code}}.rna.fasta">RNA Sequences</a></li>
-                                    <li class="dropdown-header">Networks</li>
-                                    {% for n in s.networks %}
-                                    <li><a href="{{ url_for('expression_network.expression_network_export', method_id=n.id) }}" download="network_{{n.id}}.tab">{{ n.description }}</a></li>
-                                    {% else %}
-                                    <li class="text-muted">No network found</li>
-                                    {% endfor %}
                                 </ul>
                             </div>
                         </td>
