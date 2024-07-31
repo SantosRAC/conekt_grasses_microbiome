@@ -91,9 +91,9 @@ class OTUProfile(db.Model):
             runs = SeqRun.query.filter(SeqRun.accession_number.in_(colnames)).\
                                 filter_by(species_id=species_id).\
                                 all()
-            seq_run_dict = {}  # key = accession_number uppercase, value internal id
+            seq_run_dict = {}
             for r in runs:
-                seq_run_dict[r.accession_number.upper()] = r.id
+                seq_run_dict[r.accession_number] = r.id
 
             # read each line and build OTU profile
             new_otu_profiles = []
@@ -109,8 +109,8 @@ class OTUProfile(db.Model):
                 
                 for c, v in zip(colnames, values):
                     profile['count'][c] = int(float(v))
-                    run = SeqRun.query.get(seq_run_dict[c.upper()])
-                    profile['run_id'][c] = seq_run_dict[c.upper()]
+                    run = SeqRun.query.get(seq_run_dict[c])
+                    profile['run_id'][c] = seq_run_dict[c]
                     profile['sample_id'][c] = run.sample_id
 
                 new_profile = OTUProfile(**{"otu_id": otu.id,

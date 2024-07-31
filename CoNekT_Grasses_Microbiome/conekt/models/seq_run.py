@@ -42,7 +42,7 @@ class SeqRun(db.Model):
 
     @staticmethod
     def add_run_annotation(run_annotation_file, species_id, data_type,
-                           study_id=None):
+                           study_id):
         """Function to add run information to the database from annotation file
 
         :param run_annotation_file: path to the file with runs and their metatada
@@ -90,22 +90,21 @@ class SeqRun(db.Model):
                     new_runs.append(new_run)
                     all_new_runs.append(new_run)
 
-                    if study_id:
-                        new_study_sample = StudySampleAssociation(study_id, sample.id)
-                        db.session.add(new_study_sample)
-                        new_study_literature = StudyLiteratureAssociation(study_id, literature_id)
-                        db.session.add(new_study_literature)
+                    new_study_sample = StudySampleAssociation(study_id, sample.id)
+                    db.session.add(new_study_sample)
 
                     if len(new_runs) > 400:
                         db.session.commit()
                         new_runs = []
+            
+            new_study_literature = StudyLiteratureAssociation(study_id, literature_id)
+            db.session.add(new_study_literature)
         
             db.session.commit()
 
-            if study_id:
-                for run in all_new_runs:
-                    new_study_run = StudyRunAssociation(study_id, run.id, 'metataxonomics')
-                    db.session.add(new_study_run)
+            for run in all_new_runs:
+                new_study_run = StudyRunAssociation(study_id, run.id, data_type)
+                db.session.add(new_study_run)
             
             db.session.commit()
 
