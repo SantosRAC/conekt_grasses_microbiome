@@ -8,6 +8,7 @@ from conekt.models.sample import Sample
 
 class AddExpressionProfilesForm(FlaskForm):
     species_id = SelectField('Species', coerce=int)
+    study_id = SelectField('Study', coerce=int)
 
     normalization_method = SelectField('Normalization method', choices=[('tpm', 'TPM'),
                                                                         ('cpm', 'CPM'),

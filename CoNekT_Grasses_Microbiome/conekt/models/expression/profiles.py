@@ -24,13 +24,14 @@ class ExpressionProfile(db.Model):
     probe = db.Column(db.String(50, collation=SQL_COLLATION), index=True)
     sequence_id = db.Column(db.Integer, db.ForeignKey('sequences.id', ondelete='CASCADE'), index=True)
     profile = db.deferred(db.Column(db.Text))
+    study_id = db.Column(db.Integer, db.ForeignKey('studies.id', ondelete='CASCADE'), index=True)
 
-
-    def __init__(self, species_id, probe, sequence_id, profile, normalization_method='tpm'):
+    def __init__(self, species_id, probe, sequence_id, profile, study_id, normalization_method='tpm'):
         self.species_id = species_id
         self.probe = probe
         self.sequence_id = sequence_id
         self.profile = profile
+        self.study_id = study_id
         self.normalization_method = normalization_method
 
     @staticmethod
@@ -307,13 +308,14 @@ class ExpressionProfile(db.Model):
         return profiles
 
     @staticmethod
-    def add_profile_from_lstrap(matrix_file, annotation_file, species_id, normalization_method='tpm'):
+    def add_profile_from_lstrap(matrix_file, annotation_file, species_id, study_id, normalization_method='tpm'):
         """
         Function to convert an (normalized) expression matrix (lstrap output) into a profile
 
         :param matrix_file: path to the expression matrix
         :param annotation_file: path to the file assigning samples to conditions
         :param species_id: internal id of the species
+        :param study_id: internal id of the study
         :param normalization_method: method used for normalization (default TPM)
         """
         annotation = {}
@@ -372,7 +374,8 @@ class ExpressionProfile(db.Model):
                                 "normalization_method": normalization_method,
                                 "probe": transcript,
                                 "sequence_id": sequence_dict[transcript.upper()] if transcript.upper() in sequence_dict.keys() else None,
-                                "profile": json.dumps({'data': profile})}
+                                "profile": json.dumps({'data': profile}),
+                                "study_id": study_id}
                             )
 
                 new_probes.append(new_probe)

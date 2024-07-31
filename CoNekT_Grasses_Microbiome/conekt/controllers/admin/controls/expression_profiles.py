@@ -24,6 +24,7 @@ def add_expression_profiles():
 
     if request.method == 'POST':
         species_id = int(request.form.get('species_id'))
+        study_id = int(request.form.get('study_id'))
 
         normalization_method = request.form.get('normalization_method')
 
@@ -42,11 +43,10 @@ def add_expression_profiles():
                 annotation_writer.write(annotation_file)
 
             added_runs_count = SeqRun.add_run_annotation(temp_annotation_path,
-                                  species_id,
-                                  'rnaseq')
+                                  species_id, 'rnaseq', study_id)
 
             ExpressionProfile.add_profile_from_lstrap(temp_matrix_path, temp_annotation_path,
-                                                          species_id, normalization_method)
+                                                          species_id, study_id, normalization_method)
 
             os.close(fd_annotation)
             os.remove(temp_annotation_path)
