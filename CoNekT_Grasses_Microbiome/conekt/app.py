@@ -24,7 +24,7 @@ from conekt.extensions import db, login_manager, cache, htmlmin, \
 import coloredlogs
 
 
-def create_app(config):
+def create_app(config_metataxonomics):
     # Set up app, database and login manager before importing models and controllers
     # Important for db_create script
 
@@ -34,7 +34,7 @@ def create_app(config):
 
     with app.app_context():
     
-        app.config.from_object(config)
+        app.config.from_object(config_metataxonomics)
         configure_extensions(app)
         configure_blueprints(app)
         configure_admin_panel(app)
@@ -98,21 +98,15 @@ def configure_blueprints(app):
     from conekt.controllers.go import go
     from conekt.controllers.interpro import interpro
     from conekt.controllers.cazyme import cazyme
-    from conekt.controllers.family import family
-    from conekt.controllers.expression_profile import expression_profile
     from conekt.controllers.search import search
     # TODO: Configure Solr to replace Whoosh !
     from conekt.controllers.help import help
-    from conekt.controllers.clade import clade
     from conekt.controllers.admin.controls import admin_controls
-    from conekt.controllers.tree import tree
     from conekt.controllers.study import study
     from conekt.controllers.profile_comparison import profile_comparison
     from conekt.controllers.microbiome.otu_profiles import otus_profile
     from conekt.controllers.microbiome.otus import otu
-    from conekt.controllers.omics_integration.profile_correlations import profile_correlations
     from conekt.controllers.literature import literature
-    from conekt.controllers.omics_integration.custom_expression_microbiome_network import custom_network
 
     LOGIN_ENABLED = app.config['LOGIN_ENABLED']
     BLAST_ENABLED = app.config['BLAST_ENABLED']
@@ -134,16 +128,12 @@ def configure_blueprints(app):
     app.register_blueprint(go, url_prefix='/go')
     app.register_blueprint(interpro, url_prefix='/interpro')
     app.register_blueprint(cazyme, url_prefix='/cazyme')
-    app.register_blueprint(family, url_prefix='/family')
-    app.register_blueprint(expression_profile, url_prefix='/profile')
-    app.register_blueprint(custom_network, url_prefix='/custom_network')
     app.register_blueprint(search, url_prefix='/search')
     # TODO: add URL after configuring Solr as the main search engine
     app.register_blueprint(help, url_prefix='/help')
     app.register_blueprint(profile_comparison, url_prefix='/profile_comparison')
     app.register_blueprint(otu, url_prefix='/otu')
     app.register_blueprint(otus_profile, url_prefix='/otus_profile')
-    app.register_blueprint(profile_correlations, url_prefix='/profile_correlations')
     app.register_blueprint(literature, url_prefix='/literature')
 
 
@@ -154,13 +144,11 @@ def configure_admin_panel(app):
         from conekt.controllers.admin.views import MyAdminIndexView
 
         from conekt.controllers.admin.views.sequences import AddSequenceDescriptionsView
-        from conekt.controllers.admin.views.expression_profiles import AddExpressionProfilesView
         from conekt.controllers.admin.views.functional_data import AddInterProView
         from conekt.controllers.admin.views.functional_data import AddGOView
         from conekt.controllers.admin.views.functional_data import AddCAZYmeView
         from conekt.controllers.admin.views.functional_data import AddFunctionalDataView
         from conekt.controllers.admin.views.taxonomy import AddTaxonomyView
-        from conekt.controllers.admin.views.families import GeneFamilyMethodAdminView
         from conekt.controllers.admin.views.samples import AddSamplesView
         from conekt.controllers.admin.views.species import AddSpeciesView
         from conekt.controllers.admin.views.species import SpeciesAdminView
@@ -171,12 +159,10 @@ def configure_admin_panel(app):
         from conekt.controllers.admin.views.microbiome.otus import AddOTUClassificationView
         from conekt.controllers.admin.views.microbiome.otus import AddOTUProfilesView
         from conekt.controllers.admin.views.study import BuildStudyView
-        from conekt.controllers.admin.views.omics_integration.expression_microbiome_correlations import BuildCorrelationsView
         from conekt.controllers.admin.views.microbiome.microbiome_profile_specificity import BuildMicrobiomeSpecificityView
 
         from conekt.models.users import User
         from conekt.models.species import Species
-        from conekt.models.gene_families import GeneFamilyMethod
         from conekt.models.news import News
         from conekt.models.ontologies import PlantOntology
 
@@ -216,12 +202,6 @@ def configure_admin_panel(app):
                                     endpoint='admin_add_cazyme_sequences',
                                     url='add/cazyme/', category='Add Species'))
 
-        # Add views for Expression data
-        admin.add_menu_item(MenuLink("Expression", class_name="disabled", url="#"), target_category='Add Expression')
-        admin.add_view(AddExpressionProfilesView(name='Expression profiles',
-                                                 endpoint='admin_add_expression_profiles',
-                                                 url='add/expression_profiles/', category='Add Expression'))
-
         # Add Microbiome data
         admin.add_menu_item(MenuLink("Microbiome", class_name="disabled", url="#"), target_category='Add Microbiome Data')
         admin.add_view(AddOTUSView(name='OTUs',
@@ -243,9 +223,6 @@ def configure_admin_panel(app):
         admin.add_menu_item(MenuLink("Metataxonomics", class_name="disabled", url="#"), target_category='Build')
         admin.add_view(BuildMicrobiomeSpecificityView(name='Build Profile Specificity', endpoint='admin_build_metataxspecificity',
                                      url='build/metatax_specificity', category='Build'))
-        admin.add_menu_item(MenuLink("Integration of RNAseq and Metataxonomics", class_name="disabled", url="#"), target_category='Build')
-        admin.add_view(BuildCorrelationsView(name='Build RNAseq - Metataxonomics Profile Correlations', endpoint='admin_build_rnametataxcor',
-                                     url='build/exp_metatax_correlations', category='Build'))
 
         # Control panel
         admin.add_view(ControlsView(name='Controls', url='controls/'))
@@ -259,8 +236,6 @@ def configure_admin_panel(app):
         admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Browse')
         admin.add_menu_item(MenuLink("Methods", class_name="disabled", url="#"), target_category='Browse')
 
-        admin.add_view(GeneFamilyMethodAdminView(GeneFamilyMethod, db.session, url='families', category="Browse",
-                                                 name='Gene Families'))
 
 
 

@@ -8,13 +8,13 @@ First, create a copy of the configuration template file. From the repo root, run
 
 ```bash
 cd CoNekT_Grasses_Microbiome/
-cp config.template.py config.py
+cp config.template.py config_metataxonomics.py
 ```
 
-Change settings in `config.py`. **Apart from configuring paths, also change the secret key and the admin password !**
+Change settings in `config_metataxonomics.py`. **Apart from configuring paths, also change the secret key and the admin password !**
 
 
-# Setting up MySQL/MariaDB for CoNekT Grasses Microbiome
+# Setting up MySQL/MariaDB for CoNekT Grasses Metataxonomics
  
 In the config file the connection needs to be set up using :
 
@@ -25,21 +25,21 @@ In the config file the connection needs to be set up using :
 
 First create a MySQL/MariaDB user with root:
 
-    CREATE USER conekt_microbiome_admin@localhost IDENTIFIED BY 'E,~5*;{9f{p2VGp^';
+    CREATE USER conekt_metataxonomics_admin@localhost IDENTIFIED BY 'E,~5*;{9f{p2VGp^';
 
-The character set and collate are important as sqlalchemy-migrate doesn't work with utf8mb4 (the default).
+The character set and collate to utf8:
 
-    CREATE DATABASE conekt_microbiome_db CHARACTER SET latin1 COLLATE latin1_general_ci;
+    CREATE DATABASE conekt_metataxonomics_db CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 If the database already exists, change the character set as:
 
-    ALTER DATABASE conekt_microbiome_db COLLATE = 'latin1_general_ci';
+    ALTER DATABASE conekt_metataxonomics_db COLLATE = 'utf8_general_ci';
     
-Give permissions to a user (conekt_microbiome_admin in this example) to access the database:
+Give permissions to a user (conekt_metataxonomics_admin in this example) to access the database:
 
-    GRANT INDEX, CREATE, DROP, SELECT, UPDATE, DELETE, ALTER, EXECUTE, INSERT on conekt_microbiome_db.* TO conekt_microbiome_admin@localhost;
+    GRANT INDEX, CREATE, DROP, SELECT, UPDATE, DELETE, ALTER, EXECUTE, INSERT on conekt_metataxonomics_db.* TO conekt_metataxonomics_admin@localhost;
 
-    GRANT FILE on *.* TO conekt_microbiome_admin@localhost;
+    GRANT FILE on *.* TO conekt_metataxonomics_admin@localhost;
 
 
 # Running the database migrations

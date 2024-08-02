@@ -30,23 +30,6 @@ if args.db_password:
 else:
     db_password = input("Enter the database password: ")
 
-def update_gene_family_count(engine):
-        """
-        To avoid long count queries, the number of families for a given method can be precalculated and stored in
-        the database using this function.
-        """
-        with engine.connect() as conn:
-            stmt = select(GeneFamilyMethod)
-            methods = conn.execute(stmt).all()
-        
-        for m in methods:
-            with engine.connect() as conn:
-                stmt = select(GeneFamily).where(GeneFamily.__table__.c.method_id == m.id)
-                m_family_count = conn.execute(stmt).rowcount
-                stmt = update(GeneFamilyMethod).where(GeneFamilyMethod.__table__.c.id == m.id).values(family_count=m_family_count)
-                conn.execute(stmt)
-                conn.commit()
-
 def update_species_counts(engine):
     """
     To avoid long counts the number of sequences, profiles and networks can be precalculated and stored in the
@@ -62,12 +45,6 @@ def update_species_counts(engine):
             stmt = select(Sequence).where(Sequence.__table__.c.species_id == s.id, Sequence.type=='protein_coding')
             s_sequences_count = conn.execute(stmt).rowcount
             stmt = update(Species).where(Species.__table__.c.id == s.id).values(sequence_count=s_sequences_count)
-            conn.execute(stmt)
-            conn.commit()
-        with engine.connect() as conn:
-            stmt = select(ExpressionProfile).where(ExpressionProfile.__table__.c.species_id == s.id)
-            s_profiles_count = conn.execute(stmt).rowcount
-            stmt = update(Species).where(Species.__table__.c.id == s.id).values(profile_count=s_profiles_count)
             conn.execute(stmt)
             conn.commit()
 
@@ -99,9 +76,6 @@ Base.prepare(engine, reflect=True)
 Sequence = Base.classes.sequences
 CoexpressionClusteringMethod = Base.classes.coexpression_clustering_methods
 CoexpressionCluster = Base.classes.coexpression_clusters
-ExpressionProfile = Base.classes.expression_profiles
-GeneFamily = Base.classes.gene_families
-GeneFamilyMethod = Base.classes.gene_family_methods
 Species = Base.classes.species
 GO = Base.classes.go
 

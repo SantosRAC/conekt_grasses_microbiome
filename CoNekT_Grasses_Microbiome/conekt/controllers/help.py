@@ -3,8 +3,7 @@ from flask import Blueprint, render_template, abort
 from conekt import cache
 
 # Dict containing all keywords and the template with the information
-__TOPICS = {"gene_family": "modals/help/gene_family.html",
-            "interpro_domain": "modals/help/interpro_domain.html",
+__TOPICS = {"interpro_domain": "modals/help/interpro_domain.html",
             "go": "modals/help/go.html",
             "correction": "modals/help/fdr.html",
             "fdr": "modals/help/fdr.html",

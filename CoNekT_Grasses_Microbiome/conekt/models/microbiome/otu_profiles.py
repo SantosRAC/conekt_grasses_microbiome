@@ -44,7 +44,7 @@ class OTUProfile(db.Model):
         :param species_id: internal id of the species
         :param probes: probe names to fetch
         :param limit: maximum number of probes to get
-        :return: List of ExpressionProfile objects including the full profiles
+        :return: List of OTUProfile objects including the full profiles
         """
         profiles = OTUProfile.query.\
             options(undefer(OTUProfile.profile)).\

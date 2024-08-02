@@ -9,8 +9,6 @@ from flask import current_app
 from sqlalchemy.orm import joinedload, noload
 
 from conekt import create_app, db
-from conekt.models.gene_families import GeneFamilyMethod
-from conekt.models.relationships.sequence_family import SequenceFamilyAssociation
 from conekt.models.relationships.sequence_go import SequenceGOAssociation
 from conekt.models.relationships.sequence_cazyme import SequenceCAZYmeAssociation
 from conekt.models.sequences import Sequence
@@ -151,41 +149,6 @@ def export_cazyme_annotation(ANNOTATION_PATH):
                                       cazyme_association.query_stop])
 
 
-def export_families(FAMILIES_PATH):
-    """
-    Export gene families and an overview of the methods to generate them
-    """
-    if not os.path.exists(FAMILIES_PATH):
-        os.makedirs(FAMILIES_PATH)
-
-    methods = GeneFamilyMethod.query.all()
-
-    methodsfile = os.path.join(FAMILIES_PATH, 'methods_overview.txt')
-
-    with open(methodsfile, "w") as f:
-        for m in methods:
-            print(m.id, m.method, m.family_count, file=f, sep='\t')
-
-    associations = SequenceFamilyAssociation.query.all()
-
-    output = {}
-
-    for a in associations:
-        if a.family.method_id not in output.keys():
-            output[a.family.method_id] = {}
-
-        if a.family.name not in output[a.family.method_id].keys():
-            output[a.family.method_id][a.family.name] = []
-
-        output[a.family.method_id][a.family.name].append(a.sequence.name)
-
-    for method, families in sorted(output.items()):
-        familyfile = os.path.join(FAMILIES_PATH, 'families_method_'+str(method)+'.tab')
-        with open(familyfile, "w") as f:
-            for family, members in sorted(families.items()):
-                print(method, family, ";".join(members), file=f, sep='\t')
-
-
 def export_ftp_data(configuration):
     """
     Export all data
@@ -208,5 +171,3 @@ def export_ftp_data(configuration):
         export_go_annotation(ANNOTATION_PATH)
         export_interpro_annotation(ANNOTATION_PATH)
         export_cazyme_annotation(ANNOTATION_PATH)
-
-        export_families(FAMILIES_PATH)

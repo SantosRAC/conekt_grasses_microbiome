@@ -1,6 +1,5 @@
 from conekt import db
 from conekt.models.species import Species
-from conekt.models.gene_families import GeneFamilyMethod
 
 
 SQL_COLLATION = 'NOCASE' if db.engine.name == 'sqlite' else ''
@@ -86,28 +85,3 @@ class XRef(db.Model):
                 db.session.commit()
             except Exception as e:
                 db.session.rollback()
-
-    @staticmethod
-    def add_xref_families_from_file(gene_family_method_id, filename):
-        gf_method = GeneFamilyMethod.query.get(gene_family_method_id)
-
-        families = gf_method.families.all()
-
-        fam_dict = {f.name.upper(): f for f in families}
-
-        with open(filename, "r") as f:
-            for line in f:
-                family, name, platform, url = line.split('\t')
-
-                xref = XRef()
-                xref.name = name
-                xref.platform = platform
-                xref.url = url
-
-                if family.upper() in fam_dict.keys():
-                    f = fam_dict[family.upper()]
-                    f.xrefs.append(xref)
-                    try:
-                        db.session.commit()
-                    except Exception as e:
-                        db.session.rollback()

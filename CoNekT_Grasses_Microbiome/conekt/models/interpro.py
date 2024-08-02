@@ -19,8 +19,6 @@ class Interpro(db.Model):
     label = db.Column(db.String(50, collation=SQL_COLLATION), unique=True, index=True)
     description = db.Column(db.Text)
 
-    clade_id = db.Column(db.Integer, db.ForeignKey('clades.id', ondelete='SET NULL'), index=True)
-
     sequences = db.relationship('Sequence', secondary=sequence_interpro, lazy='dynamic')
 
     # Other properties
@@ -122,11 +120,6 @@ class Interpro(db.Model):
 
         return GO.sequence_stats_subquery(self.sequences)
 
-    @property
-    def family_stats(self):
-        from conekt.models.gene_families import GeneFamily
-
-        return GeneFamily.sequence_stats_subquery(self.sequences)
 
     @staticmethod
     def add_from_xml(filename, empty=True):

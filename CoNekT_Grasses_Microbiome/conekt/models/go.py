@@ -92,11 +92,6 @@ class GO(db.Model):
     def go_stats(self):
         return GO.sequence_stats_subquery(self.sequences)
 
-    @property
-    def family_stats(self):
-        from conekt.models.gene_families import GeneFamily
-
-        return GeneFamily.sequence_stats_subquery(self.sequences)
 
     def species_occurrence(self, species_id):
         """

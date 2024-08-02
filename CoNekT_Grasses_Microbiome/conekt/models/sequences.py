@@ -1,6 +1,6 @@
 from conekt import db
 
-from conekt.models.relationships import sequence_go, sequence_interpro, sequence_cazyme, sequence_family
+from conekt.models.relationships import sequence_go, sequence_interpro, sequence_cazyme
 from conekt.models.relationships import sequence_xref
 from utils.sequence import translate
 from utils.parser.fasta import Fasta
@@ -25,10 +25,6 @@ class Sequence(db.Model):
     is_mitochondrial = db.Column(db.SmallInteger, default=False)
     is_chloroplast = db.Column(db.SmallInteger, default=False)
 
-    expression_profiles = db.relationship('ExpressionProfile', backref=db.backref('sequence', lazy='joined'),
-                                          lazy='dynamic',
-                                          cascade="all, delete-orphan",
-                                          passive_deletes=True)
 
     # Other properties
     #
@@ -41,17 +37,6 @@ class Sequence(db.Model):
     go_labels = db.relationship('GO', secondary=sequence_go, lazy='dynamic')
     interpro_domains = db.relationship('Interpro', secondary=sequence_interpro, lazy='dynamic')
     cazymes = db.relationship('CAZYme', secondary=sequence_cazyme, lazy='dynamic')
-    families = db.relationship('GeneFamily', secondary=sequence_family, lazy='dynamic')
-
-    clade_associations_one = db.relationship('SequenceSequenceCladeAssociation',
-                                             primaryjoin="SequenceSequenceCladeAssociation.sequence_one_id == Sequence.id",
-                                             backref=db.backref('sequence_one', lazy='joined'),
-                                             lazy='dynamic')
-
-    clade_associations_two = db.relationship('SequenceSequenceCladeAssociation',
-                                             primaryjoin="SequenceSequenceCladeAssociation.sequence_two_id == Sequence.id",
-                                             backref=db.backref('sequence_two', lazy='joined'),
-                                             lazy='dynamic')
 
     xrefs = db.relationship('XRef', secondary=sequence_xref, lazy='joined')
 

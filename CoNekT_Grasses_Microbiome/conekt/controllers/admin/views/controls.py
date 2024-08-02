@@ -2,7 +2,6 @@ from flask import flash
 from flask_admin import expose
 
 from conekt.controllers.admin.views import AdminBaseView
-from conekt.models.gene_families import GeneFamilyMethod
 
 
 class ControlsView(AdminBaseView):
@@ -15,6 +14,4 @@ class ControlsView(AdminBaseView):
                          'database. This can effect the user-experience of others negatively. Also avoid running '+
                          'multiple updates simultaniously.', 'danger')
 
-        gene_family_methods = GeneFamilyMethod.query.all()
-
-        return self.render('admin/controls.html', gene_family_methods=gene_family_methods)
+        return self.render('admin/controls.html')

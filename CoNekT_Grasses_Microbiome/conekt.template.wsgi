@@ -18,4 +18,4 @@ with open(activator) as f:
 # import the app. Note that it should not run by itself !
 from conekt import create_app
 
-application = create_app('config')
+application = create_app('config2')

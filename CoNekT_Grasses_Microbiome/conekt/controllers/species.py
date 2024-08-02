@@ -7,7 +7,6 @@ from conekt.models.literature import LiteratureItem
 from conekt.models.seq_run import SeqRun
 from conekt.models.relationships.sample_literature import SampleLitAssociation
 from conekt.models.sequences import Sequence
-from conekt.models.clades import Clade
 
 from sqlalchemy.orm import undefer, noload
 from sqlalchemy import desc
@@ -20,17 +19,8 @@ species = Blueprint('species', __name__)
 def species_overview():
     """
     Overview of all species with data in the current database, including some basic statistics
-
-    Pulls the largest clade defined in Clades from the database (if present) and adds this as the tree to the page
     """
     all_species = Species.query.all()
-
-    largest_clade = Clade.query.order_by(desc(Clade.species_count)).limit(1).first()
-
-    tree = largest_clade.newick_tree_species if largest_clade is not None else None
-
-    # adding variable to get Literature from DB
-    #literature_info = LiteratureItem.query.all()
 
     # For each species query the literature table and add the literature info to the species object
     for species in all_species:

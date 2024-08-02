@@ -21,7 +21,6 @@ class Species(db.Model):
 
     samples = db.relationship('Sample', backref='species', lazy='dynamic', cascade="all, delete-orphan", passive_deletes=True)
     sequences = db.relationship('Sequence', backref='species', lazy='dynamic', cascade="all, delete-orphan", passive_deletes=True)
-    profiles = db.relationship('ExpressionProfile', backref='species', lazy='dynamic', cascade="all, delete-orphan", passive_deletes=True)
 
     def __init__(self, code, name, data_type='genome',
                  color="#C7C7C7", highlight="#DEDEDE", description=None, source=None, literature_id=None, genome_version=None):

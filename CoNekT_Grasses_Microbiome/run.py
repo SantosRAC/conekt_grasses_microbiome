@@ -4,7 +4,7 @@ import os
 from conekt import create_app, db
 from conekt.models.users import User
 
-app = create_app('config')
+app = create_app('config_metataxonomics')
 
 
 @app.cli.command()

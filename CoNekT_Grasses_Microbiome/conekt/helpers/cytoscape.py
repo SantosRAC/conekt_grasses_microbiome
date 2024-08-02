@@ -4,10 +4,8 @@ from collections import Counter
 from flask import url_for
 from sqlalchemy.orm import joinedload
 
-from conekt.models.expression.profiles import ExpressionProfile
 from conekt.models.sequences import Sequence
 from conekt.models.species import Species
-from conekt.models.clades import Clade
 from utils.color import family_to_shape_and_color, index_to_shape_and_color
 
 

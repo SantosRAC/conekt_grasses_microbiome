@@ -3,7 +3,6 @@ from conekt.extensions import admin_required
 from werkzeug.utils import redirect
 
 from conekt.controllers.admin.controls import admin_controls
-from conekt.models.gene_families import GeneFamilyMethod
 from conekt.models.go import GO
 from conekt.models.species import Species
 
@@ -16,14 +15,6 @@ def update_counts():
 
     :return: Redirect to admin panel interface
     """
-
-    try:
-        GeneFamilyMethod.update_count()
-    except Exception as e:
-        print("ERROR:", e)
-        flash('An error occurred while re-doing GeneFamilyMethod counts', 'danger')
-    else:
-        flash('GeneFamilyMethod count updated', 'success')
 
     try:
         Species.update_counts()

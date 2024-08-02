@@ -3,7 +3,6 @@ from wtforms import TextAreaField, SelectField, SelectMultipleField
 from wtforms.validators import InputRequired
 import json
 from conekt.models.species import Species
-from conekt.models.expression.profiles import ExpressionProfile
 
 
 class HeatmapForm(FlaskForm):

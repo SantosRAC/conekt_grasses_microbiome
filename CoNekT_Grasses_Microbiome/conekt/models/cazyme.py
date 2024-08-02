@@ -83,11 +83,6 @@ class CAZYme(db.Model):
 
         return CAZYme.sequence_stats_subquery(self.sequences)
 
-    @property
-    def family_stats(self):
-        from conekt.models.gene_families import GeneFamily
-
-        return GeneFamily.sequence_stats_subquery(self.sequences)
 
     @staticmethod
     def add_cazyme_from_tab(filename, species_id):

@@ -9,9 +9,6 @@ class FamilyCAZYmeAssociation(db.Model):
     gene_family_id = db.Column(db.Integer, db.ForeignKey('gene_families.id', ondelete='CASCADE'))
     cazyme_id = db.Column(db.Integer, db.ForeignKey('interpro.id', ondelete='CASCADE'))
 
-    gene_family = db.relationship('GeneFamily', backref=db.backref('interpro_annotations',
-                                                                   lazy='dynamic',
-                                                                   passive_deletes=True), lazy='joined')
 
     domain = db.relationship('Interpro', backref=db.backref('family_associations',
                              lazy='dynamic', passive_deletes=True), lazy='joined')
