@@ -28,7 +28,7 @@ def otu_find(otu_original_id):
     """
     current_otu = OperationalTaxonomicUnit.query.filter_by(original_id=otu_original_id).first_or_404()
 
-    return redirect(url_for('otu.otu_view', sequence_id=current_otu.id))
+    return redirect(url_for('otu.otu_view', otu_id=current_otu.id))
 
 
 @otu.route('/view/<otu_id>')
