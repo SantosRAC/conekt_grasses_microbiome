@@ -102,14 +102,16 @@ def calculate_expression_metataxonomic_correlations(study_id, description, tool,
         with engine.connect() as conn:
             stmt = select(ExpressionProfile).\
                 where(ExpressionProfile.__table__.c.normalization_method == rnaseq_norm,
-                      ExpressionProfile.__table__.c.species_id == study.species_id)
+                      ExpressionProfile.__table__.c.species_id == study.species_id,
+                      ExpressionProfile.__table__.c.study_id == study_id)
             expression_profiles = conn.execute(stmt).all()
 
         # Get all OTU profiles associated with study
         with engine.connect() as conn:
             stmt = select(OTUProfile).\
                 where(OTUProfile.__table__.c.normalization_method == metatax_norm,
-                      OTUProfile.__table__.c.species_id == study.species_id)
+                      OTUProfile.__table__.c.species_id == study.species_id,
+                      OTUProfile.__table__.c.study_id == study_id)
             metatax_profiles = conn.execute(stmt).all()
         
         # Create pandas dataframe with all expression and metatax profiles associated with study
@@ -179,15 +181,19 @@ def calculate_expression_metataxonomic_correlations(study_id, description, tool,
                 with engine.connect() as conn:
                     stmt = select(OTUProfile).\
                         where(OTUProfile.__table__.c.probe == str(cor_values.columns[cor_pval_intersection_tuple[1][i]]),
-                        OTUProfile.__table__.c.species_id == study.species_id)
+                        OTUProfile.__table__.c.species_id == study.species_id,
+                        OTUProfile.__table__.c.study_id == study_id)
                     otu_p = conn.execute(stmt).first()
                 with engine.connect() as conn:
                     stmt = select(ExpressionProfile).\
                         where(ExpressionProfile.__table__.c.probe == str(cor_values.index[cor_pval_intersection_tuple[0][i]]),
-                        ExpressionProfile.__table__.c.species_id == study.species_id)
+                        ExpressionProfile.__table__.c.species_id == study.species_id,
+                        ExpressionProfile.__table__.c.study_id == study_id)
                     exp_p = conn.execute(stmt).first()
                 new_correlation_pair = {"expression_profile_id": exp_p.id,
                                         "metatax_profile_id": otu_p.id,
+                                        "gene_probe": str(cor_values.index[cor_pval_intersection_tuple[0][i]]),
+                                        "otu_probe": str(cor_values.columns[cor_pval_intersection_tuple[1][i]]),
                                         "exp_micro_correlation_method_id": new_correlation_method_obj.id,
                                         "corr_coef": cor_values.iloc[cor_pval_intersection_tuple[0][i], cor_pval_intersection_tuple[1][i]],
                                         "pvalue": pvalues[cor_pval_intersection_tuple[0][i], cor_pval_intersection_tuple[1][i]],

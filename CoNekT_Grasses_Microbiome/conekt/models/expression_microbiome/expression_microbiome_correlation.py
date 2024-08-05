@@ -59,6 +59,8 @@ class ExpMicroCorrelation(db.Model):
 
     expression_profile_id = db.Column(db.Integer, db.ForeignKey('expression_profiles.id', ondelete='CASCADE'), index=True)
     metatax_profile_id = db.Column(db.Integer, db.ForeignKey('otu_profiles.id', ondelete='CASCADE'), index=True)
+    otu_probe = db.Column(db.String(255, collation=SQL_COLLATION), index=True)
+    gene_probe = db.Column(db.String(255, collation=SQL_COLLATION), index=True)
     exp_micro_correlation_method_id = db.Column(db.Integer, db.ForeignKey('expression_microbiome_correlation_methods.id', ondelete='CASCADE'), index=True)
 
     def __init__(self, expression_profile_id, metatax_profile_id,

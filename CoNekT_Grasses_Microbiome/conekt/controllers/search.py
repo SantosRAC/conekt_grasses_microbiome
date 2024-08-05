@@ -30,7 +30,6 @@ def search_correlated_profiles():
 
         species = Species.query.get_or_404(species_id)
         study = Study.query.get_or_404(study_id)
-
         correlation_method = ExpMicroCorrelationMethod.query.get_or_404(method_id)
 
         results = ExpMicroCorrelation.query.\

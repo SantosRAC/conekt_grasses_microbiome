@@ -85,8 +85,8 @@
             {% for r in results %}
 
                 <tr>
-                    <td>{{ r.expression_profile_id }} (<a href="#">view profile</a>)</td>
-                    <td>{{ r.metatax_profile_id }} (<a href="#">view profile</a>)</td>
+                    <td><a href="{{ url_for('sequence.sequence_find', sequence_name=r.gene_probe) }}">{{ r.gene_probe }}</a> (<a href="#">view profile</a>)</td>
+                    <td><a href="{{ url_for('otu.otu_find', otu_original_id=r.otu_probe) }}">{{ r.otu_probe }}</a> (<a href="#">view profile</a>)</td>
                     <td>{{ correlation_method.stat_method }}</td>
                     <td>{{ r.corr_coef }}</td>
                     <td>{{ r.pvalue }}</td>
