@@ -3,6 +3,7 @@
 CoNekT_Grasses_Microbiome/migrations
 CoNekT_Grasses_Microbiome/docs/build
 CoNekT_Grasses_Microbiome/config.py
+CoNekT_Grasses_Microbiome/config_metataxonomics.py
 
 tmp
 bin
