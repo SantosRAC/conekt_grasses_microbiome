@@ -3,11 +3,15 @@ from conekt import db
 
 class StudyLiteratureAssociation(db.Model):
     __tablename__ = 'study_literature'
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = (db.UniqueConstraint(
+            "study_id", "literature_id",
+            name="unique_study_literature"
+        ),)
 
     id = db.Column(db.Integer, primary_key=True)
     study_id = db.Column(db.Integer, db.ForeignKey('studies.id', ondelete='CASCADE'), nullable=False)
     literature_id = db.Column(db.Integer, db.ForeignKey('literature.id', ondelete='CASCADE'), nullable=False)
+
 
     def __init__(self, study_id, literature_id):
         self.study_id = study_id

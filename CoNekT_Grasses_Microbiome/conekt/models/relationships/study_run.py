@@ -10,7 +10,10 @@ class StudyRunAssociation(db.Model):
     sample will be associated with that study).
     """
     __tablename__ = 'study_runs'
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = (db.UniqueConstraint(
+            "study_id", "run_id",
+            name="unique_study_run"
+        ),)
 
     id = db.Column(db.Integer, primary_key=True)
     study_id = db.Column(db.Integer, db.ForeignKey('studies.id', ondelete='CASCADE'), nullable=False)

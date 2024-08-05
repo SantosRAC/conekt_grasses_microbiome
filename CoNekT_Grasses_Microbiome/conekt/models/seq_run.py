@@ -90,21 +90,34 @@ class SeqRun(db.Model):
                     new_runs.append(new_run)
                     all_new_runs.append(new_run)
 
-                    new_study_sample = StudySampleAssociation(study_id, sample.id)
-                    db.session.add(new_study_sample)
+                    study_sample_q = StudySampleAssociation.query.filter_by(study_id=study_id).\
+                        filter_by(sample_id=sample.id).\
+                        first()
+
+                    if not study_sample_q:
+                        new_study_sample = StudySampleAssociation(study_id, sample.id)
+                        db.session.add(new_study_sample)
 
                     if len(new_runs) > 400:
                         db.session.commit()
                         new_runs = []
             
-            new_study_literature = StudyLiteratureAssociation(study_id, literature_id)
-            db.session.add(new_study_literature)
+            study_lit_q = StudyLiteratureAssociation.query.filter_by(study_id=study_id).\
+                        filter_by(literature_id=literature_id).\
+                        first()
+            if not study_lit_q:
+                new_study_literature = StudyLiteratureAssociation(study_id, literature_id)
+                db.session.add(new_study_literature)
         
             db.session.commit()
 
             for run in all_new_runs:
-                new_study_run = StudyRunAssociation(study_id, run.id, data_type)
-                db.session.add(new_study_run)
+                study_run_q = StudyRunAssociation.query.filter_by(study_id=study_id).\
+                        filter_by(run_id=run.id).\
+                        first()
+                if  not study_run_q:
+                    new_study_run = StudyRunAssociation(study_id, run.id, data_type)
+                    db.session.add(new_study_run)
             
             db.session.commit()
 
