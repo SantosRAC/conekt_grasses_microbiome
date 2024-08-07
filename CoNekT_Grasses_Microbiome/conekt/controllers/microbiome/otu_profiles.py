@@ -106,9 +106,10 @@ def find_specific_profiles():
     form.populate_form()
 
     if request.method == 'POST':
-        #species_id = request.form.get('species_id')
-        #study_id = request.form.get('study_id')
-        #terms = request.form.get('probes').split()
+        species_id = request.form.get('species_id')
+        study_id = request.form.get('study_id')
+        conditions = request.form.get('conditions')
+        cutoff = request.form.get('cutoff')
 
         return render_template("microbiome/otus_profile_specificity.html",
                                form=form)

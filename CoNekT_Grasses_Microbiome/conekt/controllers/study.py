@@ -11,6 +11,7 @@ from conekt.models.microbiome.operational_taxonomic_unit import\
 from conekt.models.species import Species
 from conekt.models.seq_run import SeqRun
 from conekt.models.studies import Study
+from conekt.models.microbiome.specificity import MicrobiomeSpecificityMethod
 
 study = Blueprint('study', __name__)
 
@@ -174,3 +175,28 @@ def get_species_studies(species_id, study_type=None):
         studyArray.append(studyObj)
     
     return jsonify({'studies': studyArray})
+
+
+@study.route('/get_specificity_conditions/<study_id>')
+@cache.cached()
+def get_specificity_methods(study_id):
+
+    study_specificity_methods = MicrobiomeSpecificityMethod.query.with_entities(MicrobiomeSpecificityMethod.id,
+                                                                                MicrobiomeSpecificityMethod.description,
+                                                                                MicrobiomeSpecificityMethod.study_id).\
+        where(MicrobiomeSpecificityMethod.study_id==study_id).all()
+
+    specMethodArray = []
+    spec_method_ids = []
+
+    for spec_method in study_specificity_methods:
+        if spec_method.id in spec_method_ids:
+            continue
+        else:
+            spec_method_ids.append(spec_method.id)
+        specMethodsObj = {}
+        specMethodsObj['id'] = spec_method.id
+        specMethodsObj['description'] = f'{spec_method.description}'
+        specMethodArray.append(specMethodsObj)
+    
+    return jsonify({'specificity_methods': specMethodArray})
