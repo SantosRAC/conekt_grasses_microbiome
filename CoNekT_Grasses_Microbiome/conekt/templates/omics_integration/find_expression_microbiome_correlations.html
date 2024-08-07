@@ -72,12 +72,12 @@
         <table class="table table-striped" id="results_table">
             <thead>
             <tr>
-                <th data-sort="string-ins"><span class="sort-icon"></span>Host transcript</th>
-                <th data-sort="string-ins"><span class="sort-icon"></span>OTU/ASV</th>
-                <th data-sort="string-ins"><span class="sort-icon"></span>Correlation method</th>
-                <th data-sort="float"><span class="sort-icon"></span>Correlation coefficient</th>
-                <th data-sort="float"><span class="sort-icon"></span><abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">P-value</abbr></th>
-                <th data-sort="float"><span class="sort-icon"></span><abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">Q-value</abbr></th>
+                <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>Host transcript</th>
+                <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>OTU/ASV</th>
+                <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>Correlation method</th>
+                <th class="col-xs-2" data-sort="float"><span class="sort-icon"></span>Correlation coefficient</th>
+                <th class="col-xs-1" data-sort="float"><span class="sort-icon"></span><abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">P-value</abbr></th>
+                <th class="col-xs-1" data-sort="float"><span class="sort-icon"></span><abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">Q-value</abbr></th>
                 <th>Action</th>
             </tr>
             </thead>
