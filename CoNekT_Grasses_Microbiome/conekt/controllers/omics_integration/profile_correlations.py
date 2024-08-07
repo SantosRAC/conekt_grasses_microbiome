@@ -6,9 +6,10 @@ import json
 from conekt import cache
 from conekt.models.studies import Study
 from conekt.models.expression_microbiome.expression_microbiome_correlation import\
-    ExpMicroCorrelationMethod
+    ExpMicroCorrelationMethod, ExpMicroCorrelation
 from conekt.models.expression.profiles import ExpressionProfile
 from conekt.models.microbiome.otu_profiles import OTUProfile
+from conekt.models.species import Species
 
 from conekt.helpers.chartjs import prepare_profiles_scatterplot
 
@@ -32,6 +33,54 @@ def get_study_cor_methods(study_id):
         methodArray.append(methodObj)
     
     return jsonify({'methods': methodArray})
+
+
+@profile_correlations.route('/get_study_cor_methods_two_studies/<study1_id>/<study2_id>')
+@cache.cached()
+def get_study_cor_methods_two_studies(study1_id, study2_id):
+
+    cor_methods_study1 = ExpMicroCorrelationMethod.query.filter_by(study_id=study1_id).all()
+    cor_methods_study2 = ExpMicroCorrelationMethod.query.filter_by(study_id=study2_id).all()
+
+    methodArray1 = []
+    methodArray2 = []
+
+    for method in cor_methods_study1:
+        methodObj = {}
+        methodObj['id'] = method.id
+        methodObj['study_id'] = study1_id
+        methodObj['method_tool'] = f'{method.stat_method} expression ({method.rnaseq_norm}) vs 16S ({method.metatax_norm}) - ({method.tool_name})'
+        methodArray1.append(methodObj)
+    
+    for method in cor_methods_study2:
+        methodObj = {}
+        res = next((method_study1 for method_study1 in methodArray1 if method_study1['method_tool'] == f'{method.stat_method} expression ({method.rnaseq_norm}) vs 16S ({method.metatax_norm}) - ({method.tool_name})'), None)
+        if res:
+            methodObj['id'] = method.id
+            methodObj['study_id'] = study2_id
+            methodObj['method_tool'] = f'{method.stat_method} expression ({method.rnaseq_norm}) vs 16S ({method.metatax_norm}) - ({method.tool_name})'
+            methodArray2.append(methodObj)
+    
+    return jsonify({'methods': methodArray2})
+
+
+@profile_correlations.route('/get_correlated_profiles/<species_id>/<study_id>/<method_id>/<cutoff>')
+@cache.cached()
+def get_correlated_profiles(species_id, study_id, method_id, cutoff):
+
+    species = Species.query.get_or_404(species_id)
+    study = Study.query.get_or_404(study_id)
+    correlation_method = ExpMicroCorrelationMethod.query.get_or_404(method_id)
+
+    results = ExpMicroCorrelation.query.\
+        filter(ExpMicroCorrelation.exp_micro_correlation_method_id == method_id).\
+        filter(ExpMicroCorrelation.corr_coef>=cutoff)
+
+    return render_template("omics_integration/find_expression_microbiome_correlations.html",
+                            results=results,
+                            species=species,
+                            study=study,
+                            correlation_method=correlation_method)
 
 
 @profile_correlations.route('/modal/profile_scatterplot/<expression_profile_id>/<metatax_profile_id>')
