@@ -67,7 +67,7 @@
                                 <li><a href="#">Enrichment Analysis in Correlated sets (OTUs vs. Expression)</a></li>
                                 <li><a href="{{ url_for('custom_network.expression_microbiome_correlation') }}">Draw Network of Correlations (OTUs vs. Expression)</a></li>
                                 <li class="dropdown-header">Compare studies</li>
-                                <li><a href="#">Compare Correlations Between Two Studies</a></li>
+                                <li><a href="{{ url_for('search.search_correlated_profiles_two_studies') }}">Compare Correlations Between Two Studies</a></li>
                             </ul>
                         </li>
                         <li>
@@ -88,9 +88,6 @@
                         <li>
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Help <span class="caret"></span></a>
                             <ul class="dropdown-menu">
-                                    {% if g.tutorial %}
-                                    <li><a href="{{ g.tutorial }}">Tutorial <span class="text-muted"></span></a></li>
-                                    {% endif %}
                                     <li><a href="{{ url_for('main.contact') }}">Contact</a></li>
                                 </li>
                             </ul>

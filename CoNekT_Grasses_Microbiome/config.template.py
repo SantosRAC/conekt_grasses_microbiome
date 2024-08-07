@@ -74,9 +74,6 @@ KEYWORD_EXAMPLES = []
 GLOB_MSG = None
 GLOB_MSG_TITLE = 'Info'
 
-# Tutorial URL
-TUTORIAL_URL = "" #TODO: add tutorial URL (LabBCES)
-
 # Customize link to Imprint and Privacy Policy(legal requirement in Germany)
 IMPRINT_URL = None
 PRIVACY_POLICY_URL = None

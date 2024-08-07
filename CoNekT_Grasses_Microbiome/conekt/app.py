@@ -300,7 +300,6 @@ def configure_hooks(app):
     LOGIN_ENABLED = app.config['LOGIN_ENABLED']
     BLAST_ENABLED = app.config['BLAST_ENABLED']
     TWITTER_HANDLE = app.config['TWITTER_HANDLE'] if 'TWITTER_HANDLE' in app.config.keys() else None
-    TUTORIAL_URL = app.config['TUTORIAL_URL'] if 'TUTORIAL_URL' in app.config.keys() else None
     IMPRINT = app.config['IMPRINT_URL'] if 'IMPRINT_URL' in app.config.keys() else None
     PRIVACY = app.config['PRIVACY_POLICY_URL'] if 'PRIVACY_POLICY_URL' in app.config.keys() else None
 
@@ -312,8 +311,6 @@ def configure_hooks(app):
         g.twitter_handle = TWITTER_HANDLE
         g.imprint = IMPRINT
         g.privacy = PRIVACY
-
-        g.tutorial = TUTORIAL_URL
 
         g.page_items = 30
 
