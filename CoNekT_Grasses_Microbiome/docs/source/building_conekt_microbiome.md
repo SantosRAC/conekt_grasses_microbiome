@@ -68,7 +68,6 @@ TODO: Add a description of the species clades
 
 ### Create study (-ies)
 
- * Transcriptome-only
  * Metataxonomics-only
  * Integration of transcriptome and metataxonomics
 
