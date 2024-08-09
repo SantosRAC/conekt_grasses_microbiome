@@ -104,8 +104,6 @@ def configure_blueprints(app):
     from conekt.controllers.admin.controls import admin_controls
     from conekt.controllers.study import study
     from conekt.controllers.profile_comparison import profile_comparison
-    from conekt.controllers.microbiome.otu_profiles import otus_profile
-    from conekt.controllers.microbiome.otus import otu
     from conekt.controllers.literature import literature
 
     LOGIN_ENABLED = app.config['LOGIN_ENABLED']
@@ -132,8 +130,6 @@ def configure_blueprints(app):
     # TODO: add URL after configuring Solr as the main search engine
     app.register_blueprint(help, url_prefix='/help')
     app.register_blueprint(profile_comparison, url_prefix='/profile_comparison')
-    app.register_blueprint(otu, url_prefix='/otu')
-    app.register_blueprint(otus_profile, url_prefix='/otus_profile')
     app.register_blueprint(literature, url_prefix='/literature')
 
 
@@ -155,9 +151,6 @@ def configure_admin_panel(app):
         from conekt.controllers.admin.views.controls import ControlsView
         from conekt.controllers.admin.views.news import NewsAdminView
         from conekt.controllers.admin.views.ontology import AddOntologyView
-        from conekt.controllers.admin.views.microbiome.otus import AddOTUSView
-        from conekt.controllers.admin.views.microbiome.otus import AddOTUClassificationView
-        from conekt.controllers.admin.views.microbiome.otus import AddOTUProfilesView
         from conekt.controllers.admin.views.study import BuildStudyView
         from conekt.controllers.admin.views.microbiome.microbiome_profile_specificity import BuildMicrobiomeSpecificityView
 
@@ -204,16 +197,7 @@ def configure_admin_panel(app):
 
         # Add Microbiome data
         admin.add_menu_item(MenuLink("Microbiome", class_name="disabled", url="#"), target_category='Add Microbiome Data')
-        admin.add_view(AddOTUSView(name='OTUs',
-                                                 endpoint='admin_add_otus',
-                                                 url='add/otus/', category='Add Microbiome Data'))
-        admin.add_view(AddOTUClassificationView(name='OTU Classification',
-                                                 endpoint='admin_add_otu_classification',
-                                                 url='add/otu_classification/', category='Add Microbiome Data'))
         admin.add_menu_item(MenuLink("Study", class_name="disabled", url="#"), target_category='Add Microbiome Data')
-        admin.add_view(AddOTUProfilesView(name='OTU Profiles',
-                                                 endpoint='admin_add_otu_profiles',
-                                                 url='add/otu_profiles/', category='Add Microbiome Data'))
 
         # Build Menu
         admin.add_view(BuildStudyView(name='Create Study',

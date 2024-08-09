@@ -6,7 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'CoNekT Grasses Microbiome'
+project = 'CoNekT Metataxonomics'
 copyright = '2024, Renato Augusto Correa dos Santos'
 author = 'Renato Augusto Correa dos Santos'
 release = '1.0'

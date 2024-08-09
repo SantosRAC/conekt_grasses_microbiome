@@ -1,6 +1,6 @@
-# Building CoNekt Grasses Microbiome
+# Building CoNekt Metataxonomics
 
-## Using the admin panel to build CoNekT Grasses Microbiome
+## Using the admin panel to build CoNekT Metataxonomics
 
 ### Add Taxonomy
 

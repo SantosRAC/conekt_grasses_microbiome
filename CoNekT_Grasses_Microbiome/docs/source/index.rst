@@ -1,4 +1,4 @@
-Welcome to CoNekT Grasses Microbiome's documentation!
+Welcome to CoNekT Metataxonomics's documentation!
 =====================================================
 
 .. toctree::
