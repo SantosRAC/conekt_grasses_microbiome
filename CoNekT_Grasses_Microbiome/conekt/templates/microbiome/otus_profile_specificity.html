@@ -7,19 +7,45 @@
 {% block container %}
 <div class="top-pad">
 
-    {% if otus_profiles %}
-    <ol class="breadcrumb">
-        <li><a href="{{ url_for('main.screen') }}">Home</a></li>
-        <li><a href="{{ url_for('main.features') }}">Tools</a></li>
-        <li><a href="{{ url_for('otus_profile.find_specific_profiles') }}">Identify OTUs specific to groups in a Study</a></li>
-        <li class="active"><strong>Results</strong></li>
-    </ol>
+    {% if specific_profiles %}
+        <ol class="breadcrumb">
+            <li><a href="{{ url_for('main.screen') }}">Home</a></li>
+            <li><a href="{{ url_for('main.features') }}">Tools</a></li>
+            <li><a href="{{ url_for('otus_profile.find_specific_profiles') }}">Identify OTUs specific to groups in a Study</a></li>
+            <li class="active"><strong>Results</strong></li>
+        </ol>
 
-    <h1>OTU profile specificity</h1>
+        <h1>Correlated profiles for study {{ current_study.name }} ({{ current_species.name }})</h1>
 
-    <div id="canvas-holder" class="center-block">
-        <canvas id="chart-line" class="center-block" width="800" height="600"/>
-    </div>
+        <div class="row">
+        <div class="col-lg-9">
+        <table class="table table-striped" id="results_table">
+            <thead>
+            <tr>
+                <th class="col-xs-3" data-sort="string-ins"><span class="sort-icon"></span>OTU</th>
+                <th class="col-xs-3" data-sort="string-ins"><span class="sort-icon"></span>Condition</th>
+                <th class="col-xs-1" data-sort="float"><span class="sort-icon"></span>SPM score</th>
+                <th class="col-xs-1" data-sort="float"><span class="sort-icon"></span>Entropy score</th>
+                <th class="col-xs-1" data-sort="float"><span class="sort-icon"></span>Tau score</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for p in specific_profiles %}
+
+                <tr>
+                    <td><a href="{{ url_for('otu.otu_find', otu_original_id=p.otu_probe) }}">{{ p.otu_probe }}</a> (<a href="#">view profile</a>)</td>
+                    <td>{{ p.condition }}</td>
+                    <td>{{ p.score }}</td>
+                    <td>{{ p.entropy }}</td>
+                    <td>{{ p.tau }}</td>
+                </tr>
+
+            {% endfor %}
+            </tbody>
+        </table>
+        <a id="DownloadTable" href="#" class="btn btn-primary">Download table</a><br /><br />
+        </div>
+        </div>
 
         {% if data %}
         <div>
@@ -48,7 +74,13 @@
                             {{form.species_id(class_="form-control") }}<br />
                             {{form.study_id(class_="form-control") }}<br />
                             {{form.conditions(class_="form-control") }}<br />
-                            {{form.cutoff(class_="form-control") }}<br />
+                            <label><abbr title="Click to show help" href="" data-target="#helpModal">SPM</abbr> cutoff :</label>
+                            {{form.spm_cutoff(class_="form-control", **{'data-provide':"slider",
+                                                                    'data-slider-id':"cutoffSlider",
+                                                                    'data-slider-min':"0.5",
+                                                                    'data-slider-max':"1",
+                                                                    'data-slider-step': "0.01",
+                                                                    'data-slider-value': "0.85"})}}<br/>
                             <div class="pull-right">
                                 <button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#loaderModal">Find Specific Profiles</button>
                             </div>
@@ -63,6 +95,7 @@
                         <ul>
                             <li>First select a <strong>species</strong> of interest</li>
                             <li>Next, select the study in which specific profiles are searched.</li>
+                            <li>Next, select the ontology or condition in which specific profiles are searched.</li>
                             <li>Click <strong>Find Specific Profiles</strong></li>
                         </ul>
                     </div>
@@ -76,10 +109,41 @@
 {% endblock %}
 
 {% block extrajs %}
+    <script src="{{ url_for('static', filename='js/bootstrap-slider.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/Chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/hammer.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/chartjs-plugin-zoom.min.js') }}"></script>
     
+    {% if form %}
+    <script>
+
+        cutoff_slider = $('#spm_cutoff').slider({
+            formatter: function(value) {
+                return 'Cutoff: ' + value;
+            }
+        }).on("slideStop", function(ev) {
+                update_count(ev.value);
+        });
+        
+    </script>
+    {% endif %}
+
+    <script>
+        $(function () {
+            $("#results_table").stupidtable();
+            $('a[data-target=#profileModal]').click(function(ev) {
+              ev.preventDefault();
+              var target = $(this).attr("href");
+          
+              // load the url and show modal on success
+              $("#profileModal .modal-content").load(target, function() {
+                   $("#profileModal").modal("show");
+              });
+          });
+        
+        })
+    </script>
+
     <script>
         let species_select = document.getElementById('species_id');
         let study_id_select = document.getElementById('study_id');

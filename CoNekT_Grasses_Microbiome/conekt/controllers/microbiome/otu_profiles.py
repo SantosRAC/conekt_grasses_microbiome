@@ -17,6 +17,11 @@ from conekt.models.microbiome.operational_taxonomic_unit import OperationalTaxon
 from conekt.models.relationships.study_run import StudyRunAssociation
 from conekt.models.relationships_microbiome.otu_profile_run import OTUProfileRunAssociation
 
+from conekt.models.microbiome.specificity import MicrobiomeSpecificityMethod
+
+from conekt.models.studies import Study
+from conekt.models.species import Species
+
 
 otus_profile = Blueprint('otus_profile', __name__)
 
@@ -109,10 +114,17 @@ def find_specific_profiles():
         species_id = request.form.get('species_id')
         study_id = request.form.get('study_id')
         conditions = request.form.get('conditions')
-        cutoff = request.form.get('cutoff')
+        spm_cutoff = request.form.get('spm_cutoff')
+
+        current_species = Species.query.get(species_id)
+        current_study = Study.query.get(study_id)
+
+        specific_profiles = MicrobiomeSpecificityMethod.get_method_specificities(conditions, spm_cutoff)
 
         return render_template("microbiome/otus_profile_specificity.html",
-                               form=form)
+                               specific_profiles=specific_profiles,
+                               current_species=current_species,
+                               current_study=current_study)
     else:
         
         return render_template("microbiome/otus_profile_specificity.html", form=form)

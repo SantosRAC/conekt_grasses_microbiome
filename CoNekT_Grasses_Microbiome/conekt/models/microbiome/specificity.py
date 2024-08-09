@@ -4,6 +4,7 @@ from statistics import mean
 from conekt import db
 
 from conekt.models.microbiome.otu_profiles import OTUProfile
+SQL_COLLATION = 'NOCASE' if db.engine.name == 'sqlite' else ''
 
 # Importing Ontologies
 from conekt.models.ontologies import PlantOntology, PlantExperimentalConditionsOntology, EnvironmentOntology
@@ -32,6 +33,12 @@ class MicrobiomeSpecificityMethod(db.Model):
                                   'envo', 'subpopulation',
                                   name='data_type'))
     study_id = db.Column(db.Integer, db.ForeignKey('studies.id', ondelete='CASCADE'))
+
+    def __init__(self, description, conditions, study_id, data_type='condition'):
+        self.description = description
+        self.conditions = conditions
+        self.study_id = study_id
+        self.data_type = data_type
 
     def __repr__(self):
         return str(self.id) + ". " + self.description + ' [' + self.study_id + ']'
@@ -92,7 +99,9 @@ class MicrobiomeSpecificityMethod(db.Model):
         
         #TODO: Still need to implment distinctions between PO dev staget and PO anatomy
         if pos and (len(pos) > 1):
-            new_method = MicrobiomeSpecificityMethod()
+            new_method = MicrobiomeSpecificityMethod(description + " - " + "PO",
+                                                     str([po for po in pos[0]]),
+                                                     study_id, data_type = 'po_anatomy')
             new_method.study_id = study_id
             new_method.description = description + " - " + "PO"
             new_method.data_type = 'po_anatomy'
@@ -110,11 +119,9 @@ class MicrobiomeSpecificityMethod(db.Model):
                     sample_groups_dict['po'][sample_po.po_id] = [sample_po.sample_id]
 
         if pecos and (len(pecos) > 1):
-            new_method = MicrobiomeSpecificityMethod()
-            new_method.study_id = study_id
-            new_method.description = description + " - " + "PECO"
-            new_method.data_type = 'peco'
-            new_method.conditions = str([peco for peco in pecos[0]])
+            new_method = MicrobiomeSpecificityMethod(description + " - " + "PECO",
+                                                     str([peco for peco in pecos[0]]),
+                                                     study_id, data_type = 'peco')
             db.session.add(new_method)
 
             sample_pecos = SamplePECOAssociation.query.with_entities(SamplePECOAssociation.peco_id,
@@ -128,11 +135,9 @@ class MicrobiomeSpecificityMethod(db.Model):
                     sample_groups_dict['peco'][sample_peco.peco_id] = [sample_peco.sample_id]
 
         if envos and (len(envos) > 1):
-            new_method = MicrobiomeSpecificityMethod()
-            new_method.study_id = study_id
-            new_method.data_type = 'envo'
-            new_method.description = description + " - " + "ENVO"
-            new_method.conditions = str([envo for envo in envos[0]])
+            new_method = MicrobiomeSpecificityMethod(description + " - " + "ENVO",
+                                                     str([envo for envo in envos[0]]),
+                                                     study_id, data_type = 'envo')
             db.session.add(new_method)
 
             sample_envos = SampleENVOAssociation.query.with_entities(SampleENVOAssociation.envo_id,
@@ -146,24 +151,22 @@ class MicrobiomeSpecificityMethod(db.Model):
                     sample_groups_dict['envo'][sample_envo.envo_id] = [sample_envo.sample_id]
 
         if 'subpopulation' in sample_groups_dict.keys() and len(sample_groups_dict['subpopulation'].keys()) > 1:
-            new_method = MicrobiomeSpecificityMethod()
-            new_method.study_id = study_id
-            new_method.data_type = 'subpopulation'
-            new_method.description = description + " - " + "Subpopulation"
-            new_method.conditions = str([group for group in sample_groups_dict['subpopulation'].keys()])
+            new_method = MicrobiomeSpecificityMethod(description + " - " + "Subpopulation",
+                                                     str([group for group in sample_groups_dict['subpopulation'].keys()]),
+                                                     study_id, data_type = 'subpopulation')
             db.session.add(new_method)
 
         db.session.commit()
 
         # get all profile from the database for a specified study
-        profiles = OTUProfile.query.with_entities(OTUProfile.id, OTUProfile.profile).\
+        profiles = OTUProfile.query.with_entities(OTUProfile.id, OTUProfile.probe, OTUProfile.profile).\
                                                         filter(OTUProfile.study_id == study_id).all()
 
         # detect specifities and add to the database
         specificities = []
         new_methods_ids = []
 
-        for profile_id, profile in profiles:
+        for profile_id, profile_probe, profile in profiles:
             # prepare profile data for calculation
             profile_data = json.loads(profile)
             profile_means = {}
@@ -204,6 +207,7 @@ class MicrobiomeSpecificityMethod(db.Model):
                         score = expression_specificity(group_name, profile_means[group_type])
                         new_specificity = {
                             'profile_id': profile_id,
+                            'otu_probe': profile_probe,
                             'condition': group_name,
                             'score': score,
                             'entropy': profile_entropy,
@@ -227,13 +231,43 @@ class MicrobiomeSpecificityMethod(db.Model):
         return new_methods_ids
 
 
+    @staticmethod
+    def get_method_specificities(method_id, spm_cutoff=0.5):
+        """
+        Returns the specific profiles based on the SPM score for a specific method.
+
+        :param method_id: internal id of the method
+        :param spm_cutoff: cutoff for the SPM score
+        """
+
+        specific_profiles = MicrobiomeSpecificity.query.filter(MicrobiomeSpecificity.method_id == method_id,
+                                                               MicrobiomeSpecificity.score >= spm_cutoff).all()
+
+        return specific_profiles   
+
+
 class MicrobiomeSpecificity(db.Model):
     __tablename__ = 'microbiome_specificity'
 
     id = db.Column(db.Integer, primary_key=True)
     profile_id = db.Column(db.Integer, db.ForeignKey('otu_profiles.id', ondelete='CASCADE'), index=True)
+    otu_probe = db.Column(db.String(255, collation=SQL_COLLATION), index=True)
     condition = db.Column(db.String(255), index=True)
     score = db.Column(db.Float, index=True)
     entropy = db.Column(db.Float, index=True)
     tau = db.Column(db.Float, index=True)
     method_id = db.Column(db.Integer, db.ForeignKey('microbiome_specificity_method.id', ondelete='CASCADE'), index=True)
+
+    def __init__(self, profile_id, otu_probe, condition, score, entropy, tau, method_id):
+        self.profile_id = profile_id
+        self.otu_probe = otu_probe
+        self.condition = condition
+        self.score = score
+        self.entropy = entropy
+        self.tau = tau
+        self.method_id = method_id
+
+    def __repr__(self):
+        return str(self.id) + ". " + self.condition + ' (SPM: ' + self.score + ')'  
+
+
