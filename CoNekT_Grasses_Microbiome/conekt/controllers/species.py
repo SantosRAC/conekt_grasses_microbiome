@@ -30,7 +30,7 @@ def species_overview():
             species.paper_doi = LiteratureItem.query.filter_by(id=species.literature_id).first().doi
         
 
-    return render_template('species.html', all_species=all_species, species_tree=tree)
+    return render_template('species.html', all_species=all_species)
 
 
 @species.route('/view/<species_id>')
