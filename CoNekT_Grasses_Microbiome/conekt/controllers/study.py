@@ -6,6 +6,8 @@ from conekt import db, cache
 from conekt.models.literature import LiteratureItem
 
 from conekt.models.relationships.study_literature import StudyLiteratureAssociation
+from conekt.models.relationships.study_sample import StudySampleAssociation
+from conekt.models.relationships.sample_group import SampleGroupAssociation
 from conekt.models.microbiome.operational_taxonomic_unit import\
                     OperationalTaxonomicUnitMethod, OperationalTaxonomicUnit
 from conekt.models.species import Species
@@ -200,3 +202,24 @@ def get_specificity_methods(study_id):
         specMethodArray.append(specMethodsObj)
     
     return jsonify({'specificity_methods': specMethodArray})
+
+
+@study.route('/get_sample_group_names/<study_id>')
+@cache.cached()
+def get_sample_group_names(study_id):
+
+    sample_ids = StudySampleAssociation.query.with_entities(StudySampleAssociation.sample_id).\
+        where(StudySampleAssociation.study_id==study_id).distinct().all()
+
+    groups = SampleGroupAssociation.query.with_entities(SampleGroupAssociation.group_name).\
+                                filter(SampleGroupAssociation.sample_id.in_([sample_id[0] for sample_id in sample_ids])).\
+                                    distinct().all()
+
+    sampleGroupArray = []
+
+    for group_info in groups:
+        groupTObj = {}
+        groupTObj['group_name'] = group_info.group_name
+        sampleGroupArray.append(groupTObj)
+    
+    return jsonify({'sample_group_names': sampleGroupArray})

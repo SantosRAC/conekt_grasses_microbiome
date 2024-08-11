@@ -3,7 +3,7 @@ from sqlalchemy.orm import joinedload
 
 search = Blueprint('search', __name__)
 
-from conekt.forms.omics_integration.profile_correlations import SearchCorrelatedProfilesForm,\
+from conekt.forms.omics_integration.profile_correlations import SearchCorrelatedProfilesGroupsForm,\
     SearchCorrelatedProfilesTwoStudiesForm
 from conekt.models.species import Species
 from conekt.models.studies import Study
@@ -18,16 +18,17 @@ def search_correlated_profiles():
 
     :return: Html response
     """
-    form = SearchCorrelatedProfilesForm(request.form)
+    form = SearchCorrelatedProfilesGroupsForm(request.form)
     form.populate_form()
 
     if request.method == 'GET':
-        return render_template("omics_integration/find_expression_microbiome_correlations.html", form=form)
+        return render_template("omics_integration/find_expression_microbiome_correlations.html",
+                               form=form)
     else:
         species_id = request.form.get('species_id')
         study_id = request.form.get('study_id')
         method_id = request.form.get('method_id')
-        cutoff = request.form.get('correlation_cutoff')
+        cutoff = request.form.get('correlation_cutoff_groups')
 
         species = Species.query.get_or_404(species_id)
         study = Study.query.get_or_404(study_id)

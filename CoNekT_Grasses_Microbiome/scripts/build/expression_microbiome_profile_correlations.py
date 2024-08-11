@@ -39,6 +39,10 @@ parser.add_argument('--microbiome_normalization_method', type=str, metavar='cpm'
                     dest='metatax_norm',
                     help='Method used to normalize the microbiome data',
                     required=False, default='cpm')
+parser.add_argument('--sample_group_type', type=str, metavar='whole study',
+                    dest='sample_group_type',
+                    help='Group type to calculate the correlation (e.g., subpopulation). Default is whole study (all samples).',
+                    required=False, default='whole study')
 parser.add_argument('--db_admin', type=str, metavar='DB admin',
                     dest='db_admin',
                     help='The database admin user',
@@ -61,7 +65,7 @@ else:
 
 def calculate_expression_metataxonomic_correlations(study_id, description, tool, stat_method, multiple_test_cor_method,
                                                         rnaseq_norm, metatax_norm, correlation_cutoff=0.5,
-                                                        corrected_pvalue_cutoff=0.05):
+                                                        corrected_pvalue_cutoff=0.05, group_type='whole study'):
         """
         Function to calculate the correlations between expression and metataxonomic profiles
 
@@ -73,20 +77,8 @@ def calculate_expression_metataxonomic_correlations(study_id, description, tool,
         :param metatax_norm: normalization method used for the metataxonomic data
         :param correlation_cutoff: cutoff value for the correlation
         :param corrected_pvalue_cutoff: cutoff value for the corrected p-value
+        :param group_type: type of sample group to calculate the correlation (whole study is the default)
         """
-
-        new_correlation_method = {"description": description,
-                                    "tool_name":tool,
-                                    "stat_method":stat_method,
-                                    "multiple_test_cor_method":multiple_test_cor_method,
-                                    "rnaseq_norm":rnaseq_norm, 
-                                    "metatax_norm":metatax_norm,
-                                    "study_id":study_id}
-
-        new_correlation_method_obj = ExpMicroCorrelationMethod(**new_correlation_method)
-
-        session.add(new_correlation_method_obj)
-        session.commit()
 
         # Get study
         study = session.get(Study, study_id)
@@ -114,6 +106,26 @@ def calculate_expression_metataxonomic_correlations(study_id, description, tool,
                       OTUProfile.__table__.c.study_id == study_id)
             metatax_profiles = conn.execute(stmt).all()
         
+        # Get all group names associated with selected group type
+        with engine.connect() as conn:
+            stmt = select(SampleGroupAssociation).\
+                where(SampleGroupAssociation.__table__.c.group_type == group_type,
+                      SampleGroupAssociation.id.in_(study_sample_ids))
+            sample_groups_info = conn.execute(stmt).all()
+        
+        group_name_counts = {}
+
+        if group_type != 'whole study':
+            for info in sample_groups_info:
+                if info.group_name not in group_name_counts.keys():
+                    group_name_counts[info.group_name] = {}
+                    group_name_counts[info.group_name]['count'] = 1
+                    group_name_counts[info.group_name]['samples'] = [info.sample_id]
+                else:
+                    group_name_counts[info.group_name]['count'] += 1
+                    if info.sample_id not in group_name_counts[info.group_name]['samples']:
+                        group_name_counts[info.group_name]['samples'].append(info.sample_id)
+
         # Create pandas dataframe with all expression and metatax profiles associated with study
         df_the_dict_expression = {}
         study_runs_expression = []
@@ -142,69 +154,166 @@ def calculate_expression_metataxonomic_correlations(study_id, description, tool,
 
         concat_df = pd.concat([expression_profiles_df, metatax_profiles_df], axis=0)
         concatenated_transposed = concat_df.transpose()
-        cor_values = cor_full(concatenated_transposed, correlation_type=stat_method)
 
-        # Getting number of samples and features (genes/OTUs)
-        n_samples = concatenated_transposed.shape[0]
-        n_features = concatenated_transposed.shape[1]
+        if group_type != 'whole study':
+            for group_name in group_name_counts.keys():
+                if group_name_counts[group_name]['count'] > 10:
+                    cor_values = cor_full(concatenated_transposed.loc[group_name_counts[group_name]['samples']], correlation_type=stat_method)
+                
+                    new_correlation_method = {"description": description,
+                                    "sample_group": group_name,
+                                    "tool_name":tool,
+                                    "stat_method":stat_method,
+                                    "multiple_test_cor_method":multiple_test_cor_method,
+                                    "rnaseq_norm":rnaseq_norm, 
+                                    "metatax_norm":metatax_norm,
+                                    "study_id":study_id}
 
-        # Get the p-values and correct them
-        pvalues = derive_pvalues(cor_values, n_samples)
-        pvalues_corrected = multiple_test_correction(pvalues, n_features, method=multiple_test_cor_method)
+                    new_correlation_method_obj = ExpMicroCorrelationMethod(**new_correlation_method)
 
-        true_positions_cor = np.where(cor_values > correlation_cutoff)
-        true_positions_pvalue = np.where(pvalues_corrected < corrected_pvalue_cutoff)
-
-        # Filtering correlations based on coef. and corrected pvalues
-        cor_tuples = []
-        pval_tuples = []
-
-        for i in range(np.size(true_positions_cor, 1)):
-            cor_tuples.append((true_positions_cor[0][i],
-            true_positions_cor[1][i]))
-
-        for i in range(np.size(true_positions_pvalue, 1)):
-            pval_tuples.append((true_positions_pvalue[0][i],
-            true_positions_pvalue[1][i]))
-
-        cor_tuples_set = set(cor_tuples)
-        pval_tuples_set = set(pval_tuples)
-
-        cor_pval_intersection = cor_tuples_set.intersection(pval_tuples_set)
-        cor_pval_intersection_tuple = ([t[0] for t in list(cor_pval_intersection)],
-        [t[1] for t in list(cor_pval_intersection)])
-
-        shape_row = expression_profiles_df.shape[0]
-
-        for i in range(len(cor_pval_intersection_tuple[0])):
-            if (cor_pval_intersection_tuple[1][i] > (shape_row - 1)) and (cor_pval_intersection_tuple[0][i] < shape_row):
-                with engine.connect() as conn:
-                    stmt = select(OTUProfile).\
-                        where(OTUProfile.__table__.c.probe == str(cor_values.columns[cor_pval_intersection_tuple[1][i]]),
-                        OTUProfile.__table__.c.species_id == study.species_id,
-                        OTUProfile.__table__.c.study_id == study_id)
-                    otu_p = conn.execute(stmt).first()
-                with engine.connect() as conn:
-                    stmt = select(ExpressionProfile).\
-                        where(ExpressionProfile.__table__.c.probe == str(cor_values.index[cor_pval_intersection_tuple[0][i]]),
-                        ExpressionProfile.__table__.c.species_id == study.species_id,
-                        ExpressionProfile.__table__.c.study_id == study_id)
-                    exp_p = conn.execute(stmt).first()
-                new_correlation_pair = {"expression_profile_id": exp_p.id,
-                                        "metatax_profile_id": otu_p.id,
-                                        "gene_probe": str(cor_values.index[cor_pval_intersection_tuple[0][i]]),
-                                        "otu_probe": str(cor_values.columns[cor_pval_intersection_tuple[1][i]]),
-                                        "exp_micro_correlation_method_id": new_correlation_method_obj.id,
-                                        "corr_coef": cor_values.iloc[cor_pval_intersection_tuple[0][i], cor_pval_intersection_tuple[1][i]],
-                                        "pvalue": pvalues[cor_pval_intersection_tuple[0][i], cor_pval_intersection_tuple[1][i]],
-                                        "qvalue": pvalues_corrected[cor_pval_intersection_tuple[0][i], cor_pval_intersection_tuple[1][i]]}
-                new_correlation_pair_obj = ExpMicroCorrelation(**new_correlation_pair)
-                session.add(new_correlation_pair_obj)
-
-                if i % 400 == 0:
+                    session.add(new_correlation_method_obj)
                     session.commit()
 
-        session.commit()
+                    # Getting number of samples and features (genes/OTUs)
+                    n_samples = concatenated_transposed.loc[group_name_counts[group_name]['samples']].shape[0]
+                    n_features = concatenated_transposed.loc[group_name_counts[group_name]['samples']].shape[1]
+
+                    # Get the p-values and correct them
+                    pvalues = derive_pvalues(cor_values, n_samples)
+                    pvalues_corrected = multiple_test_correction(pvalues, n_features, method=multiple_test_cor_method)
+
+                    true_positions_cor = np.where(cor_values > correlation_cutoff)
+                    true_positions_pvalue = np.where(pvalues_corrected < corrected_pvalue_cutoff)
+
+                    # Filtering correlations based on coef. and corrected pvalues
+                    cor_tuples = []
+                    pval_tuples = []
+
+                    for i in range(np.size(true_positions_cor, 1)):
+                        cor_tuples.append((true_positions_cor[0][i],
+                        true_positions_cor[1][i]))
+
+                    for i in range(np.size(true_positions_pvalue, 1)):
+                        pval_tuples.append((true_positions_pvalue[0][i],
+                        true_positions_pvalue[1][i]))
+
+                    cor_tuples_set = set(cor_tuples)
+                    pval_tuples_set = set(pval_tuples)
+
+                    cor_pval_intersection = cor_tuples_set.intersection(pval_tuples_set)
+                    cor_pval_intersection_tuple = ([t[0] for t in list(cor_pval_intersection)],
+                    [t[1] for t in list(cor_pval_intersection)])
+
+                    shape_row = expression_profiles_df.shape[0]
+
+                    for i in range(len(cor_pval_intersection_tuple[0])):
+                        if (cor_pval_intersection_tuple[1][i] > (shape_row - 1)) and (cor_pval_intersection_tuple[0][i] < shape_row):
+                            with engine.connect() as conn:
+                                stmt = select(OTUProfile).\
+                                    where(OTUProfile.__table__.c.probe == str(cor_values.columns[cor_pval_intersection_tuple[1][i]]),
+                                    OTUProfile.__table__.c.species_id == study.species_id,
+                                    OTUProfile.__table__.c.study_id == study_id)
+                                otu_p = conn.execute(stmt).first()
+                            with engine.connect() as conn:
+                                stmt = select(ExpressionProfile).\
+                                    where(ExpressionProfile.__table__.c.probe == str(cor_values.index[cor_pval_intersection_tuple[0][i]]),
+                                    ExpressionProfile.__table__.c.species_id == study.species_id,
+                                    ExpressionProfile.__table__.c.study_id == study_id)
+                                exp_p = conn.execute(stmt).first()
+                            new_correlation_pair = {"expression_profile_id": exp_p.id,
+                                                    "metatax_profile_id": otu_p.id,
+                                                    "gene_probe": str(cor_values.index[cor_pval_intersection_tuple[0][i]]),
+                                                    "otu_probe": str(cor_values.columns[cor_pval_intersection_tuple[1][i]]),
+                                                    "exp_micro_correlation_method_id": new_correlation_method_obj.id,
+                                                    "corr_coef": cor_values.iloc[cor_pval_intersection_tuple[0][i], cor_pval_intersection_tuple[1][i]],
+                                                    "pvalue": pvalues[cor_pval_intersection_tuple[0][i], cor_pval_intersection_tuple[1][i]],
+                                                    "qvalue": pvalues_corrected[cor_pval_intersection_tuple[0][i], cor_pval_intersection_tuple[1][i]]}
+                            new_correlation_pair_obj = ExpMicroCorrelation(**new_correlation_pair)
+                            session.add(new_correlation_pair_obj)
+
+                            if i % 400 == 0:
+                                session.commit()
+
+                    session.commit()
+
+        else:
+            new_correlation_method = {"description": description,
+                                    "sample_group": group_type,
+                                    "tool_name":tool,
+                                    "stat_method":stat_method,
+                                    "multiple_test_cor_method":multiple_test_cor_method,
+                                    "rnaseq_norm":rnaseq_norm, 
+                                    "metatax_norm":metatax_norm,
+                                    "study_id":study_id}
+
+            new_correlation_method_obj = ExpMicroCorrelationMethod(**new_correlation_method)
+
+            session.add(new_correlation_method_obj)
+            session.commit()
+            
+            cor_values = cor_full(concatenated_transposed, correlation_type=stat_method)
+
+            # Getting number of samples and features (genes/OTUs)
+            n_samples = concatenated_transposed.shape[0]
+            n_features = concatenated_transposed.shape[1]
+
+            # Get the p-values and correct them
+            pvalues = derive_pvalues(cor_values, n_samples)
+            pvalues_corrected = multiple_test_correction(pvalues, n_features, method=multiple_test_cor_method)
+
+            true_positions_cor = np.where(cor_values > correlation_cutoff)
+            true_positions_pvalue = np.where(pvalues_corrected < corrected_pvalue_cutoff)
+
+            # Filtering correlations based on coef. and corrected pvalues
+            cor_tuples = []
+            pval_tuples = []
+
+            for i in range(np.size(true_positions_cor, 1)):
+                cor_tuples.append((true_positions_cor[0][i],
+                true_positions_cor[1][i]))
+
+            for i in range(np.size(true_positions_pvalue, 1)):
+                pval_tuples.append((true_positions_pvalue[0][i],
+                true_positions_pvalue[1][i]))
+
+            cor_tuples_set = set(cor_tuples)
+            pval_tuples_set = set(pval_tuples)
+
+            cor_pval_intersection = cor_tuples_set.intersection(pval_tuples_set)
+            cor_pval_intersection_tuple = ([t[0] for t in list(cor_pval_intersection)],
+            [t[1] for t in list(cor_pval_intersection)])
+
+            shape_row = expression_profiles_df.shape[0]
+
+            for i in range(len(cor_pval_intersection_tuple[0])):
+                if (cor_pval_intersection_tuple[1][i] > (shape_row - 1)) and (cor_pval_intersection_tuple[0][i] < shape_row):
+                    with engine.connect() as conn:
+                        stmt = select(OTUProfile).\
+                            where(OTUProfile.__table__.c.probe == str(cor_values.columns[cor_pval_intersection_tuple[1][i]]),
+                            OTUProfile.__table__.c.species_id == study.species_id,
+                            OTUProfile.__table__.c.study_id == study_id)
+                        otu_p = conn.execute(stmt).first()
+                    with engine.connect() as conn:
+                        stmt = select(ExpressionProfile).\
+                            where(ExpressionProfile.__table__.c.probe == str(cor_values.index[cor_pval_intersection_tuple[0][i]]),
+                            ExpressionProfile.__table__.c.species_id == study.species_id,
+                            ExpressionProfile.__table__.c.study_id == study_id)
+                        exp_p = conn.execute(stmt).first()
+                    new_correlation_pair = {"expression_profile_id": exp_p.id,
+                                            "metatax_profile_id": otu_p.id,
+                                            "gene_probe": str(cor_values.index[cor_pval_intersection_tuple[0][i]]),
+                                            "otu_probe": str(cor_values.columns[cor_pval_intersection_tuple[1][i]]),
+                                            "exp_micro_correlation_method_id": new_correlation_method_obj.id,
+                                            "corr_coef": cor_values.iloc[cor_pval_intersection_tuple[0][i], cor_pval_intersection_tuple[1][i]],
+                                            "pvalue": pvalues[cor_pval_intersection_tuple[0][i], cor_pval_intersection_tuple[1][i]],
+                                            "qvalue": pvalues_corrected[cor_pval_intersection_tuple[0][i], cor_pval_intersection_tuple[1][i]]}
+                    new_correlation_pair_obj = ExpMicroCorrelation(**new_correlation_pair)
+                    session.add(new_correlation_pair_obj)
+
+                    if i % 400 == 0:
+                        session.commit()
+
+            session.commit()
 
         # Return the calculated correlations
         return True
@@ -212,6 +321,7 @@ def calculate_expression_metataxonomic_correlations(study_id, description, tool,
 db_admin = args.db_admin
 db_name = args.db_name
 study_id = args.study_id
+group_type = args.sample_group_type
 description_method = args.cor_method_description
 stat_method = args.stat_method
 rnaseq_norm = args.rnaseq_norm
@@ -236,6 +346,7 @@ ExpressionProfile = Base.classes.expression_profiles
 OTUProfile = Base.classes.otu_profiles
 ExpMicroCorrelation = Base.classes.expression_microbiome_correlations
 ExpMicroCorrelationMethod = Base.classes.expression_microbiome_correlation_methods
+SampleGroupAssociation = Base.classes.sample_groups
 
 # Create a Session
 Session = sessionmaker(bind=engine)
@@ -243,6 +354,6 @@ session = Session()
 
 calculate_expression_metataxonomic_correlations(study_id, description_method, tool, stat_method,
                                                 multiple_test_cor_method, rnaseq_norm, metatax_norm,
-                                                correlation_cutoff, corrected_pvalue_cutoff)
+                                                correlation_cutoff, corrected_pvalue_cutoff, group_type)
 
 session.close()

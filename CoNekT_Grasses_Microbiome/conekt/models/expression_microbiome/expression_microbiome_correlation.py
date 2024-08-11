@@ -22,6 +22,7 @@ class ExpMicroCorrelationMethod(db.Model):
     __tablename__ = 'expression_microbiome_correlation_methods'
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.Text)
+    sample_group = db.Column(db.String(255, collation=SQL_COLLATION), default='whole study')
     tool_name = db.Column(db.Enum('corALS', name='Tool'), default='corALS')
     stat_method = db.Column(db.Enum('pearson', 'spearman', name='Statistical Method'), default='pearson')
     multiple_test_cor_method = db.Column(db.Enum('fdr_bh', 'bonferroni', name='P-value correction Method'), default='fdr_bh')
@@ -35,10 +36,11 @@ class ExpMicroCorrelationMethod(db.Model):
                                     cascade="all, delete-orphan",
                                     passive_deletes=True)
 
-    def __init__(self, description, tool_name, stat_method,
+    def __init__(self, description, sample_group, tool_name, stat_method,
                  multiple_test_cor_method, rnaseq_norm,
                  metatax_norm, study_id):
         self.description = description
+        self.sample_group = sample_group
         self.tool_name = tool_name
         self.stat_method = stat_method
         self.multiple_test_cor_method = multiple_test_cor_method

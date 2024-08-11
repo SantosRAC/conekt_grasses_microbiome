@@ -20,45 +20,57 @@
     <h1>Profiles Correlations</h1>
     <p>Using the form below correlations can be found in a study of interaction between host expression and microbiome.</p>
         <div class="row">
-            <div class="col-md-6 col-md-offset-1 col-xs-8">
-                <div class="panel panel-primary">
-                    <div class="panel-heading"><strong>Search options</strong></div>
-                    <div class="panel-body">
-                        <form method="POST"  action="{{ url_for('search.search_correlated_profiles') }}"  role="form">
-                            {{ form.csrf_token }}
-                            <label>Species</label>
-                            {{form.species_id(class_="form-control")}}<br/>
-                            <label>Study</label>
-                            {{form.study_id(class_="form-control")}}<br/>
-                            <label>Method</label>
-                            {{form.method_id(class_="form-control")}}<br/>
-                            <label><abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">Correlation</abbr> cutoff :</label>
-                            {{form.correlation_cutoff(class_="form-control", **{'data-provide':"slider",
-                                                                    'data-slider-id':"cutoffSlider",
-                                                                    'data-slider-min':"0.5",
-                                                                    'data-slider-max':"1",
-                                                                    'data-slider-step': "0.01",
-                                                                    'data-slider-value': "0.85"})}}<br/>
-                            <button type="submit" id="show_button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#loaderModal">Show correlations</button>
-                        </form>
-                    </div>
+            <div class="col-md-8 col-sm-6 col-xs-12">
+                <div class="panel with-nav-tabs panel-default">
+                   <div class="panel-heading">
+                           <ul class="nav nav-tabs">
+                               <li class="active"><a href="#tab1default" data-toggle="tab">Default</a></li>
+                           </ul>
+                   </div>
+                   <div>
+                       <div class="tab-content">
+                           <div class="tab-pane fade in active" id="tab1default">
+                               <div class="panel-body">
+                                <form method="POST"  action="#"  role="form">
+                                    {{ form.csrf_token }}
+                                    <label>Species</label>
+                                    {{form.species_id(class_="form-control")}}<br/>
+                                    <label>Study</label>
+                                    {{form.study_id(class_="form-control")}}<br/>
+                                    <label>Ontology/ Group (sample group)</label>
+                                    {{form.sample_group(class_="form-control")}}<br/>
+                                    <label>Method</label>
+                                    {{form.method_id(class_="form-control")}}<br/>
+                                    <label><abbr title="Click to show help" href="#" data-target="#helpModal">Correlation</abbr> cutoff :</label>
+                                    {{form.correlation_cutoff_groups(class_="form-control", **{'data-provide':"slider",
+                                                                            'data-slider-id':"cutoffSlider",
+                                                                            'data-slider-min':"0.5",
+                                                                            'data-slider-max':"1",
+                                                                            'data-slider-step': "0.01",
+                                                                            'data-slider-value': "0.85"})}}<br/>
+                                    <button type="submit" id="show_button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#loaderModal">Show correlations</button>
+                                </form>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
                 </div>
             </div>
-            <div class="col-md-4 col-xs-4">
-                <div class="panel panel-default">
-                    <div class="panel-heading"><strong>Help</strong></div>
-                    <div class="panel-body">
-                        <ul>
-                            <li>Select the <strong>species</strong> first. This will enable a list of studies for this species in next selector.</li>
-                            <li>Next select a <strong>study</strong>. Note that studies are formed by combinations of runs from different literature sources.</li>
-                            <li>Next select a <strong>method</strong>. Methods can be Pearson or Spearman, to correlate microbiome and transcriptome profiles in a study.</li>
-                            <li>Set the <abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">Correlation</abbr> cutoff (recommended setting: 0.5). Higher values are stronger correlations, lower ones are weaker</li>
-                            <li>Click <strong>Show profile pairs</strong> <span class="text-muted"> When updating the slider a number will appear in the button indicating how many pairs there will be in the results</span></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+           <div class="col-md-4 col-sm-6 col-xs-12">
+               <div class="panel panel-default">
+                   <div class="panel-heading"><strong>Help</strong></div>
+                   <div class="panel-body">
+                    <ul>
+                        <li>Select the <strong>species</strong> first. This will enable a list of studies for this species in next selector.</li>
+                        <li>Next select a <strong>study</strong>. Note that studies are formed by combinations of runs from different literature sources.</li>
+                        <li>Next select a <strong>method</strong>. Methods can be Pearson or Spearman, to correlate microbiome and transcriptome profiles in a study.</li>
+                        <li>Set the <abbr title="Click to show help" href="#" data-target="#helpModal">Correlation</abbr> cutoff (recommended setting: 0.5). Higher values are stronger correlations, lower ones are weaker</li>
+                        <li>Click <strong>Show profile pairs</strong> <span class="text-muted"> When updating the slider a number will appear in the button indicating how many pairs there will be in the results</span></li>
+                    </ul>
+                   </div>
+               </div>
+           </div>
+       </div>
     {% elif results %}
     <ol class="breadcrumb">
         <li><a href="{{ url_for('main.screen') }}">Home</a></li>
@@ -76,8 +88,8 @@
                 <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>OTU/ASV</th>
                 <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>Correlation method</th>
                 <th class="col-xs-2" data-sort="float"><span class="sort-icon"></span>Correlation coefficient</th>
-                <th class="col-xs-1" data-sort="float"><span class="sort-icon"></span><abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">P-value</abbr></th>
-                <th class="col-xs-1" data-sort="float"><span class="sort-icon"></span><abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">Q-value</abbr></th>
+                <th class="col-xs-1" data-sort="float"><span class="sort-icon"></span><abbr title="Click to show help" href="#" data-target="#helpModal">P-value</abbr></th>
+                <th class="col-xs-1" data-sort="float"><span class="sort-icon"></span><abbr title="Click to show help" href="#" data-target="#helpModal">Q-value</abbr></th>
                 <th>Action</th>
             </tr>
             </thead>
@@ -122,7 +134,7 @@
 {% if form %}
 <script>
 
-    cutoff_slider = $('#correlation_cutoff').slider({
+    cutoff_slider = $('#correlation_cutoff_groups').slider({
         formatter: function(value) {
             return 'Cutoff: ' + value;
         }
@@ -152,6 +164,7 @@ $(function () {
 <script>
     let species_select = document.getElementById('species_id');
     let study_select = document.getElementById('study_id');
+    let sample_group_select = document.getElementById('sample_group');
     let method_select = document.getElementById('method_id');
     
     species_select.onchange = function() {
@@ -177,7 +190,28 @@ $(function () {
     study_select.onchange = function() {
         study_id = study_select.value;
         
-        fetch("{{ url_for('profile_correlations.get_study_cor_methods', study_id='study_id', study_type='expression_metataxonomics') }}".replace('study_id', study_id)).then(function(response) {
+        fetch("{{ url_for('study.get_sample_group_names', study_id='study_id') }}".replace('study_id', study_id)).then(function(response) {
+            response.json().then(function(data) {
+                
+                let optionHTML = '';
+                
+                optionHTML += '<option value="' + 0 + '">' + 'Select Group First' + '</option>';
+                optionHTML += '<option value="' + 'whole study' + '">' + 'Whole Study' + '</option>';
+
+                for (let group_name of data.sample_group_names) {
+                    optionHTML += '<option value="' + group_name.group_name + '">' + group_name.group_name + '</option>';
+                }
+    
+                sample_group_select.innerHTML = optionHTML;
+    
+            })
+        })
+    }
+
+    sample_group_select.onchange = function() {
+        sample_group = sample_group_select.value;
+        
+        fetch("{{ url_for('profile_correlations.get_study_cor_methods', study_id='study_id', sample_group='sample_group') }}".replace('study_id', study_id).replace('sample_group', sample_group)).then(function(response) {
             response.json().then(function(data) {
                 
                 let optionHTML = '';

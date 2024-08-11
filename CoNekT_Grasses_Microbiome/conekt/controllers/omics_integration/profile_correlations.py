@@ -16,11 +16,16 @@ from conekt.helpers.chartjs import prepare_profiles_scatterplot
 profile_correlations = Blueprint('profile_correlations', __name__)
 
 
-@profile_correlations.route('/get_study_cor_methods/<study_id>')
+@profile_correlations.route('/get_study_cor_methods/<study_id>/')
+@profile_correlations.route('/get_study_cor_methods/<study_id>/<sample_group>/')
 @cache.cached()
-def get_study_cor_methods(study_id):
+def get_study_cor_methods(study_id, sample_group):
 
-    cor_methods = ExpMicroCorrelationMethod.query.filter_by(study_id=study_id).all()
+    if not sample_group:
+        sample_group = 'whole study'
+
+    cor_methods = ExpMicroCorrelationMethod.query.filter_by(study_id=study_id,
+                                                            sample_group=sample_group).all()
 
     methodArray = []
     cor_method_ids = []
@@ -35,7 +40,7 @@ def get_study_cor_methods(study_id):
     return jsonify({'methods': methodArray})
 
 
-@profile_correlations.route('/get_study_cor_methods_two_studies/<study1_id>/<study2_id>')
+@profile_correlations.route('/get_study_cor_methods_two_studies/<study1_id>/<study2_id>/')
 @cache.cached()
 def get_study_cor_methods_two_studies(study1_id, study2_id):
 
@@ -64,7 +69,7 @@ def get_study_cor_methods_two_studies(study1_id, study2_id):
     return jsonify({'methods': methodArray2})
 
 
-@profile_correlations.route('/get_correlated_profiles/<species_id>/<study_id>/<method_id>/<cutoff>')
+@profile_correlations.route('/get_correlated_profiles/<species_id>/<study_id>/<method_id>/<cutoff>/')
 @cache.cached()
 def get_correlated_profiles(species_id, study_id, method_id, cutoff):
 
@@ -83,7 +88,7 @@ def get_correlated_profiles(species_id, study_id, method_id, cutoff):
                             correlation_method=correlation_method)
 
 
-@profile_correlations.route('/modal/profile_scatterplot/<expression_profile_id>/<metatax_profile_id>')
+@profile_correlations.route('/modal/profile_scatterplot/<expression_profile_id>/<metatax_profile_id>/')
 @cache.cached()
 def profiles_scatter_modal(expression_profile_id, metatax_profile_id):
     """
