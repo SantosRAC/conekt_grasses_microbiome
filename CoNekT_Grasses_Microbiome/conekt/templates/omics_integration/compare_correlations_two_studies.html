@@ -17,8 +17,8 @@
         <li><a href="{{ url_for('main.features') }}">Tools</a></li>
         <li class="active"><strong>Expression and Microbiome Profiles Correlations in Two Studies</strong></li>
     </ol>
-    <h1>Profiles Correlations</h1>
-    <p>Using the form below correlations interaction between host expression and microbiome can be analyzed in a comparisong between two studies.</p>
+    <h1>Profiles Correlations in Two Studies</h1>
+    <p>Using the form below correlations interaction between host expression and microbiome can be analyzed in a comparison between two studies.</p>
         <div class="row">
             <div class="col-md-6 col-md-offset-1 col-xs-8">
                 <div class="panel panel-primary">
@@ -32,6 +32,8 @@
                             {{form.study1_id(class_="form-control")}}<br/>
                             <label>Second Study</label>
                             {{form.study2_id(class_="form-control")}}<br/>
+                            <label>Ontology/ Group (sample group)</label>
+                            {{form.sample_group(class_="form-control")}}<br/>
                             <label>Method</label>
                             {{form.method_id(class_="form-control")}}<br/>
                             <label><abbr title="Click to show help" href="" data-target="#helpModal">Correlation</abbr> cutoff :</label>
@@ -138,6 +140,7 @@
     let species_select = document.getElementById('species_id');
     let study1_select = document.getElementById('study1_id');
     let study2_select = document.getElementById('study2_id');
+    let sample_group_select = document.getElementById('sample_group');
     let method_select = document.getElementById('method_id');
     
     species_select.onchange = function() {
@@ -170,10 +173,32 @@
     }
 
     study2_select.onchange = function() {
+        study2_value = study2_select.value;
+        
+        fetch("{{ url_for('study.get_sample_group_names', study_id='study_id') }}".replace('study_id', study2_value)).then(function(response) {
+            response.json().then(function(data) {
+                
+                let optionHTML = '';
+                
+                optionHTML += '<option value="' + 0 + '">' + 'Select Group First' + '</option>';
+                optionHTML += '<option value="' + 'whole study' + '">' + 'Whole Study' + '</option>';
+
+                for (let group_info of data.sample_group_names) {
+                    optionHTML += '<option value="' + group_info.group_name + '">' + group_info.group_name + " (" + group_info.group_type + ")" + '</option>';
+                }
+    
+                sample_group_select.innerHTML = optionHTML;
+    
+            })
+        })
+    }
+
+    sample_group_select.onchange = function() {
         study1_value = study1_select.value;
         study2_value = study2_select.value;
+        sample_group = sample_group_select.value;
 
-        fetch("{{ url_for('profile_correlations.get_study_cor_methods_two_studies', study1_id='study1_id', study2_id='study2_id') }}".replace('study1_id', study1_value).replace('study2_id', study2_value)).then(function(response) {
+        fetch("{{ url_for('profile_correlations.get_study_cor_methods_two_studies', study1_id='study1_id', study2_id='study2_id', sample_group='sample_group') }}".replace('study1_id', study1_value).replace('study2_id', study2_value).replace('sample_group', sample_group)).then(function(response) {
                 response.json().then(function(data) {
                     
                     let optionHTML = '';

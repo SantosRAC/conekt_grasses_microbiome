@@ -20,6 +20,7 @@ class SearchCorrelatedProfilesTwoStudiesForm(FlaskForm):
     species_id = SelectField('Species', coerce=int)
     study1_id = SelectField('First Study', coerce=int)
     study2_id = SelectField('Second Study', coerce=int)
+    sample_group = SelectField('Sample Group', coerce=int)
     method_id = SelectField('Method', coerce=int)
     correlation_cutoff = TextAreaField('Correlation Coefficient Cutoff')
 

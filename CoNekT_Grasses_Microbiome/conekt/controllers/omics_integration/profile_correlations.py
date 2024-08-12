@@ -40,12 +40,14 @@ def get_study_cor_methods(study_id, sample_group):
     return jsonify({'methods': methodArray})
 
 
-@profile_correlations.route('/get_study_cor_methods_two_studies/<study1_id>/<study2_id>/')
+@profile_correlations.route('/get_study_cor_methods_two_studies/<study1_id>/<study2_id>/<sample_group>/')
 @cache.cached()
-def get_study_cor_methods_two_studies(study1_id, study2_id):
+def get_study_cor_methods_two_studies(study1_id, study2_id, sample_group):
 
-    cor_methods_study1 = ExpMicroCorrelationMethod.query.filter_by(study_id=study1_id).all()
-    cor_methods_study2 = ExpMicroCorrelationMethod.query.filter_by(study_id=study2_id).all()
+    cor_methods_study1 = ExpMicroCorrelationMethod.query.filter_by(study_id=study1_id,
+                                                                   sample_group=sample_group).all()
+    cor_methods_study2 = ExpMicroCorrelationMethod.query.filter_by(study_id=study2_id,
+                                                                   sample_group=sample_group).all()
 
     methodArray1 = []
     methodArray2 = []
