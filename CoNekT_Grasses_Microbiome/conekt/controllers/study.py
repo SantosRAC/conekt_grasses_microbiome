@@ -211,7 +211,8 @@ def get_sample_group_names(study_id):
     sample_ids = StudySampleAssociation.query.with_entities(StudySampleAssociation.sample_id).\
         where(StudySampleAssociation.study_id==study_id).distinct().all()
 
-    groups = SampleGroupAssociation.query.with_entities(SampleGroupAssociation.group_name).\
+    groups = SampleGroupAssociation.query.with_entities(SampleGroupAssociation.group_type,
+                                                        SampleGroupAssociation.group_name).\
                                 filter(SampleGroupAssociation.sample_id.in_([sample_id[0] for sample_id in sample_ids])).\
                                     distinct().all()
 
@@ -220,6 +221,7 @@ def get_sample_group_names(study_id):
     for group_info in groups:
         groupTObj = {}
         groupTObj['group_name'] = group_info.group_name
+        groupTObj['group_type'] = group_info.group_type
         sampleGroupArray.append(groupTObj)
     
     return jsonify({'sample_group_names': sampleGroupArray})

@@ -198,8 +198,8 @@ $(function () {
                 optionHTML += '<option value="' + 0 + '">' + 'Select Group First' + '</option>';
                 optionHTML += '<option value="' + 'whole study' + '">' + 'Whole Study' + '</option>';
 
-                for (let group_name of data.sample_group_names) {
-                    optionHTML += '<option value="' + group_name.group_name + '">' + group_name.group_name + '</option>';
+                for (let group_info of data.sample_group_names) {
+                    optionHTML += '<option value="' + group_info.group_name + '">' + group_info.group_name + " (" + group_info.group_type + ")" + '</option>';
                 }
     
                 sample_group_select.innerHTML = optionHTML;
