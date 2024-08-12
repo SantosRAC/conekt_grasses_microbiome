@@ -1,4 +1,0 @@
-ASV	micro_run1	micro_run2	micro_run3
-asv1	3	0	5
-asv2	4	5	4
-asv3	10	30	11
