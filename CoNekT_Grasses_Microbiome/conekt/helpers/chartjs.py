@@ -511,7 +511,19 @@ def prepare_profiles_scatterplot(exp_profile, metatax_profile):
             'scales': {
                 'xAxes': [{
                     'type': 'linear',
-                    'position': 'bottom'
+                    'position': 'bottom',
+                    'scaleLabel': {
+                      "display": exp_profile.probe != '',
+                      "labelString": exp_profile.probe
+                  }
+                }],
+                'yAxes': [{
+                    'type': 'linear',
+                    'position': 'left',
+                    'scaleLabel': {
+                      "display": metatax_profile.probe != '',
+                      "labelString": metatax_profile.probe
+                  }
                 }]
             }
         }

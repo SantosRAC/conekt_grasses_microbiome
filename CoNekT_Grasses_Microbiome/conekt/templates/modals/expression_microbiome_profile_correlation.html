@@ -11,6 +11,38 @@
 <script>
     $(document).ready(function () { 
         $.getJSON( "{{ url_for('profile_correlations.profiles_scatter_modal_json', expression_profile_id=expression_profile.id, metatax_profile_id=metatax_profile.id) }}", function( data ) {
+
+        function mean(values) {
+            return values.reduce((sum, value) => sum + value, 0) / values.length;
+        }
+
+        function standardDeviation(values, meanValue) {
+            const squareDiffs = values.map(value => Math.pow(value - meanValue, 2));
+            const avgSquareDiff = mean(squareDiffs);
+            return Math.sqrt(avgSquareDiff);
+        }
+
+        // Extract x and y values from data
+        const xValues = data.data.datasets[0].data.map(point => point.x);
+        const yValues = data.data.datasets[0].data.map(point => point.y);
+
+        // Calculate means
+        const meanX = mean(xValues);
+        const meanY = mean(yValues);
+
+        // Calculate standard deviations
+        const stdDevX = standardDeviation(xValues, meanX);
+        const stdDevY = standardDeviation(yValues, meanY);
+
+        // Transform to z-scores
+        const zScoreDataset = data.data.datasets[0].data.map(point => ({
+            x: (point.x - meanX) / stdDevX,
+            y: (point.y - meanY) / stdDevY
+        }));
+
+        data.data.datasets[0].data = zScoreDataset;
+        console.log(data);
+
         var ctx = document.getElementById("profile_correlation_modal");
         var myChart = new Chart(ctx, data);
         });

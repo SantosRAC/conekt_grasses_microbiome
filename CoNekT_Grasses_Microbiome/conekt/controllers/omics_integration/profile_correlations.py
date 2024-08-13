@@ -103,8 +103,6 @@ def profiles_scatter_modal(expression_profile_id, metatax_profile_id):
     expression_profile = ExpressionProfile.query.get_or_404(expression_profile_id)
     metatax_profile = OTUProfile.query.get_or_404(metatax_profile_id)
 
-    plot = prepare_profiles_scatterplot(expression_profile, metatax_profile)
-
     return render_template('modals/expression_microbiome_profile_correlation.html',
                            expression_profile=expression_profile, metatax_profile=metatax_profile)
 
