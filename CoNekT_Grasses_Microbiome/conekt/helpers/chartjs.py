@@ -498,7 +498,7 @@ def prepare_profiles_scatterplot(exp_profile, metatax_profile):
             'y': metatax_profile_p['data']['count'][metatax_run]
         })
 
-    datasets = [{'label': 'Scatterplot of Profiles',
+    datasets = [{'label': 'OTU abundance X transcript expression',
             'backgroundColor': 'rgb(255, 99, 132)',
             'data': profile_points}]
 

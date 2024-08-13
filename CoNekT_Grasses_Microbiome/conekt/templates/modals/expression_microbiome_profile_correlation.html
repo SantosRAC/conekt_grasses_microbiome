@@ -1,5 +1,6 @@
 <div class="modal-header">
-    <h4 class="modal-title" id="myModalLabel">Expression profile for: <strong>{{ expression_profile.probe }}</strong> and <strong> {{ metatax_profile.probe }}</strong></h4>
+    <h4 class="modal-title" id="myModalLabel">Expression profile for: <strong><a href="{{ url_for('sequence.sequence_find', sequence_name=expression_profile.probe) }}">{{ expression_profile.probe }}</a> (transcript)</strong> and <strong> <a href="{{ url_for('otu.otu_find', otu_original_id=metatax_profile.probe) }}">{{ metatax_profile.probe }}</a> (OTU)</strong></h4>
+    <h5>Values were transformed (z-scores)</h5>
 
 </div>
 <div class="modal-body" syle="width:400px">
