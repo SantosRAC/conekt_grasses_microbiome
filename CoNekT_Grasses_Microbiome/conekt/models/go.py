@@ -367,6 +367,7 @@ class GO(db.Model):
 
                         if term not in gene_go[gene]:
                             gene_go[gene].append(term)
+                            db.session.add(association)
 
                     else:
                         print(term, "not found in the database.")
@@ -374,11 +375,9 @@ class GO(db.Model):
                     print("Gene", gene, "not found in the database.")
 
                 if len(associations) > 400:
-                    db.session.add_all(associations)
                     db.session.commit()
                     associations = []
 
-        db.session.add_all(associations)
         db.session.commit()
 
         # Add extended GOs
@@ -407,11 +406,10 @@ class GO(db.Model):
                             "evidence": None,
                             "source": "Extended"})
                         associations.append(association)
+                        db.session.add(association)
 
                     if len(associations) > 400:
-                        db.session.add_all(associations)
                         db.session.commit()
                         associations = []
 
-        db.session.add_all(associations)
         db.session.commit()
