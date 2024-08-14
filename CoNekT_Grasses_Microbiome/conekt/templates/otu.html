@@ -32,8 +32,7 @@
     <h1><strong>{{ otu.original_id }}</strong></h1>
     
     <div>
-    <p><strong>Sequence :</strong> <a href="{{ url_for('otu.otu_modal', otu_id=otu.id) }}" data-target="#profileModal">OTU representative sequence</a>
-         (<a href="#">download</a>)</p>
+    <p><strong>Sequence :</strong> <a href="{{ url_for('otu.otu_modal', otu_id=otu.id) }}" data-target="#profileModal">OTU representative sequence</a>(<a href="#">download</a>)</p>
     </div>
 
     <br />
@@ -152,8 +151,14 @@
 <script>
 
 $(function () {
+
+  $('a[data-target=#profileModal]').click(function(ev) {
+    ev.preventDefault();
+    var target = $(this).attr("href");
+
+    // load the url and show modal on success
     $("#profileModal .modal-content").load(target, function() {
-        $("#profileModal").modal("show");
+         $("#profileModal").modal("show");
     });
 });
 
@@ -182,7 +187,8 @@ $("#navbar-side a").on('click', function(event) {
 
 });
 
-{% import "macros/chartjs.html" as chartjs %}
+})
+
 </script>
 
 {% endblock %}

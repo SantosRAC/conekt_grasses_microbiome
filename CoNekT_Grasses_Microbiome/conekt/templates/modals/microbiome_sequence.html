@@ -1,8 +1,6 @@
 <div class="modal-header">
     {% if otu %}
     <h4 class="modal-title" id="myModalLabel"><strong>{{ sequence.original_id }}</strong> OTU representative sequence<small> (length: {{ sequence.representative_sequence|length }} bp)</small></h4>
-    {% else %}
-    <h4 class="modal-title" id="myModalLabel"><strong>{{ sequence.original_id }}</strong> ASV representative sequence<small> (length: {{ sequence.representative_sequence|length }} bp)</small></h4>
     {% endif %}
 
 </div>
