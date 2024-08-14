@@ -82,17 +82,17 @@ def sequence_modal_coding(sequence_id, rna):
     :return: Response with the fasta file
     """
     current_sequence = Sequence.query\
-        .options(undefer('coding_sequence'))\
-        .options(noload('xrefs'))\
         .get_or_404(sequence_id)
     
     name = current_sequence.name
-
+    
     if rna == 'true':
         current_sequence = Sequence.query\
             .filter_by(name=name, type='RNA')\
-            .options(undefer('coding_sequence'))\
-            .options(noload('xrefs'))\
+            .first()
+    else:
+        current_sequence = Sequence.query\
+            .filter_by(name=name, type='protein_coding')\
             .first()
 
     return render_template('modals/sequence.html', sequence=current_sequence, coding=True)
@@ -107,8 +107,6 @@ def sequence_modal_protein(sequence_id):
     :return: Response with the fasta file
     """
     current_sequence = Sequence.query\
-        .options(undefer('coding_sequence'))\
-        .options(noload('xrefs'))\
         .get_or_404(sequence_id)
 
     return render_template('modals/sequence.html', sequence=current_sequence, coding=False)
