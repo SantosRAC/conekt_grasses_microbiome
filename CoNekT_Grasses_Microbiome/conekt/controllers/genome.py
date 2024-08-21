@@ -1,5 +1,5 @@
 # Importações necessárias
-from flask import Blueprint, json, jsonify, current_app, render_template
+from flask import Blueprint, json, jsonify, current_app, render_template, request
 from conekt import db
 from conekt.models.genome_envo import GenomeENVO
 from sqlalchemy import func
@@ -15,49 +15,63 @@ overview = Blueprint('overview', __name__)
 def genome_counts_page():
     return render_template('overview.html')
 
+# Função para determinar o nível pai
+def get_parent_level(current_level):
+    levels = ['domain', 'phylum', 'Class', 'order', 'family', 'genus', 'species']
+    current_index = levels.index(current_level)
+    return levels[current_index - 1] if current_index > 0 else None
+
 # Rota para retornar os dados do Bar Chart
-@overview.route('/genome_counts_by_taxonomic_level')
-def get_genome_counts_by_taxonomic_level():
+@overview.route('/genome_counts/<level>')
+def get_genome_counts(level):
+    parent = request.args.get('parent', '')
     try:
-        levels = ['domain', 'phylum', 'Class', 'order', 'family', 'genus', 'species']
-        data = {}
+        # Verifique se o nível taxonômico existe no modelo GTDBTaxon
+        if not hasattr(GTDBTaxon, level):
+            current_app.logger.error(f'Level {level} does not exist in GTDBTaxon')
+            return jsonify({'error': f'Level {level} does not exist in GTDBTaxon'}), 400
 
-        # Query para obter a contagem total de registros para cada nível taxonômico
-        for level in levels:
-            # Verifica se o atributo existe no modelo GTDBTaxon
-            if not hasattr(GTDBTaxon, level):
-                current_app.logger.warning('Level %s does not exist in GTDBTaxon', level)
-                continue
-
-            query = (
-                db.session.query(
-                    getattr(GTDBTaxon, level),
-                    func.count(func.distinct(getattr(GTDBTaxon, level)))
-                )
-                .join(Cluster, Cluster.gtdb_id == GTDBTaxon.id)
-                .join(Genome, Genome.cluster_id == Cluster.id)
-                .group_by(getattr(GTDBTaxon, level))
-                .all()
+        # Construindo a consulta para todas as categorias
+        all_query = (
+            db.session.query(
+                getattr(GTDBTaxon, level),
+                func.count(func.distinct(Genome.genome_id)).label('count')
             )
+            .join(Cluster, Cluster.gtdb_id == GTDBTaxon.id)
+            .join(Genome, Genome.cluster_id == Cluster.id)
+            .group_by(getattr(GTDBTaxon, level))
+        )
 
-            # Calcula o total de registros únicos por nível taxonômico
-            total_count = sum(count for _, count in query)
+        if parent:
+            parent_level = get_parent_level(level)
+            if parent_level is None:
+                current_app.logger.error(f'No parent level found for {level}')
+                return jsonify({'error': 'Invalid parent level'}), 400
+            all_query = all_query.filter(getattr(GTDBTaxon, parent_level) == parent)
 
-            # Armazena o total no dicionário de dados
-            data[level] = total_count
+        all_data = all_query.all()
 
-            # Log de depuração para cada nível taxonômico
-            current_app.logger.debug('Level: %s, Total: %s', level, total_count)
+        # Consulta para as 10 principais categorias
+        top_10_query = all_query.order_by(func.count(func.distinct(Genome.genome_id)).desc()).limit(10).all()
 
-        # Tenta serializar os dados para JSON e registra as informações
-        json_data = json.dumps(data)
-        current_app.logger.info('Dados JSON válidos: %s', json_data)
+        # Verificando os resultados da consulta
+        if not all_data:
+            current_app.logger.error(f'No data found for level {level}')
+            return jsonify({'error': 'No data found'}), 404
+
+        # Retornando todos os dados e as 10 principais categorias
+        data = {
+            'all': [{'name': name, 'count': count} for name, count in all_data],
+            'top_10': [{'name': name, 'count': count} for name, count in top_10_query]
+        }
 
         return jsonify(data)
     
     except Exception as e:
-        current_app.logger.error('Erro ao recuperar dados por nível taxonômico: %s', str(e))
+        current_app.logger.error(f'Erro ao recuperar dados para o nível {level}: {str(e)}')
         return jsonify({'error': 'Erro ao recuperar dados'}), 500
+
+
 
 # Rota para retornar os dados do Pie Chart
 @overview.route('/genome_counts_by_habitat')

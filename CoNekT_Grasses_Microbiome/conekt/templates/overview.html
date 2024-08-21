@@ -1,3 +1,5 @@
+<!-- overview.html -->
+
 {% extends 'base.html' %}
 
 {% block title %}Genome Statistics{% endblock %}
@@ -11,306 +13,225 @@
 
     <h1 class="banner-green">Interesting PaGeD statistics!</h1>
 
-    <!-- Bar Chart -->
-    <div class="d-flex justify-content-center align-items-center flex-column">
-        <h2 class="text-center">Genome Bar Chart by Taxonomic Level</h2>
-        <div class="text-center" style="max-width: 600px; margin: auto;">
-            <canvas id="genomeChart" style="width: 100%;"></canvas>
-    </div>
-
-    <!-- Polar area chart -->
-    <div class="d-flex justify-content-center align-items-center flex-column">
-        <h2 class="text-center">Proportion of Genomes by Habitat</h2>
-        <div class="text-center" style="max-width: 600px; margin: auto;">
-            <canvas id="polarChart" style="width: 100%;"></canvas>
-    </div>
-
-    <!-- Doughnut chart -->
+    <div class="container">
+        <div class="row">
+            <!-- Lista interativa -->
+            <div class="col-md-4">
+                <div id="taxonomy-list" class="list-group" style="height: 400px; overflow-y: auto;">
+                    <!-- Os itens da lista serão gerados dinamicamente -->
+                </div>
+            </div>
     
-    <div class="d-flex justify-content-center align-items-center flex-column">
-        <h2 class="text-center">Proportion of Genomes by Type</h2>
-        <div class="text-center" style="max-width: 600px; margin: auto;">
-            <canvas id="doughnutChart" style="width: 100%;"></canvas>
+            <!-- Gráfico de Donut -->
+            <div class="col-md-8">
+                <button id="back-button" class="btn btn-secondary" style="display: none;"></button>
+                <div id="chart-container" class="text-center" style="max-width: 1000px; margin: 0 auto;">
+                    <canvas id="donutChart" width="600" height="600"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extrajs %}
-    <!-- Script Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 
-    <script>
-        async function fetchGenomeData() {
-            console.log('Calling fetchGenomeData()...');
-            try {
-                const response = await fetch('/overview/genome_counts_by_habitat');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch data');
-                }
-                const data = await response.json();
-                console.log('Data received', data);
-                return data;
-            } catch (error) {
-                console.error('Error fetching and parsing JSON data', error);
-                return {};
+<script>
+    let history = [];
+    let currentLevel = 'domain';
+    let parentName = '';
+
+    async function fetchTaxonomicData(level, parent = '') {
+        try {
+            const response = await fetch(`/overview/genome_counts/${level}?parent=${parent}`);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch data for level ${level}`);
             }
+            const data = await response.json();
+            return {
+                all: data.all,
+                top_10: data.top_10
+            };
+        } catch (error) {
+            console.error('Error fetching and parsing JSON data', error);
+            return { all: [], top_10: [] };
         }
+    }
 
-        async function fetchBarChartData() {
-            console.log('Calling fetchBarChartData()...');
-            try {
-                const response = await fetch('/overview/genome_counts_by_taxonomic_level');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch data');
-                }
-                const data = await response.json();
-                console.log('Data received', data);
-                return data;
-            } catch (error) {
-                console.error('Error fetching and parsing JSON data', error);
-                return {};
-            }
-        }
+    function createTaxonomyList(data, level) {
+        const listContainer = document.getElementById('taxonomy-list');
+        listContainer.innerHTML = '';
 
-            async function fetchGenomeTypeData() {
-            console.log('Calling fetchGenomeTypeData()...');
-            try {
-                const response = await fetch('/overview/genome_counts_by_type');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch data');
-                }
-                const data = await response.json();
-                console.log('Data received', data);
-                return data;
-            } catch (error) {
-                console.error('Error fetching and parsing JSON data', error);
-                return {};
-            }
-        }
-        
+        data.sort((a, b) => b.count - a.count);
 
-        async function createDoughnutChart() {
-        const data = await fetchGenomeTypeData();
-
-        if (data.length === 0) {
-            console.error('No data available');
-            return;
-        }
-
-        const labels = data.map(item => item.genome_type);
-        const proportions = data.map(item => item.proportion);
-
-        const ctx = document.getElementById('doughnutChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Genome Types Proportion',
-                    data: proportions,
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(255, 159, 64, 0.2)',
-                        'rgba(201, 203, 207, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)',
-                        'rgba(201, 203, 207, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(tooltipItem) {
-                                return tooltipItem.label + ': ' + tooltipItem.raw.toFixed(2) + '%';
-                            }
-                        }
-                    }
-                }
-            }
+        data.forEach(item => {
+            const listItem = document.createElement('a');
+            listItem.href = '#';
+            listItem.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+            listItem.innerHTML = `
+                <div>
+                    <strong>${item.name}</strong>
+                    <small class="text-muted">${level}</small>
+                </div>
+                <span class="badge badge-primary badge-pill">${item.count}</span>
+            `;
+            listItem.onclick = () => updateChartAndList(item.name, level);
+            listContainer.appendChild(listItem);
         });
     }
 
-        console.log('Doughnut chart created successfully!');
-    
+    async function updateChartAndList(name, previousLevel) {
+        const levels = ['domain', 'phylum', 'Class', 'order', 'family', 'genus', 'species'];
+        const currentLevelIndex = levels.indexOf(previousLevel) + 1;
 
-        async function createPolarAreaChart() {
-            console.log('Creating area polar chart...');
-            const data = await fetchGenomeData();
-
-            // Check if received data is empty or invalid
-            if (Object.keys(data).length === 0) {
-                console.error('JSON data is empty or invalid.');
-                return;
-            }
-
-            console.log('Data received for polar area chart:', data);
-
-            // Extracting labels (habitats) and values (proportions)
-            const labels = data.map(item => item.envo_class);
-            const values = data.map(item => item.genome_proportion);
-
-            console.log('Labels:', labels);
-            console.log('Values:', values);
-
-            // Dataset settings for the polar area chart
-            const datasets = [{
-                label: 'Proportion of Genomes by Habitat',
-                data: values,
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(153, 102, 255, 0.2)',
-                    'rgba(255, 159, 64, 0.2)',
-                    'rgba(201, 203, 207, 0.2)',
-                    'rgba(106, 90, 205, 0.2)'
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)',
-                    'rgba(201, 203, 207, 1)',
-                    'rgba(106, 90, 205, 1)'
-                ],
-                borderWidth: 1
-            }];
-
-            // Chart.js configuration
-            const ctx = document.getElementById('polarChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'polarArea',
-                data: {
-                    labels: labels,
-                    datasets: datasets
-                },
-                options: {
-                    scales: {
-                        r: {
-                            suggestedMin: 0,
-                            suggestedMax: 50
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'bottom'
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(tooltipItem) {
-                                    return `${tooltipItem.label}: ${tooltipItem.raw.toFixed(2)}%`;
-                                }
-                            }
-                        }
-                    },
-                    pointLabels: {
-                        display: true,
-                        font: {
-                            size: 14
-                        }
-                    }
-                }
-            });
-
-            console.log('Polar area chart created successfully!');
+        if (currentLevelIndex >= levels.length) {
+            return;
         }
 
-        async function createBarChart() {
-            console.log('Creating bar chart...');
-            const data = await fetchBarChartData();
+        const nextLevel = levels[currentLevelIndex];
+        const { all, top_10 } = await fetchTaxonomicData(nextLevel, name);
 
-            // Check if received data is empty or invalid
-            if (Object.keys(data).length === 0) {
-                console.error('JSON data is empty or invalid.');
-                return;
-            }
-
-            console.log('Data received for bar chart:', data);
-
-            // Defining correct order of labels
-            const labels = ['domain', 'phylum', 'Class', 'order', 'family', 'genus', 'species'];
-
-            // Creating array of values in the order of labels
-            const values = labels.map(label => data[label] || 0);
-
-            console.log('Labels:', labels);
-            console.log('Values:', values);
-
-            // Dataset settings for the bar chart
-            const datasets = [{
-                label: 'Number of Genomes by Taxonomic Level',
-                data: values,
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(153, 102, 255, 0.2)',
-                    'rgba(255, 159, 64, 0.2)',
-                    'rgba(201, 203, 207, 0.2)'
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)',
-                    'rgba(201, 203, 207, 1)'
-                ],
-                borderWidth: 1
-            }];
-
-            // Chart.js configuration
-            const ctx = document.getElementById('genomeChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: datasets
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    }
-                }
-            });
-
-            console.log('Bar chart created successfully!');
+        if (all.length === 0) {
+            console.error('No data available for the next level');
+            return;
         }
 
-        window.onload = function() {
-            createPolarAreaChart();
-            createBarChart();
-            createDoughnutChart();
-        };
-    </script>
+        history.push({ level: previousLevel, name: parentName });
+        currentLevel = nextLevel;
+        parentName = name;
+
+        createTaxonomyList(all, nextLevel);
+        updateDonutChart(top_10);
+        updateBackButton();
+    }
+
+    function updateBackButton() {
+        const backButton = document.getElementById('back-button');
+        if (history.length > 0) {
+            const last = history[history.length - 1];
+            backButton.style.display = 'inline';
+            backButton.textContent = `Back to ${last.name} (${last.level})`;
+        } else {
+            backButton.style.display = 'none';
+        }
+    }
+
+    async function goBack() {
+        if (history.length > 0) {
+            const previous = history.pop();
+            currentLevel = previous.level;
+            parentName = previous.name;
+            
+            const { all, top_10 } = await fetchTaxonomicData(currentLevel, parentName);
+            createTaxonomyList(all, currentLevel);
+            updateDonutChart(top_10);
+            updateBackButton();
+        }
+    }
+
+    // Função para criar ou atualizar o gráfico de Donut
+function updateDonutChart(data) {
+    const ctx = document.getElementById('donutChart').getContext('2d');
+    const labels = data.map(item => item.name);
+    const counts = data.map(item => item.count);
+    const total = counts.reduce((sum, count) => sum + count, 0);
+
+    if (window.donutChartInstance) {
+        window.donutChartInstance.destroy();
+    }
+
+    window.donutChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: counts,
+                backgroundColor: [
+                    'rgb(210,69,149, 0.6)',
+                    'rgb(126,163,66, 0.6)',
+                    'rgb(162,89,199, 0.6)',
+                    'rgb(74,170,126, 0.6)',
+                    'rgb(203,83,54, 0.6)',
+                    'rgb(100,108,198, 0.6)',
+                    'rgb(193,139,65, 0.6)',
+                    'rgb(91,158,212, 0.6)',
+                    'rgb(196,91,108, 0.6)',
+                    'rgb(190,125,186, 0.6)'
+                ],
+                borderColor: [
+                    'rgb(210,69,149, 1)',
+                    'rgb(126,163,66, 1)',
+                    'rgb(162,89,199, 1)',
+                    'rgb(74,170,126, 1)',
+                    'rgb(203,83,54, 1)',
+                    'rgb(100,108,198, 1)',
+                    'rgb(193,139,65, 1)',
+                    'rgb(91,158,212, 1)',
+                    'rgb(196,91,108, 1)',
+                    'rgb(190,125,186, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    top: 20,
+                    bottom: 20,
+                    left: 20,
+                    right: 20
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                datalabels: {
+                    display: true,
+                    color: '#000',
+                    backgroundColor: function(context) {
+                        return context.dataset.backgroundColor[context.dataIndex];
+                    },
+                    borderRadius: 4,
+                    padding: 4,
+                    align: function(context) {
+                        // Tenta alinhar os datalabels mais próximos do centro da fatia
+                        return context.dataset.data[context.dataIndex] < (0.05 * total) ? 'center' : 'center';
+                    },
+                    anchor: function(context) {
+                        // Define o ponto de ancoragem dos datalabels para o centro
+                        return 'center';
+                    },
+                    clip: true,
+                    formatter: function(value, context) {
+                        const percentage = ((value / total) * 100).toFixed(2);
+                        return `${context.chart.data.labels[context.dataIndex]}: ${value} (${percentage}%)`;
+                    },
+                    font: {
+                        weight: 'bold',
+                        size: 10
+                    },
+                    rotation: function(context) {
+                        return context.dataset.data[context.dataIndex] < (0.05 * total) ? 60 : 0;
+                    },
+                    overlap: false,
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+}
+
+    window.onload = async function() {
+        const { all, top_10 } = await fetchTaxonomicData('domain');
+        createTaxonomyList(all, 'domain');
+        updateDonutChart(top_10);
+    };
+
+    document.getElementById('back-button').addEventListener('click', goBack);
+</script>
 {% endblock %}
