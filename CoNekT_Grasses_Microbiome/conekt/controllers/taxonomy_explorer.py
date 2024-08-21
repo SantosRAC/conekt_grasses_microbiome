@@ -9,11 +9,11 @@ from conekt.models.genome import Genome
 from conekt.models.ontologies import EnvironmentOntology
 
 # Blueprint para o overview
-overview = Blueprint('overview', __name__)
+taxonomy_explorer = Blueprint('taxonomy_explorer', __name__)
 
-@overview.route('/view')
+@taxonomy_explorer.route('/view')
 def genome_counts_page():
-    return render_template('overview.html')
+    return render_template('taxonomy_explorer.html')
 
 # Função para determinar o nível pai
 def get_parent_level(current_level):
@@ -22,7 +22,7 @@ def get_parent_level(current_level):
     return levels[current_index - 1] if current_index > 0 else None
 
 # Rota para retornar os dados do Bar Chart
-@overview.route('/genome_counts/<level>')
+@taxonomy_explorer.route('/genome_counts/<level>')
 def get_genome_counts(level):
     parent = request.args.get('parent', '')
     try:
@@ -74,7 +74,7 @@ def get_genome_counts(level):
 
 
 # Rota para retornar os dados do Pie Chart
-@overview.route('/genome_counts_by_habitat')
+@taxonomy_explorer.route('/genome_counts_by_habitat')
 def get_genome_count_by_habitat():
     try:
         # Query para contar o número de genomas por classe ENVO
@@ -107,7 +107,7 @@ def get_genome_count_by_habitat():
         return jsonify({'error': 'Error retrieving data'}), 500
     
 # Rota para retornar os dados do Pie Chart
-@overview.route('/genome_counts_by_type')
+@taxonomy_explorer.route('/genome_counts_by_type')
 def get_genome_count_by_type():
     try:
         # Obter o número total de genomas

@@ -2,16 +2,16 @@
 
 {% extends 'base.html' %}
 
-{% block title %}Genome Statistics{% endblock %}
+{% block title %}Taxonomy Explorer{% endblock %}
 
 {% block container %}
 <div class="top-pad">
     <ol class="breadcrumb">
-        <li><a href="{{ url_for('overview.genome_counts_page') }}">Overview</a></li>
-        <li class="active"><strong>PaGeD statistics</strong></li>
+        <li><a href="{{ url_for('taxonomy_explorer.genome_counts_page') }}">Taxonomy Explorer</a></li>
+        <li class="active"><strong>Doughnut Chart</strong></li>
     </ol>
 
-    <h1 class="banner-green">Interesting PaGeD statistics!</h1>
+    <h1 class="banner-green">Taxonomy Explorer</h1>
 
     <div class="container">
         <div class="row">
@@ -45,7 +45,7 @@
 
     async function fetchTaxonomicData(level, parent = '') {
         try {
-            const response = await fetch(`/overview/genome_counts/${level}?parent=${parent}`);
+            const response = await fetch(`/taxonomy_explorer/genome_counts/${level}?parent=${parent}`);
             if (!response.ok) {
                 throw new Error(`Failed to fetch data for level ${level}`);
             }
