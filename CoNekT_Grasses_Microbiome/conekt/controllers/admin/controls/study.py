@@ -28,7 +28,7 @@ def build_study():
 
     if request.method == 'POST' and form.validate():
 
-        species_id = int(request.form.get('species_id'))
+        study_category = int(request.form.get('study_category'))
         study_name = request.form.get('study_name')
         study_description = request.form.get('study_description')
         study_type = request.form.get('study_type')
@@ -42,7 +42,7 @@ def build_study():
             file_writer.write(krona_file)
 
         # Add study to database
-        study_id = Study.build_study(species_id, study_name, study_description,
+        study_id = Study.build_study(study_category, study_name, study_description,
                                       study_type, krona_file)
 
         os.close(fd)

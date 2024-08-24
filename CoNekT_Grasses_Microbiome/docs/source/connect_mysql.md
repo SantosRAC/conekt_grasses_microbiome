@@ -14,7 +14,7 @@ cp config.template.py config_metataxonomics.py
 Change settings in `config_metataxonomics.py`. **Apart from configuring paths, also change the secret key and the admin password !**
 
 
-# Setting up MySQL/MariaDB for CoNekT Grasses Metataxonomics
+# Setting up MySQL/MariaDB for CoNekT Metataxonomics
  
 In the config file the connection needs to be set up using :
 
@@ -40,6 +40,8 @@ Give permissions to a user (conekt_metataxonomics_admin in this example) to acce
     GRANT INDEX, CREATE, DROP, SELECT, UPDATE, DELETE, ALTER, EXECUTE, INSERT on conekt_metataxonomics_db.* TO conekt_metataxonomics_admin@localhost;
 
     GRANT FILE on *.* TO conekt_metataxonomics_admin@localhost;
+
+    FLUSH PRIVILEGES;
 
 
 # Running the database migrations

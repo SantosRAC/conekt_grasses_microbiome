@@ -152,6 +152,7 @@ def configure_admin_panel(app):
         from conekt.controllers.admin.views.news import NewsAdminView
         from conekt.controllers.admin.views.ontology import AddOntologyView
         from conekt.controllers.admin.views.study import BuildStudyView
+        from conekt.controllers.admin.views.microbiome.asvs import AddASVSView, AddASVClassificationView, AddASVProfilesView
         from conekt.controllers.admin.views.microbiome.microbiome_profile_specificity import BuildMicrobiomeSpecificityView
 
         from conekt.models.users import User
@@ -197,6 +198,15 @@ def configure_admin_panel(app):
 
         # Add Microbiome data
         admin.add_menu_item(MenuLink("Microbiome", class_name="disabled", url="#"), target_category='Add Microbiome Data')
+        admin.add_view(AddASVSView(name='ASVs',
+                                    endpoint='admin_add_asvs',
+                                    url='add/asvs/', category='Add Microbiome Data'))
+        admin.add_view(AddASVClassificationView(name='ASV Classification',
+                                    endpoint='admin_add_asv_classification',
+                                    url='add/asv_classification/', category='Add Microbiome Data'))
+        admin.add_view(AddASVProfilesView(name='ASV Profiles',
+                                    endpoint='admin_add_asv_profiles',
+                                    url='add/asv_profiles/', category='Add Microbiome Data'))
         admin.add_menu_item(MenuLink("Study", class_name="disabled", url="#"), target_category='Add Microbiome Data')
 
         # Build Menu

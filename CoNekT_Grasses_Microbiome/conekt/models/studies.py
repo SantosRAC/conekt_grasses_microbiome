@@ -17,16 +17,16 @@ class Study(db.Model):
     description = db.Column(db.Text)
     data_type = db.Column(db.Enum('metataxonomics', 'expression_metataxonomics', name='data_type'))
     krona_html = db.deferred(db.Column(LONGTEXT))
-    species_id = db.Column(db.Integer, db.ForeignKey('species.id', ondelete='CASCADE'), index=True)
+    study_category = db.Column(db.Enum('ocean', 'agriculture', 'human', name='data_type'))
 
     def __init__(self, name, description,
-                 data_type, species_id,
+                 data_type, study_category,
                  krona_html=None):
         self.name = name
         self.description = description
         self.data_type = data_type
         self.krona_html = krona_html
-        self.species_id = species_id
+        self.study_category = study_category
 
     def __repr__(self):
         return str(self.id) + ". " + (f'{self.name}')
@@ -35,10 +35,10 @@ class Study(db.Model):
         return str(self.id) + ". " + (f'{self.name}')
     
     @staticmethod
-    def build_study(species_id, study_name, study_description,
+    def build_study(study_category, study_name, study_description,
                     study_type, krona_file):
         
-        species = Species.query.get(species_id)
+        study_category = Species.query.get(study_category)
 
         new_study = Study(study_name, study_description, study_type, species.id, krona_file)        
 

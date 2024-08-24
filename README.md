@@ -3,7 +3,7 @@
 ## Description
 
 
-CoNekT Grasses Metataxonomics derives from [CoNekT Metataxonomics](https://github.com/SantosRAC/conekt_grasses_microbiome) that, in turn, was built based on [CoNekT](https://github.com/sepro/conekt) [(Proost & Mutwil, 2018)](https://academic.oup.com/nar/article/46/W1/W133/4990637).
+CoNekT Metataxonomics derives from [CoNekT Grasses Microbiome](https://github.com/SantosRAC/conekt_grasses_microbiome) that, in turn, was built based on [CoNekT](https://github.com/sepro/conekt) [(Proost & Mutwil, 2018)](https://academic.oup.com/nar/article/46/W1/W133/4990637).
 
 
 CoNekT Metataxonomics includes only metataxonomics datasets and is still under initial planning.

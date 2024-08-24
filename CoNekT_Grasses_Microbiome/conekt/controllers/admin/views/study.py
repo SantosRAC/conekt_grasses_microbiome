@@ -5,11 +5,10 @@ from conekt.forms.admin.build_study import BuildStudyForm
 
 class BuildStudyView(AdminBaseView):
     """
-    Admin page to build a study for one species to the database
+    Admin page to build a study for one category to the database
     """
     @expose('/')
     def index(self):
         form = BuildStudyForm()
-        form.populate_species()
 
         return self.render('admin/build/study.html', form=form)
