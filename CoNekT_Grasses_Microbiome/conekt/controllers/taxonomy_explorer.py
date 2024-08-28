@@ -25,6 +25,9 @@ def get_parent_level(current_level):
 @taxonomy_explorer.route('/genome_counts/<level>')
 def get_genome_counts(level):
     parent = request.args.get('parent', '')
+    
+    if level == 'domain':
+        parent = ''  # Ignora o parent para o nível de domínio
     try:
         # Verifique se o nível taxonômico existe no modelo GTDBTaxon
         if not hasattr(GTDBTaxon, level):
@@ -51,13 +54,13 @@ def get_genome_counts(level):
 
         all_data = all_query.all()
 
+        # Verifica se não há dados
+        if not all_data:
+            current_app.logger.error(f'No data found for level {level} and parent {parent}')
+            return jsonify({'error': 'No data found for this level and parent'}), 404
+
         # Consulta para as 10 principais categorias
         top_10_query = all_query.order_by(func.count(func.distinct(Genome.genome_id)).desc()).limit(10).all()
-
-        # Verificando os resultados da consulta
-        if not all_data:
-            current_app.logger.error(f'No data found for level {level}')
-            return jsonify({'error': 'No data found'}), 404
 
         # Retornando todos os dados e as 10 principais categorias
         data = {
@@ -72,6 +75,42 @@ def get_genome_counts(level):
         return jsonify({'error': 'Erro ao recuperar dados'}), 500
 
 
+@taxonomy_explorer.route('/search')
+def search_taxonomy():
+    query = request.args.get('query', '').strip().lower()
+
+    if not query:
+        return jsonify([])
+
+    try:
+        levels = ['domain', 'phylum', 'Class', 'order', 'family', 'genus', 'species']
+        search_results = []
+
+        for level in levels:
+            search_query = (
+                db.session.query(
+                    getattr(GTDBTaxon, level),
+                    func.count(func.distinct(Genome.genome_id)).label('count')
+                )
+                .join(Cluster, Cluster.gtdb_id == GTDBTaxon.id)
+                .join(Genome, Genome.cluster_id == Cluster.id)
+                .filter(func.lower(getattr(GTDBTaxon, level)).like(f"%{query}%"))
+                .group_by(getattr(GTDBTaxon, level))
+                .all()
+            )
+            search_results.extend([{'name': result[0], 'count': result[1], 'level': level} for result in search_query])
+
+            # Se a busca encontrou resultados, interrompe a busca nos níveis subsequentes
+            if search_results:
+                break
+
+        return jsonify(search_results)
+
+    except Exception as e:
+        current_app.logger.error(f'Error searching taxonomy: {str(e)}')
+        return jsonify({'error': 'Error searching taxonomy'}), 500
+
+    
 
 # Rota para retornar os dados do Pie Chart
 @taxonomy_explorer.route('/genome_counts_by_habitat')
@@ -130,7 +169,3 @@ def get_genome_count_by_type():
     except Exception as e:
         current_app.logger.error('Error retrieving genome types data: %s', str(e))
         return jsonify({'error': 'Error retrieving data'}), 500
-
-   
-    
-

@@ -1,4 +1,4 @@
-<!-- overview.html -->
+<!-- taxonomy_explorer.html -->
 
 {% extends 'base.html' %}
 
@@ -14,6 +14,14 @@
     <h1 class="banner-green">Taxonomy Explorer</h1>
 
     <div class="container">
+        <!-- Caixa de busca -->
+        <div class="row">
+            <div class="col-md-12">
+                <input type="text" id="searchBox" class="form-control" placeholder="Search Taxonomic Classification...">
+                <br>
+            </div>
+        </div>
+
         <div class="row">
             <!-- Lista interativa -->
             <div class="col-md-4">
@@ -21,10 +29,10 @@
                     <!-- Os itens da lista serão gerados dinamicamente -->
                 </div>
             </div>
-    
+
             <!-- Gráfico de Donut -->
             <div class="col-md-8">
-                <button id="back-button" class="btn btn-secondary" style="display: none;"></button>
+                <button id="back-button" class="btn btn-secondary" style="display: none;">Back</button>
                 <div id="chart-container" class="text-center" style="max-width: 1000px; margin: 0 auto;">
                     <canvas id="donutChart" width="600" height="600"></canvas>
                 </div>
@@ -37,32 +45,81 @@
 {% block extrajs %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 
 <script>
     let history = [];
     let currentLevel = 'domain';
     let parentName = '';
+    let parentLevel = '';
 
     async function fetchTaxonomicData(level, parent = '') {
-        try {
-            const response = await fetch(`/taxonomy_explorer/genome_counts/${level}?parent=${parent}`);
-            if (!response.ok) {
-                throw new Error(`Failed to fetch data for level ${level}`);
-            }
-            const data = await response.json();
-            return {
-                all: data.all,
-                top_10: data.top_10
-            };
-        } catch (error) {
-            console.error('Error fetching and parsing JSON data', error);
+    if (level === 'domain') {
+        parent = '';  // Ignora o parent para o nível de domínio
+    }
+
+    try {
+        console.log(`Fetching data for level: ${level}, parent: ${parent}`);
+        const response = await fetch(`/taxonomy_explorer/genome_counts/${level}?parent=${parent}`);
+        if (!response.ok) {
+            console.error(`Failed to fetch data for level ${level}`);
+            throw new Error(`Failed to fetch data for level ${level}`);
+        }
+        const data = await response.json();
+        console.log('Data received:', data);
+
+        if (data.error || data.all.length === 0) {
+            console.error(`No data found for level ${level} and parent ${parent}`);
             return { all: [], top_10: [] };
+        }
+        return {
+            all: data.all,
+            top_10: data.top_10
+        };
+    } catch (error) {
+        console.error('Error fetching and parsing JSON data', error);
+        return { all: [], top_10: [] };
+    }
+}
+
+async function fetchSearchResults(query) {
+    try {
+        const response = await fetch(`/taxonomy_explorer/search?query=${query}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch search results');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching search results:', error);
+        return [];
+    }
+}
+
+async function fetchSearchResults(query) {
+        try {
+            const response = await fetch(`/taxonomy_explorer/search?query=${query}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch search results');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching search results:', error);
+            return [];
         }
     }
 
     function createTaxonomyList(data, level) {
         const listContainer = document.getElementById('taxonomy-list');
         listContainer.innerHTML = '';
+
+        if (data.length === 0) {
+            listContainer.innerHTML = '<div class="alert alert-info">No results found.</div>';
+            return;
+        }
 
         data.sort((a, b) => b.count - a.count);
 
@@ -82,6 +139,17 @@
         });
     }
 
+    function updateBackButton() {
+    const backButton = document.getElementById('back-button');
+    if (history.length > 0) {
+        const lastHistory = history[history.length - 1];
+        backButton.style.display = 'inline';
+        backButton.textContent = `Back to ${lastHistory.name} (${lastHistory.level})`;
+    } else {
+        backButton.style.display = 'none';
+    }
+}
+
     async function updateChartAndList(name, previousLevel) {
         const levels = ['domain', 'phylum', 'Class', 'order', 'family', 'genus', 'species'];
         const currentLevelIndex = levels.indexOf(previousLevel) + 1;
@@ -98,140 +166,271 @@
             return;
         }
 
-        history.push({ level: previousLevel, name: parentName });
-        currentLevel = nextLevel;
+        history.push({ level: currentLevel, name: parentName });
+        parentLevel = previousLevel;
         parentName = name;
+        currentLevel = nextLevel;
 
         createTaxonomyList(all, nextLevel);
         updateDonutChart(top_10);
         updateBackButton();
     }
 
-    function updateBackButton() {
-        const backButton = document.getElementById('back-button');
-        if (history.length > 0) {
-            const last = history[history.length - 1];
-            backButton.style.display = 'inline';
-            backButton.textContent = `Back to ${last.name} (${last.level})`;
-        } else {
-            backButton.style.display = 'none';
-        }
-    }
-
     async function goBack() {
-        if (history.length > 0) {
-            const previous = history.pop();
-            currentLevel = previous.level;
-            parentName = previous.name;
-            
-            const { all, top_10 } = await fetchTaxonomicData(currentLevel, parentName);
+    if (history.length > 0) {
+        const previous = history.pop();
+        currentLevel = previous.level;
+        parentName = previous.name;
+
+        const { all, top_10 } = await fetchTaxonomicData(currentLevel, parentName);
+        if (all.length > 0) {
             createTaxonomyList(all, currentLevel);
             updateDonutChart(top_10);
-            updateBackButton();
+        } else {
+            console.error('No data available for the previous level');
+            createTaxonomyList([], currentLevel);
+            updateDonutChart([]);
         }
+        updateBackButton();
     }
+}
 
-    // Função para criar ou atualizar o gráfico de Donut
-function updateDonutChart(data) {
-    const ctx = document.getElementById('donutChart').getContext('2d');
-    const labels = data.map(item => item.name);
-    const counts = data.map(item => item.count);
-    const total = counts.reduce((sum, count) => sum + count, 0);
 
-    if (window.donutChartInstance) {
-        window.donutChartInstance.destroy();
-    }
+document.getElementById('back-button').addEventListener('click', function() {
+    console.log('Back button clicked');
+    goBack();
+});
 
-    window.donutChartInstance = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: labels,
-            datasets: [{
-                data: counts,
-                backgroundColor: [
-                    'rgb(210,69,149, 0.6)',
-                    'rgb(126,163,66, 0.6)',
-                    'rgb(162,89,199, 0.6)',
-                    'rgb(74,170,126, 0.6)',
-                    'rgb(203,83,54, 0.6)',
-                    'rgb(100,108,198, 0.6)',
-                    'rgb(193,139,65, 0.6)',
-                    'rgb(91,158,212, 0.6)',
-                    'rgb(196,91,108, 0.6)',
-                    'rgb(190,125,186, 0.6)'
-                ],
-                borderColor: [
-                    'rgb(210,69,149, 1)',
-                    'rgb(126,163,66, 1)',
-                    'rgb(162,89,199, 1)',
-                    'rgb(74,170,126, 1)',
-                    'rgb(203,83,54, 1)',
-                    'rgb(100,108,198, 1)',
-                    'rgb(193,139,65, 1)',
-                    'rgb(91,158,212, 1)',
-                    'rgb(196,91,108, 1)',
-                    'rgb(190,125,186, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            layout: {
-                padding: {
-                    top: 20,
-                    bottom: 20,
-                    left: 20,
-                    right: 20
-                }
-            },
-            plugins: {
-                legend: {
-                    display: false
-                },
-                datalabels: {
-                    display: true,
-                    color: '#000',
-                    backgroundColor: function(context) {
-                        return context.dataset.backgroundColor[context.dataIndex];
-                    },
-                    borderRadius: 4,
-                    padding: 4,
-                    align: function(context) {
-                        // Tenta alinhar os datalabels mais próximos do centro da fatia
-                        return context.dataset.data[context.dataIndex] < (0.05 * total) ? 'center' : 'center';
-                    },
-                    anchor: function(context) {
-                        // Define o ponto de ancoragem dos datalabels para o centro
-                        return 'center';
-                    },
-                    clip: true,
-                    formatter: function(value, context) {
-                        const percentage = ((value / total) * 100).toFixed(2);
-                        return `${context.chart.data.labels[context.dataIndex]}: ${value} (${percentage}%)`;
-                    },
-                    font: {
-                        weight: 'bold',
-                        size: 10
-                    },
-                    rotation: function(context) {
-                        return context.dataset.data[context.dataIndex] < (0.05 * total) ? 60 : 0;
-                    },
-                    overlap: false,
+// Função para determinar o nível pai no frontend
+function getParentLevel(currentLevel) {
+    const levels = ['domain', 'phylum', 'Class', 'order', 'family', 'genus', 'species'];
+    const currentIndex = levels.indexOf(currentLevel.toLowerCase());
+    return currentIndex > 0 ? levels[currentIndex - 1] : null;
+}
+
+     
+// Função de filtro para a lista de taxonomia
+async function filterTaxonomyList() {
+    const searchBox = document.getElementById('searchBox');
+    const query = searchBox.value.trim().toLowerCase();
+
+    if (query.length > 0) {
+        const results = await fetchSearchResults(query);
+        if (results.length > 0) {
+            let targetLevel = '';
+            let targetName = '';
+            let parentLevel = '';
+            let parentName = '';
+
+            // Encontrar a primeira correspondência exata (ignorando maiúsculas/minúsculas)
+            for (const result of results) {
+                if (result.name.toLowerCase() === query) {
+                    targetLevel = result.level;
+                    targetName = result.name;
+                    parentLevel = result.parentLevel; // Assumindo que esta informação esteja nos resultados
+                    parentName = result.parentName;   // Assumindo que esta informação esteja nos resultados
+                    break;
                 }
             }
+
+            if (targetLevel && targetName && parentLevel && parentName) {
+                const nextLevel = {
+                    'domain': 'phylum',
+                    'phylum': 'class',
+                    'class': 'order',
+                    'order': 'family',
+                    'family': 'genus',
+                    'genus': 'species',
+                    'species': null
+                }[targetLevel];
+
+                if (nextLevel) {
+                    // Atualizar o histórico com o nível pai correto da busca
+                    history.push({ level: parentLevel, name: parentName });
+                    
+                    // Atualizar o nível atual para o próximo nível na hierarquia
+                    currentLevel = nextLevel;
+                    parentName = targetName;
+                    parentLevel = targetLevel;
+
+                    // Buscar os dados taxonômicos para o próximo nível e atualizar a lista e o gráfico
+                    const { all, top_10 } = await fetchTaxonomicData(nextLevel, targetName);
+                    createTaxonomyList(all, nextLevel);
+                    updateDonutChart(top_10);
+                    
+                    // Atualizar o botão de voltar para refletir o nível pai correto
+                    updateBackButton();
+                } else {
+                    console.warn('No further level available.');
+                    createTaxonomyList([], currentLevel);
+                    updateDonutChart([]);
+                }
+            } else {
+                console.warn('No matching taxonomy found for query:', query);
+                createTaxonomyList([], currentLevel);
+                updateDonutChart([]);
+            }
+        } else {
+            console.warn('No results found');
+            createTaxonomyList([], currentLevel);
+            updateDonutChart([]);
+        }
+    } else {
+        // Se a caixa de busca estiver vazia, recarregar os dados do nível atual
+        const { all, top_10 } = await fetchTaxonomicData(currentLevel, parentName);
+        createTaxonomyList(all, currentLevel);
+        updateDonutChart(top_10);
+    }
+}
+
+
+async function setupAutocomplete() {
+    $('#searchBox').autocomplete({
+        source: async function(request, response) {
+            const results = await fetchSearchResults(request.term);
+            response(results.map(item => item.name));
         },
-        plugins: [ChartDataLabels]
+        minLength: 2,
+        select: async function(event, ui) {
+            const selectedTerm = ui.item.value.toLowerCase();
+            const results = await fetchSearchResults(selectedTerm);
+
+            if (results.length > 0) {
+                let targetLevel = '';
+                let targetName = '';
+
+                for (const result of results) {
+                    if (result.name.toLowerCase() === selectedTerm) {
+                        targetLevel = result.level;
+                        targetName = result.name;
+                        break;
+                    }
+                }
+
+                if (targetLevel && targetName) {
+                    const nextLevel = {
+                        'domain': 'phylum',
+                        'phylum': 'Class',
+                        'Class': 'order',
+                        'order': 'family',
+                        'family': 'genus',
+                        'genus': 'species',
+                        'species': null
+                    }[targetLevel];
+                    
+                    if (nextLevel) {
+                        currentLevel = nextLevel;
+                        parentName = targetName;
+                        parentLevel = targetLevel;
+
+                        const { all, top_10 } = await fetchTaxonomicData(nextLevel, targetName);
+                        createTaxonomyList(all, nextLevel);
+                        updateDonutChart(top_10);
+                        updateBackButton();
+                    } else {
+                        console.warn('No further level available.');
+                        createTaxonomyList([], currentLevel);
+                        updateDonutChart([]);
+                    }
+                } else {
+                    console.warn('No matching taxonomy found for query:', selectedTerm);
+                    createTaxonomyList([], currentLevel);
+                    updateDonutChart([]);
+                }
+            }
+        }
     });
 }
 
-    window.onload = async function() {
-        const { all, top_10 } = await fetchTaxonomicData('domain');
-        createTaxonomyList(all, 'domain');
-        updateDonutChart(top_10);
-    };
+document.getElementById('searchBox').addEventListener('input', filterTaxonomyList);
+setupAutocomplete();
 
-    document.getElementById('back-button').addEventListener('click', goBack);
+    function updateDonutChart(data) {
+        const ctx = document.getElementById('donutChart').getContext('2d');
+        const labels = data.map(item => item.name);
+        const counts = data.map(item => item.count);
+        const total = counts.reduce((sum, count) => sum + count, 0);
+
+        if (window.donutChartInstance) {
+            window.donutChartInstance.destroy();
+        }
+
+        window.donutChartInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: counts,
+                    backgroundColor: [
+                        'rgb(210,69,149, 0.6)',
+                        'rgb(126,163,66, 0.6)',
+                        'rgb(162,89,199, 0.6)',
+                        'rgb(74,170,126, 0.6)',
+                        'rgb(203,83,54, 0.6)',
+                        'rgb(100,108,198, 0.6)',
+                        'rgb(193,139,65, 0.6)',
+                        'rgb(91,158,212, 0.6)',
+                        'rgb(196,91,108, 0.6)',
+                        'rgb(190,125,186, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgb(210,69,149, 1)',
+                        'rgb(126,163,66, 1)',
+                        'rgb(162,89,199, 1)',
+                        'rgb(74,170,126, 1)',
+                        'rgb(203,83,54, 1)',
+                        'rgb(100,108,198, 1)',
+                        'rgb(193,139,65, 1)',
+                        'rgb(91,158,212, 1)',
+                        'rgb(196,91,108, 1)',
+                        'rgb(190,125,186, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        top: 20,
+                        bottom: 20,
+                        left: 20,
+                        right: 20
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    datalabels: {
+                        display: true,
+                        color: '#000',
+                        formatter: function(value, context) {
+                            const percentage = ((value / total) * 100).toFixed(2);
+                            return `${context.chart.data.labels[context.dataIndex]}: ${value} (${percentage}%)`;
+                        },
+                        font: {
+                            weight: 'bold',
+                            size: 10
+                        },
+                        rotation: function(context) {
+                            return context.dataset.data[context.dataIndex] < (0.05 * total) ? 60 : 0;
+                        }
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+    }
+
+    
+
+    (async function() {
+        const { all, top_10 } = await fetchTaxonomicData(currentLevel);
+        createTaxonomyList(all, currentLevel);
+        updateDonutChart(top_10);
+    })();
 </script>
 {% endblock %}
+

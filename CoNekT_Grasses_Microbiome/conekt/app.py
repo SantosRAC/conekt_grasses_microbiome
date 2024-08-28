@@ -101,7 +101,7 @@ def configure_blueprints(app):
     from conekt.controllers.family import family
     from conekt.controllers.expression_profile import expression_profile
     from conekt.controllers.search import search
-    from conekt.controllers.genome import taxonomy_explorer
+    from conekt.controllers.taxonomy_explorer import taxonomy_explorer
    
 
     # TODO: Configure Solr to replace Whoosh !
