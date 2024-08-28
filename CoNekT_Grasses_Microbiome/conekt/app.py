@@ -101,6 +101,7 @@ def configure_blueprints(app):
     from conekt.controllers.family import family
     from conekt.controllers.expression_profile import expression_profile
     from conekt.controllers.search import search
+    from conekt.controllers.overview import overview
     from conekt.controllers.taxonomy_explorer import taxonomy_explorer
    
 
@@ -142,6 +143,7 @@ def configure_blueprints(app):
     app.register_blueprint(expression_profile, url_prefix='/profile')
     app.register_blueprint(custom_network, url_prefix='/custom_network')
     app.register_blueprint(search, url_prefix='/search')
+    app.register_blueprint(overview, url_prefix = '/overview')
     app.register_blueprint(taxonomy_explorer, url_prefix = '/taxonomy_explorer')
     
     # TODO: add URL after configuring Solr as the main search engine

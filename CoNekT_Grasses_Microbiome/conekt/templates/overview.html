@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+
+{% block title %}Genomic Overview{% endblock %}
+
+{% block container %}
+<div class="top-pad">
+    <ol class="breadcrumb">
+        <li><a href="{{ url_for('overview.paged_statistics') }}">Genomic Overview</a></li>
+        <li class="active"><strong>Statistics</strong></li>
+    </ol>
+
+    <h1 class="banner-green">PaGeD Statistics</h1>
+
+    <div class="container">
+        <div class="row">
+            <!-- Informação do número total de genomas -->
+            <div class="col-md-12">
+                <h3>Total Number of Genomes: {{ total_genomes }}</h3>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Gráfico de Donut para Habitats -->
+            <div class="col-md-6">
+                <h3>Genome Distribution by Habitat</h3>
+                <div id="habitat-chart-container" class="text-center">
+                    <canvas id="habitatDonutChart" width="400" height="400"></canvas>
+                </div>
+            </div>
+
+            <!-- Gráfico de Barras para Tipos de Genoma -->
+            <div class="col-md-6">
+                <h3>Genome Distribution by Type</h3>
+                <div id="type-chart-container" class="text-center">
+                    <canvas id="typeBarChart" width="400" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+
+        
+        <!-- Box Plots Horizontais -->
+        <div class="row">
+            <div class="col-md-12">
+                <h3>Quality Distribution</h3>
+                <div id="boxplot-container" class="text-center">
+                    <canvas id="qualityBoxPlot" width="800" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/@sgratzl/chartjs-chart-boxplot@4.4.1/build/index.umd.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    async function fetchData(url) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            return await response.json();
+        } catch (error) {
+            console.error('Fetch error:', error);
+            return {};
+        }
+    }
+
+    function renderDonutChart(data, elementId, labelKey, dataKey) {
+        const ctx = document.getElementById(elementId).getContext('2d');
+        const labels = data.map(item => item[labelKey]);
+        const counts = data.map(item => item[dataKey]);
+
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: counts,
+                    backgroundColor: ['#4287f5', '#42f5d7', '#4ef542', '#cbf542', '#f5b642', '#f56342', '#f542ef', '#f54293'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                plugins: {
+                    datalabels: {
+                        color: '#fff',
+                        formatter: (value, ctx) => `${ctx.chart.data.labels[ctx.dataIndex]}: ${value.toFixed(2)}%`
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+    }
+
+    function renderBarChart(data, elementId, labelKey, dataKey) {
+        const ctx = document.getElementById(elementId).getContext('2d');
+        const labels = data.map(item => item[labelKey]);
+        const counts = data.map(item => item[dataKey]);
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Proportion (%)',
+                    data: counts,
+                    backgroundColor: '#36A2EB'
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) { return value + "%"; }
+                        }
+                    }
+                },
+                plugins: {
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                        formatter: (value) => value.toFixed(2) + '%'
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+    }
+
+    
+
+    function renderViolinPlot(data) {
+        const ctx = document.getElementById('qualityBoxPlot').getContext('2d');
+
+        new Chart(ctx, {
+            type: 'violin',
+            data: {
+                labels: ['Genome Quality'],
+                datasets: [
+                    {
+                        label: 'Completeness',
+                        data: [data.completeness], // Dados para o box plot de completeness
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',  // Cor azul com transparência
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                        outlierBackgroundColor: 'rgba(128, 128, 128, 0.5)', // Pontos em cinza com transparência
+                        outlierRadius: 3
+                    },
+                    {
+                        label: 'Contamination',
+                        data: [data.contamination], // Dados para o box plot de contamination
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)',  // Cor vermelha com transparência
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1,
+                        outlierBackgroundColor: 'rgba(128, 128, 128, 0.5)', // Pontos em cinza com transparência
+                        outlierRadius: 3
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: ''
+                        },
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Percentage (%)'
+                        },
+                        min: 0,
+                        max: 100
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                }
+            }
+        });
+    }
+
+    async function loadQualityData() {
+        const data = await fetchData("{{ url_for('overview.get_genome_quality_distribution') }}");
+
+        console.log(data); // Verifique se os dados estão corretos no console
+        renderViolinPlot(data);
+    }
+
+    async function loadHabitatData() {
+        const data = await fetchData("{{ url_for('overview.get_genome_count_by_habitat') }}");
+        renderDonutChart(data, 'habitatDonutChart', 'envo_class', 'genome_proportion');
+    }
+
+    async function loadTypeData() {
+        const data = await fetchData("{{ url_for('overview.get_genome_count_by_type') }}");
+        renderBarChart(data, 'typeBarChart', 'genome_type', 'proportion');
+    }
+
+    (async function() {
+        await loadHabitatData();
+        await loadTypeData();
+        await loadQualityData();  // Carregar e renderizar o gráfico combinado
+    })();
+</script>
+{% endblock %}
