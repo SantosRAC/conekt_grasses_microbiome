@@ -5,6 +5,8 @@ from conekt.models.relationships.sample_po import SamplePOAssociation
 from conekt.models.relationships.sample_peco import SamplePECOAssociation
 from conekt.models.relationships.sample_envo import SampleENVOAssociation
 
+from sqlalchemy.dialects.mysql import LONGTEXT
+
 import os
 
 SQL_COLLATION = 'NOCASE' if db.engine.name == 'sqlite' else ''
@@ -38,6 +40,7 @@ class PlantOntology(db.Model):
             except Exception as e:
                 db.session.rollback()
                 print(e)
+                exit(1)
     
         with open(filename, 'r') as fin:
             i = 0
@@ -56,11 +59,13 @@ class PlantOntology(db.Model):
                     except Exception as e:
                         db.session.rollback()
                         print(e)
+                        exit(1)
         try:
             db.session.commit()
         except Exception as e:
             db.session.rollback()
             print(e)
+            exit(1)
     
     @staticmethod
     def add_sample_po_association(sample_id, po_term):
@@ -104,6 +109,7 @@ class PlantExperimentalConditionsOntology(db.Model):
             except Exception as e:
                 db.session.rollback()
                 print(e)
+                exit(1)
 
         with open(filename, 'r') as fin:
             i = 0
@@ -123,11 +129,13 @@ class PlantExperimentalConditionsOntology(db.Model):
                     except Exception as e:
                         db.session.rollback()
                         print(e)
+                        exit(1)
         try:
             db.session.commit()
         except Exception as e:
             db.session.rollback()
             print(e)
+            exit(1)
     
     @staticmethod
     def add_sample_peco_association(sample_id, peco_term):
@@ -146,9 +154,9 @@ class PlantExperimentalConditionsOntology(db.Model):
 class EnvironmentOntology(db.Model):
     __tablename__ = 'environment_ontology'
     id = db.Column(db.Integer, primary_key=True)
-    envo_term = db.Column(db.String(13, collation=SQL_COLLATION), unique=True)
-    envo_class = db.Column(db.String(50, collation=SQL_COLLATION), unique=True)
-    envo_annotation = db.Column(db.String(500, collation=SQL_COLLATION))
+    envo_term = db.Column(db.String(20, collation=SQL_COLLATION), unique=True)
+    envo_class = db.Column(db.String(500, collation=SQL_COLLATION))
+    envo_annotation = db.Column(LONGTEXT)
 
     def __init__(self, envo_term, envo_class, envo_annotation):
         self.envo_term = envo_term
@@ -170,6 +178,7 @@ class EnvironmentOntology(db.Model):
             except Exception as e:
                 db.session.rollback()
                 print(e)
+                exit(1)
 
         with open(filename, 'r') as fin:
             i = 0
@@ -179,22 +188,24 @@ class EnvironmentOntology(db.Model):
                     if len(parts) == 3:
                         envo_term, envo_name, envo_annotation = parts[0], parts[1], parts[2]
                         envo = EnvironmentOntology(envo_term=envo_term,
-                                envo_class=envo_name,
-                                envo_annotation=envo_annotation)
+                            envo_class=envo_name,
+                            envo_annotation=envo_annotation)
                         db.session.add(envo)
                         i += 1
-                if i % 40 == 0:
+                if i % 400 == 0:
                 # commit to the db frequently to allow WHOOSHEE's indexing function to work without timing out
                     try:
                         db.session.commit()
                     except Exception as e:
                         db.session.rollback()
                         print(e)
+                        exit(1)
         try:
             db.session.commit()
         except Exception as e:
             db.session.rollback()
             print(e)
+            exit(1)
     
     @staticmethod
     def add_sample_envo_association(sample_id, envo_term):
