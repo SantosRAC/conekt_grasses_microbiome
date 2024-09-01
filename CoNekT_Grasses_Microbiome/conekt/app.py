@@ -139,21 +139,14 @@ def configure_admin_panel(app):
     if LOGIN_ENABLED:
         from conekt.controllers.admin.views import MyAdminIndexView
 
-        from conekt.controllers.admin.views.sequences import AddSequenceDescriptionsView
-        from conekt.controllers.admin.views.functional_data import AddInterProView
-        from conekt.controllers.admin.views.functional_data import AddGOView
-        from conekt.controllers.admin.views.functional_data import AddCAZYmeView
         from conekt.controllers.admin.views.functional_data import AddFunctionalDataView
         from conekt.controllers.admin.views.taxonomy import AddTaxonomyView
-        from conekt.controllers.admin.views.samples import AddSamplesView
-        from conekt.controllers.admin.views.species import AddSpeciesView
         from conekt.controllers.admin.views.species import SpeciesAdminView
         from conekt.controllers.admin.views.controls import ControlsView
         from conekt.controllers.admin.views.news import NewsAdminView
         from conekt.controllers.admin.views.ontology import AddOntologyView
         from conekt.controllers.admin.views.study import BuildStudyView
         from conekt.controllers.admin.views.microbiome.asvs import AddASVSView, AddASVClassificationView, AddASVProfilesView
-        from conekt.controllers.admin.views.microbiome.microbiome_profile_specificity import BuildMicrobiomeSpecificityView
 
         from conekt.models.users import User
         from conekt.models.species import Species
@@ -178,23 +171,12 @@ def configure_admin_panel(app):
                                                  endpoint='admin_add_ontology',
                                                  url='add/ontology/', category='Add External'))
 
-        # Add Species information
-        admin.add_view(AddSpeciesView(name='Species', endpoint='admin_add_species', url='add/species/', category='Add Species'))
-        admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Add Species')
-        admin.add_view(AddSamplesView(name='Samples', endpoint='admin_add_samples', url='add/samples/', category='Add Species'))
-        admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Add Species')
-        admin.add_view(AddSequenceDescriptionsView(name='Sequence Descriptions',
-                                                   endpoint='admin_add_sequence_descriptions',
-                                                   url='add/sequence_descriptions/', category='Add Species'))
-        admin.add_view(AddGOView(name='GO Genes',
-                                 endpoint='admin_add_go_sequences',
-                                 url='add/go/', category='Add Species'))
-        admin.add_view(AddInterProView(name='InterPro Genes',
-                                       endpoint='admin_add_interpro_sequences',
-                                       url='add/interpro/', category='Add Species'))
-        admin.add_view(AddCAZYmeView(name='CAZYme Genes',
-                                    endpoint='admin_add_cazyme_sequences',
-                                    url='add/cazyme/', category='Add Species'))
+        # Build Menu
+        admin.add_view(BuildStudyView(name='Create Study',
+                                               endpoint='admin_build_study',
+                                               url='build/study/', category='Study'))
+        admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Study')
+        admin.add_menu_item(MenuLink("Metataxonomics", class_name="disabled", url="#"), target_category='Study')
 
         # Add Microbiome data
         admin.add_menu_item(MenuLink("Microbiome", class_name="disabled", url="#"), target_category='Add Microbiome Data')
@@ -208,15 +190,6 @@ def configure_admin_panel(app):
                                     endpoint='admin_add_asv_profiles',
                                     url='add/asv_profiles/', category='Add Microbiome Data'))
         admin.add_menu_item(MenuLink("Study", class_name="disabled", url="#"), target_category='Add Microbiome Data')
-
-        # Build Menu
-        admin.add_view(BuildStudyView(name='Create Study',
-                                               endpoint='admin_build_study',
-                                               url='build/study/', category='Build'))
-        admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Build')
-        admin.add_menu_item(MenuLink("Metataxonomics", class_name="disabled", url="#"), target_category='Build')
-        admin.add_view(BuildMicrobiomeSpecificityView(name='Build Profile Specificity', endpoint='admin_build_metataxspecificity',
-                                     url='build/metatax_specificity', category='Build'))
 
         # Control panel
         admin.add_view(ControlsView(name='Controls', url='controls/'))
