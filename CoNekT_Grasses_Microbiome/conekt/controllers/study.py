@@ -23,11 +23,7 @@ def studies_overview():
     """
     all_studies = Study.query.all()
 
-    study_species_ids = Study.query.with_entities(Study.species_id).distinct()
-    study_species = Species.query.filter(Species.id.in_([species_id[0] for species_id in study_species_ids])).all()
-    species_dict = {species.id: species.name for species in study_species}
-
-    return render_template('study.html', all_studies=all_studies, species_dict=species_dict)
+    return render_template('study.html', all_studies=all_studies)
 
 
 @study.route('/view/<study_id>')

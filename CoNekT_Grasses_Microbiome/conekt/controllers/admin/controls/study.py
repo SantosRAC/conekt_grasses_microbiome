@@ -28,7 +28,7 @@ def build_study():
 
     if request.method == 'POST' and form.validate():
 
-        study_category = int(request.form.get('study_category'))
+        study_category = request.form.get('study_category')
         study_name = request.form.get('study_name')
         study_description = request.form.get('study_description')
         study_type = request.form.get('study_type')

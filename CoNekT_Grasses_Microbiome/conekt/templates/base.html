@@ -48,7 +48,15 @@
 
                 <div id="navbar" class="navbar-collapse collapse">
                     <ul class="nav navbar-nav navbar-left">
-                        <li><a href="{{ url_for('study.studies_overview') }}">Studies</a></li>
+                        <li>
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Studies <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li class="dropdown-header">Study Categories</li>
+                                <li><a href="#">Ocean Microbiomes</a></li>
+                                <li><a href="#">Agriculture Microbiomes</a></li>
+                                <li><a href="#">Human Microbiomes</a></li>
+                            </ul>
+                        </li>
                         <li>
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Microbiome Tools <span class="caret"></span></a>
                             <ul class="dropdown-menu">
