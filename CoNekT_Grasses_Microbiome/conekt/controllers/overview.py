@@ -7,6 +7,7 @@ from conekt.models.genomes_quality import Genomes_quality
 from conekt.models.cluster import Cluster
 from conekt.models.genome import Genome
 from conekt.models.ontologies import EnvironmentOntology
+from conekt.models.literature import LiteratureItem
 
 # Blueprint para o overview
 overview = Blueprint('overview', __name__)
@@ -97,8 +98,94 @@ def get_genome_quality_distribution():
         current_app.logger.error('Error retrieving genome quality data: %s', str(e))
         return jsonify({'error': 'Error retrieving data'}), 500
 
+@overview.route('/paged_statistics/genome_size_distribution')
+def get_genome_size_distribution():
+    try:
+        # Query para obter os tamanhos dos genomas (em bp) e converter para Mbp com duas casas decimais
+        query = (
+            db.session.query(
+                func.round(func.cast(Genome.length, db.Float) / 1e6, 2).label('size')
+            ).all()
+        )
 
+        # Organizar os tamanhos em uma lista
+        sizes = [float(size) for size, in query]
+
+        # Definir as faixas de tamanhos em Mbp
+        bins = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, float('inf')]
+        labels = ['< 1 Mbp', '1 - 2 Mbp', '2 - 3 Mbp', '3 - 4 Mbp', '4 - 5 Mbp', 
+                  '5 - 6 Mbp', '6 - 7 Mbp', '7 - 8 Mbp', '8 - 9 Mbp', '> 9 Mbp']
+
+        # Contar o número de genomas em cada faixa
+        data = {
+            label: sum(1 for size in sizes if bins[i] < size <= bins[i+1])
+            for i, label in enumerate(labels)
+        }
+
+        return jsonify(data)
+
+    except Exception as e:
+        current_app.logger.error('Error retrieving genome size data: %s', str(e))
+        return jsonify({'error': 'Error retrieving data'}), 500
     
-  
+@overview.route('/paged_statistics/genomes_by_year')
+def get_genomes_by_year():
+    try:
+        # Query para obter o número de genomas por ano de publicação
+        query = (
+            db.session.query(
+                LiteratureItem.public_year,
+                func.count(Genome.genome_id).label('genome_count')
+            )
+            .join(Genome, Genome.literature_id == LiteratureItem.id)
+            .group_by(LiteratureItem.public_year)
+            .order_by(LiteratureItem.public_year)
+            .all()
+        )
 
+        # Query para contar o número total de publicações
+        total_publications = db.session.query(func.count(LiteratureItem.id)).scalar()
 
+        # Organizar os dados
+        data = []
+        for year, count in query:
+            data.append({
+                'year': year,
+                'genome_count': count
+            })
+
+        return jsonify({
+            'data': data,
+            'total_publications': total_publications
+        })
+
+    except Exception as e:
+        current_app.logger.error('Error retrieving genomes by year data: %s', str(e))
+        return jsonify({'error': 'Error retrieving data'}), 500
+
+@overview.route('/paged_statistics/contigs_distribution')
+def get_contigs_distribution():
+    try:
+        # Query para obter o número de contigs, tamanho do genoma e o tipo de genoma
+        query = (
+            db.session.query(
+                Genome.genome_type,
+                Genome.num_contigs,
+                Genome.length
+            ).all()
+        )
+
+        # Organize os dados para o gráfico
+        data = {'Isolate': [], 'MAG': [], 'SAG': []}
+        for genome_type, num_contigs, length in query:
+            if genome_type in data:
+                data[genome_type].append({
+                    'x': num_contigs,
+                    'y': length / 1e6  # Convertendo de bp para Mbp
+                })
+
+        return jsonify(data)
+
+    except Exception as e:
+        current_app.logger.error('Error retrieving contigs distribution data: %s', str(e))
+        return jsonify({'error': 'Error retrieving data'}), 500

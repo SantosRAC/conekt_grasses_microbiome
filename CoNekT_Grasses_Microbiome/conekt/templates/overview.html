@@ -13,11 +13,15 @@
 
     <div class="container">
         <div class="row">
-            <!-- Informação do número total de genomas -->
-            <div class="col-md-12">
-                <h3>Total Number of Genomes: {{ total_genomes }}</h3>
+            <div class="col-md-12 text-center"> <!-- Centraliza o conteúdo horizontalmente -->
+                <h3 class="total-genomes-title">Total Number of Genomes</h3>
+                <div class="total-genomes-container">
+                    <p class="total-genomes-value">{{ total_genomes }}</p>
+                </div>
             </div>
         </div>
+    </div>
+               
 
         <div class="row">
             <!-- Gráfico de Donut para Habitats -->
@@ -37,17 +41,60 @@
             </div>
         </div>
 
-        
-        <!-- Box Plots Horizontais -->
+        <br>
+        <br>
+
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-6">
+                <h3>Genome Size Distribution</h3>
+                <div id="size-chart-container" class="text-center">
+                    <canvas id="genomeSizeHistogram" width="400" height="400"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
                 <h3>Quality Distribution</h3>
                 <div id="boxplot-container" class="text-center">
-                    <canvas id="qualityBoxPlot" width="800" height="400"></canvas>
+                    <canvas id="qualityBoxPlot" width="400" height="400"></canvas>
                 </div>
             </div>
         </div>
+        <br>
+        <br>
+        <div class="col-md-12">
+            <h3>Distribution of Contigs vs Genome Size by Genome Type</h3>
+            <div id="contigs-scatter-chart-container" class="text-center">
+                <canvas id="contigsScatterChart" width="800" height="400"></canvas>
+            </div>
+            <br>
+        <br>
+        </div>
+
+        <br>
+        <br>
+        <br>
+        <br>
+
+        <div class="row">
+            <div class="col-md-12 center-content">
+                <h3 class="total-publications-title">Total Number of Publications</h3>
+                <p id="totalPublications" class="total-publications-value">Loading...</p>
+            </div>
+        </div>
+        
+        <div class="row"></div>
+            <div class="col-md-12">
+                <h3>Genome Counts by Publication Year</h3>
+                <div id="genomes-chart-container" class="text-center">
+                    <canvas id="genomesChart" width="800" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+        
+                  
     </div>
+        
+        
+
 </div>
 {% endblock %}
 
@@ -73,31 +120,34 @@
     }
 
     function renderDonutChart(data, elementId, labelKey, dataKey) {
-        const ctx = document.getElementById(elementId).getContext('2d');
-        const labels = data.map(item => item[labelKey]);
-        const counts = data.map(item => item[dataKey]);
+    const ctx = document.getElementById(elementId).getContext('2d');
+    const labels = data.map(item => item[labelKey]);
+    const counts = data.map(item => item[dataKey]);
 
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: counts,
-                    backgroundColor: ['#4287f5', '#42f5d7', '#4ef542', '#cbf542', '#f5b642', '#f56342', '#f542ef', '#f54293'],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                plugins: {
-                    datalabels: {
-                        color: '#fff',
-                        formatter: (value, ctx) => `${ctx.chart.data.labels[ctx.dataIndex]}: ${value.toFixed(2)}%`
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: counts,
+                backgroundColor: ['#4287f5', '#42f5d7', '#4ef542', '#cbf542', '#f5b642', '#f56342', '#f542ef', '#f54293'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            plugins: {
+                datalabels: {
+                    color: '#fff',
+                    formatter: (value, ctx) => {
+                        return ctx.chart.data.labels[ctx.dataIndex] + ': ' + value.toFixed(2) + '%';
                     }
                 }
-            },
-            plugins: [ChartDataLabels]
-        });
-    }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+}
+
 
     function renderBarChart(data, elementId, labelKey, dataKey) {
         const ctx = document.getElementById(elementId).getContext('2d');
@@ -190,6 +240,159 @@
             }
         });
     }
+    function renderHistogram(data) {
+    const ctx = document.getElementById('genomeSizeHistogram').getContext('2d');
+
+    // Definir as faixas de tamanho em ordem correta
+    const orderedLabels = ['< 1 Mbp', '1 - 2 Mbp', '2 - 3 Mbp', '3 - 4 Mbp', '4 - 5 Mbp', 
+                           '5 - 6 Mbp', '6 - 7 Mbp', '7 - 8 Mbp', '8 - 9 Mbp', '> 9 Mbp'];
+
+    // Reorganize os dados conforme a ordem das faixas
+    const counts = orderedLabels.map(label => data[label] || 0);
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: orderedLabels,
+            datasets: [{
+                label: 'Number of Genomes',
+                data: counts,
+                backgroundColor: '#36A2EB'
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Genomes'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                datalabels: {
+                    display: false
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+}
+function renderYearlyGenomesChart(data) {
+    const ctx = document.getElementById('genomesChart').getContext('2d');
+
+    const years = data.map(item => item.year);
+    const genomeCounts = data.map(item => item.genome_count);
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: years,
+            datasets: [{
+                label: 'Number of Genomes',
+                data: genomeCounts,
+                backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Year'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Number of Genomes'
+                    },
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+function renderContigsScatterPlot(data) {
+    const ctx = document.getElementById('contigsScatterChart').getContext('2d');
+
+    const colors = {
+        'isolate': 'rgba(75, 192, 192, 0.7)',
+        'MAG': 'rgba(153, 102, 255, 0.7)',
+        'SAG': 'rgba(255, 159, 64, 0.7)'
+    };
+
+    const datasets = Object.keys(data).map(type => ({
+        label: type.charAt(0).toUpperCase() + type.slice(1),
+        data: data[type].map(point => ({ x: point.x, y: point.y })),
+        backgroundColor: colors[type],
+        borderColor: colors[type],
+        borderWidth: 1,
+        pointRadius: 5
+    }));
+
+    new Chart(ctx, {
+        type: 'scatter',
+        data: {
+            datasets: datasets
+        },
+        options: {
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Number of Contigs'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Genome Size (Mbp)'
+                    },
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true
+                }
+            }
+        }
+    });
+}
+
+async function loadContigsData() {
+    const response = await fetch("{{ url_for('overview.get_contigs_distribution') }}");
+    const data = await response.json();
+
+    // Renderizar o gráfico
+    renderContigsScatterPlot(data);
+}
+
+async function loadYearlyGenomesData() {
+    const response = await fetch("{{ url_for('overview.get_genomes_by_year') }}");
+    const data = await response.json();
+
+    // Renderizar o gráfico
+    renderYearlyGenomesChart(data.data);
+
+    // Atualizar o texto com o número total de publicações
+    document.getElementById('totalPublications').textContent = `${data.total_publications}`;
+}
+
+
+
+    async function loadSizeData() {
+        const data = await fetchData("{{ url_for('overview.get_genome_size_distribution') }}");
+        renderHistogram(data, 'sizeHistogram');
+}
+
 
     async function loadQualityData() {
         const data = await fetchData("{{ url_for('overview.get_genome_quality_distribution') }}");
@@ -209,9 +412,14 @@
     }
 
     (async function() {
-        await loadHabitatData();
-        await loadTypeData();
-        await loadQualityData();  // Carregar e renderizar o gráfico combinado
-    })();
+    await loadHabitatData();
+    await loadTypeData();
+    await loadQualityData();
+    await loadSizeData();  // Carregar e renderizar o histograma de tamanhos dos genomas
+    await loadYearlyGenomesData();
+    await loadContigsData();
+    
+})();
+ 
 </script>
 {% endblock %}
