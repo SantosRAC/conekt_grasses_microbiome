@@ -11,7 +11,7 @@ from conekt.models.ontologies import EnvironmentOntology
 # Blueprint para o overview
 taxonomy_explorer = Blueprint('taxonomy_explorer', __name__)
 
-@taxonomy_explorer.route('/view')
+@taxonomy_explorer.route('/view') # Renderiza o template pra o /taxonomy_explorer/view
 def genome_counts_page():
     return render_template('taxonomy_explorer.html')
 
@@ -19,9 +19,9 @@ def genome_counts_page():
 def get_parent_level(current_level):
     levels = ['domain', 'phylum', 'Class', 'order', 'family', 'genus', 'species']
     current_index = levels.index(current_level)
-    return levels[current_index - 1] if current_index > 0 else None
+    return levels[current_index - 1] if current_index > 0 else None #determina o nível atual e volta um index para determinar o nível pai. No caso de ser o index 0 (dominio) retorna None
 
-# Rota para retornar os dados do Bar Chart
+# Rota para retornar os dados do Donut chart
 @taxonomy_explorer.route('/genome_counts/<level>')
 def get_genome_counts(level):
     parent = request.args.get('parent', '')
@@ -30,15 +30,15 @@ def get_genome_counts(level):
         parent = ''  # Ignora o parent para o nível de domínio
     try:
         # Verifique se o nível taxonômico existe no modelo GTDBTaxon
-        if not hasattr(GTDBTaxon, level):
-            current_app.logger.error(f'Level {level} does not exist in GTDBTaxon')
-            return jsonify({'error': f'Level {level} does not exist in GTDBTaxon'}), 400
+        if not hasattr(GTDBTaxon, level): # verifica se o módelo GTDBTaxon tem um atributo correspondente ao nível taxonomico fornecido
+            current_app.logger.error(f'Level {level} does not exist in GTDBTaxon') # erro se nñao existir no log
+            return jsonify({'error': f'Level {level} does not exist in GTDBTaxon'}), 400 # Erro se não existir no JSON
 
         # Construindo a consulta para todas as categorias
         all_query = (
-            db.session.query(
-                getattr(GTDBTaxon, level),
-                func.count(func.distinct(Genome.genome_id)).label('count')
+            db.session.query( #Inicia a consulta no DB
+                getattr(GTDBTaxon, level), # Obtém a coluna corresponde ao nível taxonômico no modelo GTDBTaxon
+                func.count(func.distinct(Genome.genome_id)).label('count') # Conta o número de genomas (genome_id) e atribui a contagem ao rótulo count
             )
             .join(Cluster, Cluster.gtdb_id == GTDBTaxon.id)
             .join(Genome, Genome.cluster_id == Cluster.id)
@@ -109,63 +109,19 @@ def search_taxonomy():
     except Exception as e:
         current_app.logger.error(f'Error searching taxonomy: {str(e)}')
         return jsonify({'error': 'Error searching taxonomy'}), 500
-
     
-
-# Rota para retornar os dados do Pie Chart
-@taxonomy_explorer.route('/genome_counts_by_habitat')
-def get_genome_count_by_habitat():
+@taxonomy_explorer.route('/species_genomes/<int:cluster_id>', methods=['GET'])
+def show_genomes(cluster_id):
     try:
-        # Query para contar o número de genomas por classe ENVO
-        query = (
-            db.session.query(
-                EnvironmentOntology.envo_class,
-                func.count(GenomeENVO.genome_id).label('genome_count')
-            )
-            .join(GenomeENVO, GenomeENVO.envo_habitat == EnvironmentOntology.envo_term)
-            .group_by(EnvironmentOntology.envo_class)
-            .all()
-        )
+        genomes = Genome.query.filter_by(cluster_id=cluster_id).all()
+        
+        # Prepare os dados para serem passados ao template
+        genome_data = [{'genome_id': genome.genome_id, 'genome_type': genome.genome_type} for genome in genomes]
 
-        # Total de genomas para calcular proporções
-        total_genomes = db.session.query(func.count(GenomeENVO.genome_id)).scalar()
-
-        # Lista para armazenar os dados no formato {envo_class: nome_da_classe, genome_proportion: proporção}
-        data = []
-        for env_class, count in query:
-            proportion = (count / total_genomes) * 100 if total_genomes > 0 else 0.0
-            data.append({
-                'envo_class': env_class,
-                'genome_proportion': proportion
-            })
-
-        return jsonify(data)
-
+        # Passe a lista de dicionários como 'genomes' para o template
+        return render_template('species_genomes.html', genomes=genome_data, cluster_id=cluster_id)
     except Exception as e:
-        current_app.logger.error('Error retrieving genome counts by habitat: %s', str(e))
-        return jsonify({'error': 'Error retrieving data'}), 500
-    
-# Rota para retornar os dados do Pie Chart
-@taxonomy_explorer.route('/genome_counts_by_type')
-def get_genome_count_by_type():
-    try:
-        # Obter o número total de genomas
-        total_genomes = db.session.query(func.count(Genome.genome_id)).scalar()
+        return f"An error occurred: {str(e)}", 500
 
-        # Query para contar os genomas por tipo
-        query = (
-            db.session.query(
-                Genome.genome_type,
-                func.count(Genome.genome_id).label('count')
-            )
-            .group_by(Genome.genome_type)
-            .all()
-        )
 
-        # Calcular a proporção de cada tipo de genoma
-        data = [{'genome_type': genome_type, 'proportion': (count / total_genomes) * 100} for genome_type, count in query]
 
-        return jsonify(data)
-    except Exception as e:
-        current_app.logger.error('Error retrieving genome types data: %s', str(e))
-        return jsonify({'error': 'Error retrieving data'}), 500

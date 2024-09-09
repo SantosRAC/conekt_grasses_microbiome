@@ -1,0 +1,53 @@
+<!-- species_genomes.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Species Genomes{% endblock %}
+
+{% block container %}
+<div class="top-pad">
+    <ol class="breadcrumb">
+        <li><a href="{{ url_for('taxonomy_explorer.genome_counts_page') }}">Taxonomy Explorer</a></li>
+        <li class="active"><strong>Species Genomes</strong></li>
+    </ol>
+
+    <h1 class="banner-green">Species Genomes</h1>
+
+    <div class="container">
+        <!-- Tabela de genomas -->
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">Genome ID</th>
+                            <th scope="col">Genome Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for genome in genomes %}
+                        <tr>
+                            <td>{{ genome.genome_id }}</td>
+                            <td>{{ genome.genome_type }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    $(document).ready(function() {
+        
+    });
+</script>
+{% endblock %}
