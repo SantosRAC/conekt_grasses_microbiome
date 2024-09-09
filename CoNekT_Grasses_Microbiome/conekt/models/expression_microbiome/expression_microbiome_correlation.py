@@ -23,8 +23,8 @@ class ExpMicroCorrelationMethod(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.Text)
     sample_group = db.Column(db.String(255, collation=SQL_COLLATION), default='whole study')
-    tool_name = db.Column(db.Enum('corALS', name='Tool'), default='corALS')
-    stat_method = db.Column(db.Enum('pearson', 'spearman', name='Statistical Method'), default='pearson')
+    tool_name = db.Column(db.Enum('SparXCC', 'corALS', name='Tool'), default='corALS')
+    stat_method = db.Column(db.Enum('sparxcc', 'pearson', 'spearman', name='Statistical Method'), default='pearson')
     multiple_test_cor_method = db.Column(db.Enum('fdr_bh', 'bonferroni', name='P-value correction Method'), default='fdr_bh')
     rnaseq_norm = db.Column(db.Enum('numreads', 'cpm', 'tpm', 'tmm', name='RNA-seq Normalization'), default='tpm')
     metatax_norm = db.Column(db.Enum('numreads', 'cpm', 'tpm', 'tmm', name='Metataxonomic Normalization'), default='numreads')
@@ -198,6 +198,73 @@ class ExpMicroCorrelation(db.Model):
 
         # Return the calculated correlations
         return True
+
+    @staticmethod
+    def add_expression_metataxonomic_correlations(study_id, description,
+                                                  stat_method, matrix_file):
+        """
+        Add correlations between expression and metataxonomic profiles
+        Currently, only SparXCC is implemented
+        
+        :param study_id: internal id of the study
+        :param description: description of the correlation
+        :param stat_method: Pearson, Spearman or SparXCC correlation
+        :param matrix_file: path to the matrix file
+        """
+
+        if stat_method != 'sparxcc':
+
+            # In case of SparXCC, tool name and statistical method are the same
+            # Also, counts are always used, not normalized values,
+            # so 'numreads' is used for both metatax_norm and rnaseq_norm
+            new_correlation_method = ExpMicroCorrelationMethod(description=description, tool_name='SparXCC', stat_method='sparxcc',
+                                                                study_id=study_id, sample_group='whole study',
+                                                                rnaseq_norm='numreads', metatax_norm='numreads')
+    
+            db.session.add(new_correlation_method)
+            db.session.commit()
+
+            # Get study
+            study = Study.query.get(study_id)
+            
+            with open(matrix_file, 'r') as fin:
+                
+                colnames = fin.readline().rstrip().split()
+                halfmatrix = int(len(colnames) / 2)
+                gene_names = [n.replace('cor.','').replace('"', '') for n in colnames[:halfmatrix]]
+
+                for line in fin:
+                    otu_name, *line_fields = line.rstrip().split()
+                    otu_name = otu_name.replace('"', '')
+
+                    # Retrieve the correlation matrix, the m value and the boolean matrix
+                    correlations_matrix = line_fields[:halfmatrix]
+                    m_boolean_matrix = line_fields[halfmatrix + 1:]
+
+                    # Get significant correlations
+                    for i, val in enumerate(m_boolean_matrix):
+                        if val == 'TRUE':
+
+                            otu_p = OTUProfile.query.filter_by(probe=otu_name,
+                                species_id=study.species_id).first()
+
+                            exp_p = ExpressionProfile.query.filter_by(probe=gene_names[i],
+                                species_id=study.species_id).first()
+
+                            new_correlation_pair = ExpMicroCorrelation(otu_probe=otu_name,
+                                                                       gene_probe=gene_names[i],
+                                                                       expression_profile_id=exp_p.id,
+                                                                       metatax_profile_id=otu_p.id,
+                                                                       exp_micro_correlation_method_id=new_correlation_method.id,
+                                                                       corr_coef=correlations_matrix[i])
+
+                            db.session.add(new_correlation_pair)
+
+                            if i % 400 == 0:
+                                db.session.commit()
+
+                    db.session.commit()
+
 
     @staticmethod
     def create_custom_network(cor_method_id, probes):

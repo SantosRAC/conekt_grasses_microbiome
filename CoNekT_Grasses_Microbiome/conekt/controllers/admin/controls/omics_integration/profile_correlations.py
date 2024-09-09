@@ -7,13 +7,14 @@ from conekt.extensions import admin_required
 from conekt.controllers.admin.controls import admin_controls
 
 from conekt.forms.admin.build_expression_microbiome_correlations import BuildExpMicrobiomeCorrelationsForm
+from conekt.forms.admin.add_expression_microbiome_correlations import AddExpMicrobiomeCorrelationsForm
 from conekt.models.expression_microbiome.expression_microbiome_correlation import ExpMicroCorrelation
 
 @admin_controls.route('/build/profile_correlations', methods=['POST'])
 @admin_required
 def build_profile_correlations():
     """
-    Controller that will start building correlations for a pair of profiles using Pearson correlation
+    Controller that will start building correlations for pairs of profiles
 
     :return: return to admin index
     """
@@ -36,7 +37,7 @@ def build_profile_correlations():
                                                                     metatax_norm, correlation_cutoff,
                                                                     corrected_pvalue_cutoff)
 
-        flash('Succesfully build correlations between microbiome and transcriptome.', 'success')
+        flash('Succesfully built correlations between microbiome and transcriptome.', 'success')
         return redirect(url_for('admin.index'))
     else:
         if not form.validate():
@@ -45,6 +46,47 @@ def build_profile_correlations():
         else:
             abort(405)
 
+
+@admin_controls.route('/add/profile_correlations', methods=['POST'])
+@admin_required
+def add_profile_correlations():
+    """
+    Controller that will add correlations for profiles in a study
+
+    :return: return to admin index
+    """
+
+    form = AddExpMicrobiomeCorrelationsForm(request.form)
+
+    if request.method == 'POST' and form.validate():
+        study_id = int(request.form.get('study_id'))
+        description = request.form.get('description')
+        stat_method = request.form.get('stat_method')
+        matrix_file = request.files[form.matrix_file.name].read()
+
+        if matrix_file != b'':
+            fd_matrix, temp_matrix_path = mkstemp()
+
+            with open(temp_matrix_path, 'wb') as matrix_writer:
+                matrix_writer.write(matrix_file)
+
+            ExpMicroCorrelation.add_expression_metataxonomic_correlations(study_id, description,
+                                                                          stat_method, temp_matrix_path)
+
+            os.close(fd_matrix)
+            os.remove(temp_matrix_path)
+
+        else:
+            flash('Empty file or no file provided, cannot add correlations of profiles for species', 'warning')
+
+        flash('Succesfully added correlations between microbiome and transcriptome.', 'success')
+        return redirect(url_for('admin.index'))
+    else:
+        if not form.validate():
+            flash('Unable to validate data, potentially missing fields', 'danger')
+            return redirect(url_for('admin.index'))
+        else:
+            abort(405)
 
 
 

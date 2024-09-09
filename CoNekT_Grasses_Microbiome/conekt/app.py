@@ -171,7 +171,8 @@ def configure_admin_panel(app):
         from conekt.controllers.admin.views.microbiome.otus import AddOTUClassificationView
         from conekt.controllers.admin.views.microbiome.otus import AddOTUProfilesView
         from conekt.controllers.admin.views.study import BuildStudyView
-        from conekt.controllers.admin.views.omics_integration.expression_microbiome_correlations import BuildCorrelationsView
+        from conekt.controllers.admin.views.omics_integration.expression_microbiome_correlations import BuildCorrelationsView,\
+                                            AddCorrelationsView
         from conekt.controllers.admin.views.microbiome.microbiome_profile_specificity import BuildMicrobiomeSpecificityView
 
         from conekt.models.users import User
@@ -234,6 +235,10 @@ def configure_admin_panel(app):
         admin.add_view(AddOTUProfilesView(name='OTU Profiles',
                                                  endpoint='admin_add_otu_profiles',
                                                  url='add/otu_profiles/', category='Add Microbiome Data'))
+        admin.add_menu_item(MenuLink("Integration", class_name="disabled", url="#"), target_category='Add Microbiome Data')
+        admin.add_view(AddCorrelationsView(name='Paired Correlations OTU and Expression Profiles',
+                                                 endpoint='admin_add_rnametataxcor',
+                                                 url='add/exp_metatax_correlations/', category='Add Microbiome Data'))
 
         # Build Menu
         admin.add_view(BuildStudyView(name='Create Study',

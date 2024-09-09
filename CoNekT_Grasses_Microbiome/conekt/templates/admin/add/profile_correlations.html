@@ -1,0 +1,73 @@
+{% extends 'admin/my_base.html' %}
+
+{% block body %}
+<h1>Add Correlations for a Study</h1>
+<p>Add cross-correlations (OTU profiles versus Expression profiles) for a particular study.</p>
+<p>SparXCC is the only method implemented in CoNekT Grasses Microbiome.</p>
+
+{% if form %}
+
+<form method="POST"  action="{{ url_for('admin_controls.add_profile_correlations') }}"  role="form" enctype="multipart/form-data">
+    {{ form.csrf_token }}
+    <div class="form-group">
+        {{ form.species_id.label }}
+        {{ form.species_id(class_="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.study_id.label }}
+        {{ form.study_id(class_="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.description.label }}
+        {{ form.description(class_="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.stat_method.label }}
+        {{ form.stat_method(class_="form-control") }}
+    </div>
+    <div class="form-group">
+        <label>Correlation matrix exported from SparXCC</label><br>
+        <label class="btn btn-default" for="matrix_file" id="matrix-file-button">
+            {{ form.matrix_file(style="display:none;", onchange="")}}
+            <span id="matrix-file-selector-text">Select File</span>
+        </label>
+    </div>
+    <button type="submit" class="btn btn-success">Add Correlations</button>
+</form>
+{% endif %}
+
+{% endblock %}
+
+{% block tail %}
+
+<script>
+    let species_select = document.getElementById('species_id');
+    let study_id_select = document.getElementById('study_id');
+
+    species_select.onchange = function() {
+        species_id = species_select.value;
+
+        fetch("{{ url_for('study.get_species_studies', species_id='species_id', study_type='expression_metataxonomics') }}".replace('species_id', species_id)).then(function(response) {
+                response.json().then(function(data) {
+                    
+                    let optionHTML = '';
+                   
+                    for (let study of data.studies) {
+                        optionHTML += '<option value="' + study.id + '">' + study.name + '</option>';
+                    }
+        
+                    study_id_select.innerHTML = optionHTML;
+        
+            })
+        })
+    }
+
+    $(function() {
+        $("#matrix_file").change(function() {
+            $('#matrix-file-selector-text').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#matrix-file-button').toggleClass('btn-default btn-success');
+        });
+    });
+</script>
+
+{{ super() }}
+{% endblock%}
