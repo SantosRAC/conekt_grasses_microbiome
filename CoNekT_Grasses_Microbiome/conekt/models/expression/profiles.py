@@ -381,7 +381,7 @@ class ExpressionProfile(db.Model):
                 new_probes.append(new_probe)
                 db.session.add(new_probe)
 
-                if len(new_probes) > 400:
+                if len(new_probes) > 200:
                     db.session.commit()
                     new_probes = []
 
