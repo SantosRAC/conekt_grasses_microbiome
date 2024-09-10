@@ -116,6 +116,8 @@ class Sample(db.Model):
                     sample_groups = sample_group_definitions.split(';')
                     for sample_group in sample_groups:
                         group_type, group_name = sample_group.split(':')
+                        if group_type.startswith(' '):
+                            group_type = group_type.replace(' ', '', 1)
                         sample_group_association = SampleGroupAssociation(new_sample.id, group_type, group_name)
                         db.session.add(sample_group_association)
                         db.session.commit()
