@@ -44,7 +44,7 @@
                                     <label><abbr title="Click to show help" href="#" data-target="#helpModal">Correlation</abbr> cutoff :</label>
                                     {{form.correlation_cutoff_groups(class_="form-control", **{'data-provide':"slider",
                                                                             'data-slider-id':"cutoffSlider",
-                                                                            'data-slider-min':"0.5",
+                                                                            'data-slider-min':"0",
                                                                             'data-slider-max':"1",
                                                                             'data-slider-step': "0.01",
                                                                             'data-slider-value': "0.85"})}}<br/>
@@ -78,6 +78,10 @@
         <li>Correlated Profiles</li>
     </ol>
     <h1>Correlated profiles for study {{ study.name }} ({{ species.name }})</h1>
+
+    <p>Note that for SparXCC correlations a permutation threshold has been applied (see <a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0305032">Jensen et al. 2024</a>)<br>
+    No p-value nor corrected p-value were obtained in such cases.</p>
+
 
     <div class="row">
         <div class="col-lg-12">

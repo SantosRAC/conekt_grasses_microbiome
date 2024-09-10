@@ -8,11 +8,12 @@ from conekt.models.sample import Sample
 
 
 class AddExpMicrobiomeCorrelationsForm(FlaskForm):
-    species_id = SelectField('Species', coerce=int)
-    study_id = SelectField('Study', coerce=int)
+    species_id = SelectField('Species', coerce=int, validate_choice=False)
+    study_id = SelectField('Study', coerce=int, validate_choice=False)
     description = StringField('Description', [InputRequired()])
     stat_method = SelectField('Statistical method', choices=[('sparxcc', 'SparXCC'),
                                                              ('test', 'Test (do not use this!)')])
+    sample_group = SelectField('Sample Group', validate_choice=False)
     matrix_file = FileField()
 
     def populate_species(self):

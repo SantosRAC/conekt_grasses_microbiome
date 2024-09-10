@@ -25,7 +25,7 @@ class ExpMicroCorrelationMethod(db.Model):
     sample_group = db.Column(db.String(255, collation=SQL_COLLATION), default='whole study')
     tool_name = db.Column(db.Enum('SparXCC', 'corALS', name='Tool'), default='corALS')
     stat_method = db.Column(db.Enum('sparxcc', 'pearson', 'spearman', name='Statistical Method'), default='pearson')
-    multiple_test_cor_method = db.Column(db.Enum('fdr_bh', 'bonferroni', name='P-value correction Method'), default='fdr_bh')
+    multiple_test_cor_method = db.Column(db.Enum('fdr_bh', 'bonferroni', name='P-value correction Method'), default=None)
     rnaseq_norm = db.Column(db.Enum('numreads', 'cpm', 'tpm', 'tmm', name='RNA-seq Normalization'), default='tpm')
     metatax_norm = db.Column(db.Enum('numreads', 'cpm', 'tpm', 'tmm', name='Metataxonomic Normalization'), default='numreads')
     study_id = db.Column(db.Integer, db.ForeignKey('studies.id', ondelete='CASCADE'), index=True)
@@ -67,13 +67,15 @@ class ExpMicroCorrelation(db.Model):
 
     def __init__(self, expression_profile_id, metatax_profile_id,
                  exp_micro_correlation_method_id,
-                 corr_coef, pvalue, qvalue):
+                 corr_coef, pvalue, qvalue, otu_probe, gene_probe):
         self.expression_profile_id = expression_profile_id
         self.metatax_profile_id = metatax_profile_id
         self.exp_micro_correlation_method_id = exp_micro_correlation_method_id
         self.corr_coef = corr_coef
         self.pvalue = pvalue
         self.qvalue = qvalue
+        self.otu_probe = otu_probe
+        self.gene_probe = gene_probe
     
     def __repr__(self):
         return str(self.id)
@@ -200,7 +202,7 @@ class ExpMicroCorrelation(db.Model):
         return True
 
     @staticmethod
-    def add_expression_metataxonomic_correlations(study_id, description,
+    def add_expression_metataxonomic_correlations(study_id, description, sample_group,
                                                   stat_method, matrix_file):
         """
         Add correlations between expression and metataxonomic profiles
@@ -208,18 +210,20 @@ class ExpMicroCorrelation(db.Model):
         
         :param study_id: internal id of the study
         :param description: description of the correlation
+        :param sample_group: sample group to calculate the correlation
         :param stat_method: Pearson, Spearman or SparXCC correlation
         :param matrix_file: path to the matrix file
         """
 
-        if stat_method != 'sparxcc':
+        if stat_method == 'sparxcc':
 
             # In case of SparXCC, tool name and statistical method are the same
             # Also, counts are always used, not normalized values,
             # so 'numreads' is used for both metatax_norm and rnaseq_norm
             new_correlation_method = ExpMicroCorrelationMethod(description=description, tool_name='SparXCC', stat_method='sparxcc',
-                                                                study_id=study_id, sample_group='whole study',
-                                                                rnaseq_norm='numreads', metatax_norm='numreads')
+                                                                study_id=study_id, sample_group=sample_group,
+                                                                rnaseq_norm='numreads', metatax_norm='numreads',
+                                                                multiple_test_cor_method=None)
     
             db.session.add(new_correlation_method)
             db.session.commit()
@@ -256,7 +260,9 @@ class ExpMicroCorrelation(db.Model):
                                                                        expression_profile_id=exp_p.id,
                                                                        metatax_profile_id=otu_p.id,
                                                                        exp_micro_correlation_method_id=new_correlation_method.id,
-                                                                       corr_coef=correlations_matrix[i])
+                                                                       corr_coef=correlations_matrix[i],
+                                                                       pvalue=None,
+                                                                       qvalue=None)
 
                             db.session.add(new_correlation_pair)
 

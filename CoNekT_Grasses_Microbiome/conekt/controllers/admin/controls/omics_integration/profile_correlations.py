@@ -37,7 +37,7 @@ def build_profile_correlations():
                                                                     metatax_norm, correlation_cutoff,
                                                                     corrected_pvalue_cutoff)
 
-        flash('Succesfully built correlations between microbiome and transcriptome.', 'success')
+        flash('Successfully built correlations between microbiome and transcriptome.', 'success')
         return redirect(url_for('admin.index'))
     else:
         if not form.validate():
@@ -62,6 +62,7 @@ def add_profile_correlations():
         study_id = int(request.form.get('study_id'))
         description = request.form.get('description')
         stat_method = request.form.get('stat_method')
+        sample_group = request.form.get('sample_group')
         matrix_file = request.files[form.matrix_file.name].read()
 
         if matrix_file != b'':
@@ -70,7 +71,7 @@ def add_profile_correlations():
             with open(temp_matrix_path, 'wb') as matrix_writer:
                 matrix_writer.write(matrix_file)
 
-            ExpMicroCorrelation.add_expression_metataxonomic_correlations(study_id, description,
+            ExpMicroCorrelation.add_expression_metataxonomic_correlations(study_id, description, sample_group,
                                                                           stat_method, temp_matrix_path)
 
             os.close(fd_matrix)
@@ -79,7 +80,7 @@ def add_profile_correlations():
         else:
             flash('Empty file or no file provided, cannot add correlations of profiles for species', 'warning')
 
-        flash('Succesfully added correlations between microbiome and transcriptome.', 'success')
+        flash('Successfully added correlations between microbiome and transcriptome.', 'success')
         return redirect(url_for('admin.index'))
     else:
         if not form.validate():
