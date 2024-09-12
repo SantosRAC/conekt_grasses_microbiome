@@ -36,7 +36,7 @@ def search_correlated_profiles():
 
         results = ExpMicroCorrelation.query.\
             filter(ExpMicroCorrelation.exp_micro_correlation_method_id == method_id).\
-            filter(ExpMicroCorrelation.corr_coef>=cutoff)
+            filter((ExpMicroCorrelation.corr_coef>=float(cutoff)) | (ExpMicroCorrelation.corr_coef<=-float(cutoff)))
 
         return render_template("omics_integration/find_expression_microbiome_correlations.html",
                                results=results,
