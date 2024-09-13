@@ -60,34 +60,47 @@ def search_correlated_profiles_study_groups():
     else:
         species_id = request.form.get('species_id')
         study_id = request.form.get('study_id')
-        method_id = request.form.get('method_id')
-        cutoff = request.form.get('correlation_cutoff')
+        tool_name = request.form.get('tool_name')
+        cutoff = request.form.get('correlation_cutoff_study_groups')
 
         species = Species.query.get_or_404(species_id)
         study = Study.query.get_or_404(study_id)
 
-        # Get method for study 2 (from filled form) and
-        # recover the correlation sets from this method in both studies
-        method_study = ExpMicroCorrelationMethod.query.filter(ExpMicroCorrelationMethod.tool_name == method_study2.tool_name,
-                                                               ExpMicroCorrelationMethod.stat_method == method_study2.stat_method,
-                                                               ExpMicroCorrelationMethod.rnaseq_norm == method_study2.rnaseq_norm,
-                                                               ExpMicroCorrelationMethod.metatax_norm == method_study2.metatax_norm,
-                                                               ExpMicroCorrelationMethod.study_id == study1_id).first()
+        results_methods = ExpMicroCorrelationMethod.query.\
+            filter_by(study_id=study_id,
+                      tool_name=tool_name).all()
 
-        results_study1 = ExpMicroCorrelation.query.with_entities(ExpMicroCorrelation.gene_probe).\
-            filter_by(exp_micro_correlation_method_id=method_study1.id).\
-                where(ExpMicroCorrelation.corr_coef>=cutoff).all()
+        results_correlations = {}
+
+        for method in results_methods:
+            # Get all correlations passing the cutoff for the method
+
+            correlation_results = ExpMicroCorrelation.query.\
+                filter(ExpMicroCorrelation.exp_micro_correlation_method_id == method.id).\
+                where((ExpMicroCorrelation.corr_coef>=float(cutoff)) | (ExpMicroCorrelation.corr_coef<=-float(cutoff))).all()
+
+            results_correlations[method.sample_group] = {}
+            results_correlations[method.sample_group]['neg'] = {}
+            results_correlations[method.sample_group]['pos'] = {}
+
+            for corr in correlation_results:
+                if float(corr.corr_coef) >= 0:
+                    results_correlations[method.sample_group]['pos'][corr.id] = {}
+                    results_correlations[method.sample_group]['pos'][corr.id]['corr_coef'] = corr.corr_coef
+                    results_correlations[method.sample_group]['pos'][corr.id]['gene_probe'] = corr.gene_probe
+                    results_correlations[method.sample_group]['pos'][corr.id]['otu_probe'] = corr.otu_probe
+                else:
+                    results_correlations[method.sample_group]['neg'][corr.id] = {}
+                    results_correlations[method.sample_group]['neg'][corr.id]['corr_coef'] = corr.corr_coef
+                    results_correlations[method.sample_group]['neg'][corr.id]['gene_probe'] = corr.gene_probe
+                    results_correlations[method.sample_group]['neg'][corr.id]['otu_probe'] = corr.otu_probe
         
-        results_study1_list = [x[0] for x in results_study1]
-
-        results = {'study1': results_study1_list, 'study2': results_study2_list}
-
         return render_template("omics_integration/compare_correlations_study_groups.html",
-                               results=results,
+                               results=results_correlations,
                                species=species,
                                study=study,
-                               cutoff=cutoff,
-                               method_id=method_id)
+                               tool_name=tool_name,
+                               cutoff=cutoff)
 
 
 @search.route('/correlated/profiles_two_studies', methods=['GET', 'POST'])

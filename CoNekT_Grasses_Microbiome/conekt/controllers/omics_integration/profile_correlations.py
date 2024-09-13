@@ -16,15 +16,34 @@ from conekt.helpers.chartjs import prepare_profiles_scatterplot
 profile_correlations = Blueprint('profile_correlations', __name__)
 
 
+@profile_correlations.route('/get_study_cor_tools/<study_id>/')
+@cache.cached()
+def get_study_cor_tools(study_id):
+
+    cor_methods = ExpMicroCorrelationMethod.query.filter_by(study_id=study_id).all()
+
+    corToolArray = []
+    cor_tool_names = []
+
+    for method in cor_methods:
+        methodObj = {}
+        methodObj['method_tool'] = method.tool_name
+        if method.tool_name not in cor_tool_names:
+            corToolArray.append(methodObj)
+            cor_tool_names.append(method.tool_name)
+    
+    return jsonify({'cor_tools': corToolArray})
+
+
 @profile_correlations.route('/get_study_cor_methods/<study_id>/')
 @profile_correlations.route('/get_study_cor_methods/<study_id>/<sample_group>/')
 @cache.cached()
-def get_study_cor_methods(study_id, sample_group):
+def get_study_cor_methods(study_id, sample_group='all groups'):
 
-    if not sample_group:
-        sample_group = 'whole study'
-
-    cor_methods = ExpMicroCorrelationMethod.query.filter_by(study_id=study_id,
+    if sample_group == 'all groups':
+        cor_methods = ExpMicroCorrelationMethod.query.filter_by(study_id=study_id).all()
+    else:
+        cor_methods = ExpMicroCorrelationMethod.query.filter_by(study_id=study_id,
                                                             sample_group=sample_group).all()
 
     methodArray = []
@@ -34,7 +53,7 @@ def get_study_cor_methods(study_id, sample_group):
         cor_method_ids.append(method.id)
         methodObj = {}
         methodObj['id'] = method.id
-        methodObj['method_tool'] = f'{method.stat_method} expression ({method.rnaseq_norm}) vs 16S ({method.metatax_norm}) - ({method.tool_name})'
+        methodObj['method_tool'] = f'{method.stat_method} expression ({method.rnaseq_norm}) vs 16S ({method.metatax_norm}) in {method.sample_group} - ({method.tool_name})'
         methodArray.append(methodObj)
     
     return jsonify({'methods': methodArray})

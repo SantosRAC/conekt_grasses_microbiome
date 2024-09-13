@@ -31,7 +31,7 @@
                             <label>Study</label>
                             {{form.study_id(class_="form-control")}}<br/>
                             <label>Method</label>
-                            {{form.method_id(class_="form-control")}}<br/>
+                            {{form.tool_name(class_="form-control")}}<br/>
                             <label><abbr title="Click to show help" href="" data-target="#helpModal">Correlation</abbr> cutoff :</label>
                             {{form.correlation_cutoff_study_groups(class_="form-control", **{'data-provide':"slider",
                                                                     'data-slider-id':"cutoffSlider",
@@ -83,24 +83,14 @@
             </tr>
             </thead>
             <tbody>
-                <!-- TODO: Add groups from results.groups
-                {% for group in results.groups %}
-                -->
+                {% for sample_group in results.keys() %}
                 <tr>
                     <td>Subpopulation</td>
-                    <td>Stiff Stalk (SS)</td>
-                    <td><a href="#">299</a></td>
-                    <td><a href="#">350</a></td>
+                    <td>{{ sample_group }}</td>
+                    <td><a href="#">{{ results[sample_group]['pos']|length }}</a></td>
+                    <td><a href="#">{{ results[sample_group]['neg']|length }}</a></td>
                 </tr>
-                <tr>
-                    <td>Day Period</td>
-                    <td>Day</td>
-                    <td><a href="#">90</a></td>
-                    <td><a href="#">50</a></td>
-                </tr>
-                <!--
                 {% endfor %}
-                -->
             </tbody>
         </table>
         <a id="DownloadTable" href="#" class="btn btn-primary">Download table</a><br /><br />
@@ -143,7 +133,7 @@
 <script>
     let species_select = document.getElementById('species_id');
     let study_select = document.getElementById('study_id');
-    let method_select = document.getElementById('method_id');
+    let tool_select = document.getElementById('tool_name');
     
     species_select.onchange = function() {
         species_id = species_select.value;
@@ -168,19 +158,18 @@
     study_select.onchange = function() {
         study_value = study_select.value;
         
-        fetch("{{ url_for('profile_correlations.get_study_cor_methods', study_id='study_id') }}".replace('study_id', study_value)).then(function(response) {
+        fetch("{{ url_for('profile_correlations.get_study_cor_tools', study_id='study_id') }}".replace('study_id', study_value)).then(function(response) {
             response.json().then(function(data) {
                 
                 let optionHTML = '';
                 
-                optionHTML += '<option value="' + 0 + '">' + 'Select Group First' + '</option>';
-                optionHTML += '<option value="' + 'whole study' + '">' + 'Whole Study' + '</option>';
+                optionHTML += '<option value="' + 0 + '">' + 'Select Method First' + '</option>';
 
-                for (let method of data.methods) {
-                    optionHTML += '<option value="' + method.id + '">' + method.method_tool + '</option>';
+                for (let cor_tool of data.cor_tools) {
+                    optionHTML += '<option value="' + cor_tool.method_tool + '">' + cor_tool.method_tool + '</option>';
                 }
     
-                method_select.innerHTML = optionHTML;
+                tool_select.innerHTML = optionHTML;
     
             })
         })

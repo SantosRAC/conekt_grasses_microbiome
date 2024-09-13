@@ -7,7 +7,7 @@ from conekt.models.species import Species
 class SearchCorrelatedProfilesStudyGroupsForm(FlaskForm):
     species_id = SelectField('Species', coerce=int)
     study_id = SelectField('Study', coerce=int)
-    method_id = SelectField('Method', coerce=int)
+    tool_name = SelectField('Tool', coerce=int)
     correlation_cutoff_study_groups = TextAreaField('Correlation Coefficient Cutoff')
 
     def populate_form(self):
