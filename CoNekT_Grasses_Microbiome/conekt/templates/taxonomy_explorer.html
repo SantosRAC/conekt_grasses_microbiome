@@ -59,7 +59,7 @@
 
     async function fetchTaxonomicData(level, parent = '') {
     if (level === 'domain') {
-        parent = '';  // Ignora o parent para o nível de domínio
+        parent = '';  // Ignore parent for domain level
     }
 
     try {
@@ -76,6 +76,24 @@
             console.error(`No data found for level ${level} and parent ${parent}`);
             return { all: [], top_10: [] };
         }
+
+        // Check if we are fetching data for the species level, capture `cluster_id`
+        if (level === 'species') {
+            return {
+                all: data.all.map(item => ({
+                    name: item.name,
+                    count: item.count,
+                    cluster_id: item.cluster_id  // Capture cluster_id for species
+                })),
+                top_10: data.top_10.map(item => ({
+                    name: item.name,
+                    count: item.count,
+                    cluster_id: item.cluster_id  // Capture cluster_id for species
+                }))
+            };
+        }
+
+        // For other levels, return data as usual
         return {
             all: data.all,
             top_10: data.top_10
@@ -99,45 +117,40 @@ async function fetchSearchResults(query) {
     }
 }
 
-async function fetchSearchResults(query) {
-        try {
-            const response = await fetch(`/taxonomy_explorer/search?query=${query}`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch search results');
-            }
-            return await response.json();
-        } catch (error) {
-            console.error('Error fetching search results:', error);
-            return [];
-        }
-    }
-
     function createTaxonomyList(data, level) {
-        const listContainer = document.getElementById('taxonomy-list');
-        listContainer.innerHTML = '';
+    const listContainer = document.getElementById('taxonomy-list');
+    listContainer.innerHTML = '';
 
-        if (data.length === 0) {
-            listContainer.innerHTML = '<div class="alert alert-info">No results found.</div>';
-            return;
+    if (data.length === 0) {
+        listContainer.innerHTML = '<div class="alert alert-info">No results found.</div>';
+        return;
+    }
+
+    data.sort((a, b) => b.count - a.count);
+
+    data.forEach(item => {
+        const listItem = document.createElement('a');
+        listItem.href = '#';
+        listItem.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+        listItem.innerHTML = `
+            <div>
+                <strong>${item.name}</strong>
+                <small class="text-muted">${level}</small>
+            </div>
+            <span class="badge badge-primary badge-pill">${item.count}</span>
+        `;
+        
+        // If level is species, redirect to the species genomes page using cluster_id
+        if (level === 'species') {
+            listItem.onclick = () => window.location.href = `/taxonomy_explorer/species_genomes/${item.cluster_id}`;
+        } else {
+            listItem.onclick = () => updateChartAndList(item.name, level);
         }
 
-        data.sort((a, b) => b.count - a.count);
+        listContainer.appendChild(listItem);
+    });
+}
 
-        data.forEach(item => {
-            const listItem = document.createElement('a');
-            listItem.href = '#';
-            listItem.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
-            listItem.innerHTML = `
-                <div>
-                    <strong>${item.name}</strong>
-                    <small class="text-muted">${level}</small>
-                </div>
-                <span class="badge badge-primary badge-pill">${item.count}</span>
-            `;
-            listItem.onclick = () => updateChartAndList(item.name, level);
-            listContainer.appendChild(listItem);
-        });
-    }
 
     function updateBackButton() {
     const backButton = document.getElementById('back-button');
