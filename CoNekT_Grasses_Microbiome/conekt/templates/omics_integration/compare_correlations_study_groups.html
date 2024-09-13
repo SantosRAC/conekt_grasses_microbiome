@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if form %}
+        Search correlated Expression and Microbiome profiles
+    {% else %}
+        Profile correlation results
+    {% endif %}
+{% endblock %}
+
+{% block container %}
+<div class="top-pad">
+
+    {% if form %}
+    <ol class="breadcrumb">
+        <li><a href="{{ url_for('main.screen') }}">Home</a></li>
+        <li><a href="{{ url_for('main.features') }}">Tools</a></li>
+        <li class="active"><strong>Expression and Microbiome Profiles Correlations of Groups in a Study</strong></li>
+    </ol>
+    <h1>Profiles Correlations in Groups of a Study</h1>
+    <p>Using the form below correlations interaction between host expression and microbiome can be analyzed in a comparison between groups of a study.</p>
+        <div class="row">
+            <div class="col-md-6 col-md-offset-1 col-xs-8">
+                <div class="panel panel-primary">
+                    <div class="panel-heading"><strong>Search options</strong></div>
+                    <div class="panel-body">
+                        <form method="POST"  action="{{ url_for('search.search_correlated_profiles_study_groups') }}"  role="form">
+                            {{ form.csrf_token }}
+                            <label>Species</label>
+                            {{form.species_id(class_="form-control")}}<br/>
+                            <label>Study</label>
+                            {{form.study_id(class_="form-control")}}<br/>
+                            <label>Method</label>
+                            {{form.method_id(class_="form-control")}}<br/>
+                            <label><abbr title="Click to show help" href="" data-target="#helpModal">Correlation</abbr> cutoff :</label>
+                            {{form.correlation_cutoff_study_groups(class_="form-control", **{'data-provide':"slider",
+                                                                    'data-slider-id':"cutoffSlider",
+                                                                    'data-slider-min':"0",
+                                                                    'data-slider-max':"1",
+                                                                    'data-slider-step': "0.01",
+                                                                    'data-slider-value': "0.85"})}}<br/>
+                            <button type="submit" id="show_button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#loaderModal">Show correlations</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-xs-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading"><strong>Help</strong></div>
+                    <div class="panel-body">
+                        <ul>
+                            <li>Select the <strong>species</strong> first. This will enable a list of studies for this species in next selector.</li>
+                            <li>Next select a <strong>study</strong>. Note that studies are formed by combinations of runs from one or more literature sources.</li>
+                            <li>Next select a <strong>method</strong>. Methods shown on this page are common between selected studies.</li>
+                            <li>Set the <abbr title="Click to show help" href="{{ url_for('help.help_topic', topic='spm') }}" data-target="#helpModal">Correlation</abbr> cutoff (recommended setting: 0.5). Higher values are stronger correlations, lower ones are weaker</li>
+                            <li>Click <strong>Show profile pairs</strong> <span class="text-muted"> When updating the slider a number will appear in the button indicating how many pairs there will be in the results</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% elif results %}
+    <ol class="breadcrumb">
+        <li><a href="{{ url_for('main.screen') }}">Home</a></li>
+        <li><a href="{{ url_for('main.features') }}">Tools</a></li>
+        <li><a href="{{ url_for('search.search_correlated_profiles_study_groups') }}">Correlated Profiles Between Groups in a Study</a></li>
+    </ol>
+    <h1>Correlated profiles for study {{ study.name }}</h1>
+    <h2>Species: <em>{{ species.name }} </em></h2>
+    <h2>Correlation cutoff: <em>{{ cutoff }} </em></h2>
+
+    <div id="upset_plot" class="center-block"></div>
+
+    <div class="row">
+        <div class="col-lg-12">
+        <table class="table table-striped" id="results_table">
+            <thead>
+            <tr>
+                <th class="col-xs-3" data-sort="string-ins"><span class="sort-icon"></span>Group Type</th>
+                <th class="col-xs-4" data-sort="string-ins"><span class="sort-icon"></span>Group Category</th>
+                <th class="col-xs-5" data-sort="string-ins"><span class="sort-icon"></span>Number of Positive Correlations</th>
+                <th class="col-xs-5" data-sort="string-ins"><span class="sort-icon"></span>Number of Negative Correlations</th>
+            </tr>
+            </thead>
+            <tbody>
+                <!-- TODO: Add groups from results.groups
+                {% for group in results.groups %}
+                -->
+                <tr>
+                    <td>Subpopulation</td>
+                    <td>Stiff Stalk (SS)</td>
+                    <td><a href="#">299</a></td>
+                    <td><a href="#">350</a></td>
+                </tr>
+                <tr>
+                    <td>Day Period</td>
+                    <td>Day</td>
+                    <td><a href="#">90</a></td>
+                    <td><a href="#">50</a></td>
+                </tr>
+                <!--
+                {% endfor %}
+                -->
+            </tbody>
+        </table>
+        <a id="DownloadTable" href="#" class="btn btn-primary">Download table</a><br /><br />
+        </div>
+        </div>
+
+        <div class="modal" id="profileModal" tabindex="-1" role="dialog" aria-labelledby="profileModalLabel">
+            <div class="modal-dialog" role="document" style="width:1000px;height:800px;">
+              <div class="modal-content">
+          
+              </div>
+          
+            </div>
+          </div>
+
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script src="{{ url_for('static', filename='js/bootstrap-slider.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/table2CSV.js') }}" > </script>
+<script src="{{ url_for('static', filename='js/Chart.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/chartjs-plugin-zoom.min.js') }}"></script>
+<script src="https://unpkg.com/@upsetjs/bundle"></script>
+    
+{% if form %}
+<script>
+
+    cutoff_slider = $('#correlation_cutoff_study_groups').slider({
+        formatter: function(value) {
+            return 'Cutoff: ' + value;
+        }
+    }).on("slideStop", function(ev) {
+            update_count(ev.value);
+    });
+    
+</script>
+
+<script>
+    let species_select = document.getElementById('species_id');
+    let study_select = document.getElementById('study_id');
+    let method_select = document.getElementById('method_id');
+    
+    species_select.onchange = function() {
+        species_id = species_select.value;
+        
+        fetch("{{ url_for('study.get_species_studies', species_id='species_id', study_type='expression_metataxonomics') }}".replace('species_id', species_id)).then(function(response) {
+            response.json().then(function(data) {
+                
+                let optionHTML = '';
+                
+                optionHTML += '<option value="' + 0 + '">' + 'Select Study first' + '</option>';
+
+                for (let study of data.studies) {
+                    optionHTML += '<option value="' + study.id + '">' + study.name + '</option>';
+                }
+    
+                study_select.innerHTML = optionHTML;
+    
+            })
+        })
+    }
+
+    study_select.onchange = function() {
+        study_value = study_select.value;
+        
+        fetch("{{ url_for('profile_correlations.get_study_cor_methods', study_id='study_id') }}".replace('study_id', study_value)).then(function(response) {
+            response.json().then(function(data) {
+                
+                let optionHTML = '';
+                
+                optionHTML += '<option value="' + 0 + '">' + 'Select Group First' + '</option>';
+                optionHTML += '<option value="' + 'whole study' + '">' + 'Whole Study' + '</option>';
+
+                for (let method of data.methods) {
+                    optionHTML += '<option value="' + method.id + '">' + method.method_tool + '</option>';
+                }
+    
+                method_select.innerHTML = optionHTML;
+    
+            })
+        })
+    }
+
+</script>
+
+{% endif %}
+
+<script>
+$(function () {
+    $("#results_table").stupidtable();
+    $('a[data-target=#profileModal]').click(function(ev) {
+      ev.preventDefault();
+      var target = $(this).attr("href");
+  
+      // load the url and show modal on success
+      $("#profileModal .modal-content").load(target, function() {
+           $("#profileModal").modal("show");
+      });
+  });
+
+})
+</script>
+
+{% if results %}
+
+<script>
+
+    study_data = {{ results.study|safe }};
+    upset_plot_div = document.getElementById("upset_plot");
+
+    const data = [
+          { name: 'Study 1', elems: study1_data },
+        ];
+        const sets = UpSetJS.asSets(data);
+        UpSetJS.render(upset_plot_div, { 
+          sets: sets,
+          width: 600,
+          height: 400,
+        });
+</script>
+
+{% endif %}
+
+{% endblock %}
