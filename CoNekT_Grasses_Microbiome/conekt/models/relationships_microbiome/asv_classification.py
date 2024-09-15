@@ -30,41 +30,40 @@ class ASVClassificationMethod(db.Model):
         return str(self.id) + ". " + self.classifier_name + " " + self.classifier_version
 
 
-
-class ASVClassification(db.Model):
-    __tablename__ = 'asv_classification'
+class ASVClassificationSILVA(db.Model):
+    __tablename__ = 'asv_classification_silva'
     id = db.Column(db.Integer, primary_key=True)
+    silva_id = db.Column(db.Integer, db.ForeignKey('silva_taxonomy.id'), index=True)
     asv_id = db.Column(db.Integer, db.ForeignKey('asvs.id', ondelete='CASCADE'), index=True)
-    silva_id = db.Column(db.Integer, db.ForeignKey('silva_taxonomy.id', ondelete='CASCADE'), index=True)
     method_id = db.Column(db.Integer, db.ForeignKey('asv_classification_methods.id', ondelete='CASCADE'), index=True)
 
-    def __init__(self, asv_id, silva_id, method_id):
-        self.asv_id = asv_id
+    def __init__(self, silva_id, asv_id, method_id):
         self.silva_id = silva_id
+        self.asv_id = asv_id
         self.method_id = method_id
     
     def __repr__(self):
-        return str(self.id) + ". " + self.asv_id + " " + self.silva_id
+        return str(self.id) + ". " + self.asv_id + " " + self.method_id
     
     @staticmethod
     def add_asv_classification_from_table(asv_classification_table,
                                     asv_classification_description,
                                     classifier_name,
                                     classifier_version,
-                                    ref_db_release):
+                                    classification_ref_db_release):
         """
-        Function to add ASV classification to the database
+        Function to add ASV classification from SILVA to the database
 
         :param asv_classification_table: path to the file with ASV classification
         :param asv_classification_description: description of the ASV classification method
-        :param asv_classification_method: method used to classify the ASVs
+        :param classifier_name: classifier used to classify the ASVs
         :param classifier_version: version of the classifier used
-        :param ref_db_release: release of the reference database used
+        :param classification_ref_db_release: release of the reference database used
         """
         
         new_classification_method = ASVClassificationMethod(asv_classification_description,
-                                    classifier_name, classifier_version,
-                                    'silva', ref_db_release)
+                                    classifier_name, classifier_version, 'silva',
+                                    classification_ref_db_release)
         
         db.session.add(new_classification_method)
         db.session.commit()
@@ -75,19 +74,24 @@ class ASVClassification(db.Model):
         with open(asv_classification_table, 'r') as fin:
 
             _ = fin.readline()
+            #ASV	path
 
             for line in fin:
                 parts = line.strip().split('\t')
 
                 if len(parts) == 2:
 
-                    asv_name, silva_path = parts
+                    asv_name, path = parts
 
                     asv_record = AmpliconSequenceVariant.query.filter_by(original_id=asv_name).first()
 
-                    silva_record = SILVATaxon.query.filter_by(taxon=silva_path).first()
+                    # get the SILVA taxon record
+                    taxon_db_record = SILVATaxon.query.filter_by(taxon_path=path).first()
 
-                    new_asv_classification = ASVClassification(asv_record.id, silva_record.id, new_classification_method.id)
+                    # create a new SILVA classification record
+                    new_asv_classification = ASVClassificationSILVA(taxon_db_record.id,
+                                                                 asv_record.id,
+                                                                 new_classification_method.id)
 
                     db.session.add(new_asv_classification)
                     classified_asvs+=1

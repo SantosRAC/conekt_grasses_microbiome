@@ -14,7 +14,7 @@ from conekt.forms.admin.add_asv_profiles import AddASVProfilesForm
 from conekt.models.microbiome.asvs import AmpliconSequenceVariant
 from conekt.models.seq_run import SeqRun
 from conekt.models.microbiome.asv_profiles import ASVProfile
-from conekt.models.relationships_microbiome.asv_classification import ASVClassification
+from conekt.models.relationships_microbiome.asv_classification import ASVClassificationSILVA
 
 @admin_controls.route('/add/asvs', methods=['POST'])
 @admin_required
@@ -82,7 +82,28 @@ def add_asv_classification():
 
     if request.method == 'POST' and form.validate():
 
+        asv_classification_description = request.form.get('asv_classification_description')
+        asv_classification_method = request.form.get('asv_classification_method_silva')
+        classifier_version = request.form.get('classifier_version_silva')
+        classification_ref_db_release = request.form.get('release_silva')
+        asv_silva_classification_file = request.files[form.silva_asv_classification_file.name].read()
+
+        # Add GTDB classification file for ASVs
+        fd_silva_classification_file, temp_silva_classification_file_path = mkstemp()
+
+        with open(temp_silva_classification_file_path, 'wb') as asv_silva_classification_file_writer:
+            asv_silva_classification_file_writer.write(asv_silva_classification_file)
+
+        ASVClassificationSILVA.add_asv_classification_from_table(temp_silva_classification_file_path,
+                                    asv_classification_description,
+                                    asv_classification_method,
+                                    classifier_version,
+                                    classification_ref_db_release)
         
+        os.close(fd_silva_classification_file)
+        os.remove(temp_silva_classification_file_path)
+
+        flash('Successfully added microbiome classification', 'success')
 
         return redirect(url_for('admin.index'))
     else:

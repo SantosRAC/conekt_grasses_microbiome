@@ -23,39 +23,27 @@
             </div>
 
             <div class="form-group">
-                {{ form.asv_classification_method_gtdb.label }}
-                {{ form.asv_classification_method_gtdb(class_="form-control") }}
+                {{ form.asv_classification_method_silva.label }}
+                {{ form.asv_classification_method_silva(class_="form-control") }}
             </div>
 
             <div class="form-group">
-                {{ form.classifier_version_gtdb.label }}
-                {{ form.classifier_version_gtdb(class_="form-control") }}
+                {{ form.classifier_version_silva.label }}
+                {{ form.classifier_version_silva(class_="form-control") }}
             </div>
 
             <div class="form-group">
-                {{ form.release_gtdb.label }}
-                {{ form.release_gtdb(class_="form-control") }}
+                {{ form.release_silva.label }}
+                {{ form.release_silva(class_="form-control") }}
             </div>
 
             <div class="form-group">
-                <label>GTDB ASV Classification file</label>
+                <label>SILVA ASV Classification file</label>
                 <p>Text file with tab-delimited columns with one line header.</p>
-                <label class="btn btn-default" for="gtdb_asv_classification_file" id="gtdb-asv-classification-file-button">
-                    {{ form.gtdb_asv_classification_file(style="display:none;", onchange="")}}
-                    <span id="gtdb-asv-classification-file-selector-text">Select File</span>
+                <label class="btn btn-default" for="silva_asv_classification_file" id="silva-asv-classification-file-button">
+                    {{ form.silva_asv_classification_file(style="display:none;", onchange="")}}
+                    <span id="silva-asv-classification-file-selector-text">Select File</span>
                 </label>
-            </div>
-
-            <div class="form-group">
-                <label>{{ form.exact_path_match.label }}</label><br />
-                {% for option in form.exact_path_match %}
-                    <div class="radio-inline" name="exact_path_match_form" id="exact_path_match_form">
-                        <label>
-                        {{ option }}
-                        {{ option.label }}
-                        </label>
-                    </div>
-                {% endfor %}
             </div>
 
             <div class="form-group">
@@ -83,7 +71,7 @@
             <div class="panel-heading"><strong>Help</strong></div>
             <div class="panel-body">
                 <li>Adds <strong>ASV classification</strong> to the database</li>
-                <li>It is mandatory to provide at least a GTDB classification file</li>
+                <li>It is mandatory to provide at least a SILVA classification file</li>
             </div>
         </div>
     </div>
@@ -94,10 +82,35 @@
 
 {% block tail %}
 <script>
+$("#literature_list").hide();
+
+let literature_select = document.getElementById('literature_id');
+let asv_method_select = document.getElementById('asv_method_id');
+
+literature_select.onchange = function() {
+    literature_id = literature_select.value;
+
+    fetch("{{ url_for('asv.get_lit_asvs', literature_id='literature_id') }}".replace('literature_id', literature_id)).then(function(response) {
+                response.json().then(function(data) {
+                    
+                    let optionHTML = '';
+
+                    optionHTML += '<option value="' + 0 + '">' + 'Select Literature first' + '</option>';
+                   
+                    for (let asv of data.asvs) {
+                        optionHTML += '<option value="' + asv.id + '">' + asv.asv_method_summary + '</option>';
+                    }
+        
+                    asv_method_select.innerHTML = optionHTML;
+        
+                })
+            })
+
+}
 
 $(function() {
-    $("#gtdb_asv_classification_file").change(function() {
-        $('#gtdb-asv-classification-file-selector-text').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#gtdb-asv-classification-file-button').toggleClass('btn-default btn-success');
+    $("#silva_asv_classification_file").change(function() {
+        $('#silva-asv-classification-file-selector-text').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#silva-asv-classification-file-button').toggleClass('btn-default btn-success');
     });
 });
 

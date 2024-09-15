@@ -99,6 +99,7 @@ def configure_blueprints(app):
     from conekt.controllers.interpro import interpro
     from conekt.controllers.cazyme import cazyme
     from conekt.controllers.search import search
+    from conekt.controllers.microbiome.asvs import asv
     # TODO: Configure Solr to replace Whoosh !
     from conekt.controllers.help import help
     from conekt.controllers.admin.controls import admin_controls
@@ -131,6 +132,7 @@ def configure_blueprints(app):
     app.register_blueprint(help, url_prefix='/help')
     app.register_blueprint(profile_comparison, url_prefix='/profile_comparison')
     app.register_blueprint(literature, url_prefix='/literature')
+    app.register_blueprint(asv, url_prefix='/asv')
 
 
 def configure_admin_panel(app):
