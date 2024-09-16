@@ -41,6 +41,12 @@
     </div>
     <div class="row">
         <div class="col-lg-12">
+            <!-- Adicionando o mapa acima do carrossel -->
+            <div id="map" style="height: 500px; margin-bottom: 20px;"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
           <div class="panel panel-default">
           <div id="featureCarousel" class="carousel slide" data-ride="carousel">
             <!-- Indicators -->
@@ -142,7 +148,13 @@
 {% endblock %}
 
 {% block extrajs %}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 <script src="{{ url_for('static', filename='js/js.cookie.js') }}"></script>
+<!-- Inclua Leaflet.js -->
+
+
 <script>
     $(document).ready(function() {
         // check cookie
@@ -153,6 +165,46 @@
         }
 
         // set cookie
+        Cookies.set('visited', 'yes', { expires: 1000 });
+    });
+
+    $(document).ready(function() {
+        // Inicialização do Mapa
+        var map = L.map('map').setView([0, 0], 2); // Coordenadas iniciais e zoom padrão
+
+        // Adicionar o tile layer do OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Definir ícone personalizado (menor e verde)
+        var greenIcon = L.icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+            iconSize: [20, 32], // Tamanho do ícone (pode ajustar conforme necessário)
+            iconAnchor: [10, 32], // Onde o ícone aponta (centro inferior)
+            popupAnchor: [0, -32] // Onde o popup vai aparecer em relação ao ícone
+        });
+
+        // Dados dos genomas passados pelo backend
+        var genomes = {{ genome_data | tojson }};
+        console.log(genomes);  // Verifique se os dados estão corretos
+
+        // Adicionar marcadores no mapa para cada genoma
+        genomes.forEach(function(genome) {
+            if (genome.lat && genome.lon) {
+                L.marker([genome.lat, genome.lon], { icon: greenIcon })  // Use o ícone personalizado verde
+                .addTo(map)
+                .bindPopup("<b>Species: " + genome.species + "</b><br>Location: " + genome.local);  // Exibe a espécie no popup
+            }
+        });
+
+        // Verifica cookie
+        var visited = Cookies.get('visited');
+        if (visited == null) {
+            $('#new-alert').show();
+        }
+
+        // Define cookie
         Cookies.set('visited', 'yes', { expires: 1000 });
     });
 </script>

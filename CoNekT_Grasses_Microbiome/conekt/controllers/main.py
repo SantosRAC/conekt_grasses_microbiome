@@ -1,6 +1,11 @@
 from flask import Blueprint, render_template, current_app, redirect, g, flash, url_for
 
 from conekt.models.news import News
+from conekt import db
+from conekt.models.genome import Genome
+from conekt.models.geographic_genomes_information import Geographic
+from conekt.models.taxonomy import GTDBTaxon
+from conekt.models.cluster import Cluster
 
 main = Blueprint('main', __name__)
 
@@ -11,11 +16,30 @@ def screen():
     Shows the main screen
     """
 
-    keyword_examples = current_app.config['KEYWORD_EXAMPLES'] if'KEYWORD_EXAMPLES' in current_app.config.keys() else None
+    keyword_examples = current_app.config['KEYWORD_EXAMPLES'] if 'KEYWORD_EXAMPLES' in current_app.config.keys() else None
 
     news = News.query.order_by(News.posted.desc()).limit(5)
 
-    return render_template('static_pages/main.html', news=news, keyword_examples=keyword_examples)
+    # Consulta para obter genomas com coordenadas e suas espécies associadas
+    genomes_with_coordinates = (db.session.query(Genome, Geographic, GTDBTaxon)
+                                .join(Geographic, Geographic.genome_id == Genome.genome_id)
+                                .join(Cluster, Cluster.id == Genome.cluster_id)  # Juntar Cluster com Genome
+                                .join(GTDBTaxon, GTDBTaxon.id == Cluster.gtdb_id)  # Juntar GTDBTaxon com Cluster
+                                .filter(Geographic.lat.isnot(None), Geographic.lon.isnot(None))
+                                .all())
+
+    # Preparar dados dos genomas para o template
+    genome_data = []
+    for genome, geographic, taxon in genomes_with_coordinates:
+        genome_data.append({
+            'genome_id': genome.genome_id,  # Ainda armazenamos o genome_id se necessário
+            'species': taxon.species,       # Adiciona a espécie associada ao genoma
+            'lat': float(geographic.lat),
+            'lon': float(geographic.lon),
+            'local': geographic.local or 'Unknown location'
+        })
+
+    return render_template('static_pages/main.html', news=news, keyword_examples=keyword_examples, genome_data=genome_data)
 
 
 @main.route('/features')
