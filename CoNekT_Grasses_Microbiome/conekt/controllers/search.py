@@ -82,6 +82,8 @@ def search_correlated_profiles_study_groups():
             results_correlations[method.sample_group] = {}
             results_correlations[method.sample_group]['neg'] = {}
             results_correlations[method.sample_group]['pos'] = {}
+            results_correlations[method.sample_group]['neg']['pairs'] = []
+            results_correlations[method.sample_group]['pos']['pairs'] = []
 
             for corr in correlation_results:
                 if float(corr.corr_coef) >= 0:
@@ -89,12 +91,45 @@ def search_correlated_profiles_study_groups():
                     results_correlations[method.sample_group]['pos'][corr.id]['corr_coef'] = corr.corr_coef
                     results_correlations[method.sample_group]['pos'][corr.id]['gene_probe'] = corr.gene_probe
                     results_correlations[method.sample_group]['pos'][corr.id]['otu_probe'] = corr.otu_probe
+                    results_correlations[method.sample_group]['pos']['pairs'].append((corr.gene_probe, corr.otu_probe))
                 else:
                     results_correlations[method.sample_group]['neg'][corr.id] = {}
                     results_correlations[method.sample_group]['neg'][corr.id]['corr_coef'] = corr.corr_coef
                     results_correlations[method.sample_group]['neg'][corr.id]['gene_probe'] = corr.gene_probe
                     results_correlations[method.sample_group]['neg'][corr.id]['otu_probe'] = corr.otu_probe
+                    results_correlations[method.sample_group]['neg']['pairs'].append((corr.gene_probe, corr.otu_probe))
+
+        all_pairs_pos = [results_correlations[sample_group]['pos']['pairs'] for sample_group in results_correlations.keys()]
+        all_pairs_neg = [results_correlations[sample_group]['neg']['pairs'] for sample_group in results_correlations.keys()]
+
+        # Convert the lists to sets
+        sets_pos = [set(lst) for lst in all_pairs_pos]
+        sets_neg = [set(lst) for lst in all_pairs_neg]
+
+        # Get the intersection of the sets
+        intersection_pos = set.intersection(*sets_pos)
+        intersection_neg = set.intersection(*sets_neg)
+
+        print("Intersection pos: ", intersection_pos)
+        print("Intersection neg: ", intersection_neg)
+
+        unique_pairs_pos = {}
+        unique_pairs_neg = {}
+
+        for sample_group1 in results_correlations.keys():
+            pairs_all_other_groups_pos = []
+            pairs_all_other_groups_neg = []
+            for sample_group2 in results_correlations.keys():
+                if sample_group1 != sample_group2:
+                    pairs_all_other_groups_pos.extend(results_correlations[sample_group2]['pos']['pairs'])
+                    pairs_all_other_groups_neg.extend(results_correlations[sample_group2]['neg']['pairs'])
+            unique_pairs_pos[sample_group1] = set(results_correlations[sample_group1]['pos']['pairs']).difference(set(pairs_all_other_groups_pos))
+            unique_pairs_neg[sample_group1] = set(results_correlations[sample_group1]['neg']['pairs']).difference(set(pairs_all_other_groups_neg))
+            print(str(unique_pairs_pos[sample_group1])+f"- unique pos in {sample_group1}")
+            print(str(unique_pairs_neg[sample_group1])+f"- unique neg in {sample_group1}")
         
+        exit(1)
+
         return render_template("omics_integration/compare_correlations_study_groups.html",
                                results=results_correlations,
                                species=species,
