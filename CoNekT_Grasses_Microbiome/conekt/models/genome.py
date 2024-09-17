@@ -6,8 +6,10 @@ from conekt.models.genomes_quality import Genomes_quality
 from conekt.models.geographic_genomes_information import Geographic
 from conekt.models.genome_envo import GenomeENVO
 from conekt.models.ncbi_information import NCBI
+from conekt.models.geocode_utils import geocode_location
 
 SQL_COLLATION = 'NOCASE' if db.engine.name == 'sqlite' else ''
+
 
 class Genome(db.Model):
     __tablename__ = 'genomes'
@@ -34,7 +36,8 @@ class Genome(db.Model):
 
     def __repr__(self):
         return f"{self.genome_id}. {self.genome_type}"
-
+    
+    
     @staticmethod
     def add_genomes_from_file(genomes_file):
         """Add genomes from a tabular file to the database.
@@ -125,15 +128,15 @@ class Genome(db.Model):
 
                 # add the geographic information to the database
 
-                if lat == '':
-                    lat = None  # or any other indicator for unpublished
-                else:
-                    lat = lat
+                # Tratamento das coordenadas
+                if not lat or not lon:
+                # Chama a função de geocodificação com country e local (se disponível)
+                    lat, lon = geocode_location(country, local)
+                if not lat or not lon:
+                    print(f"Geocoding failed for {local}, {country}. No coordinates found.")
+                    lat = None
+                    lon = None
 
-                if lon == '':
-                    lon = None  # or any other indicator for unpublished
-                else:
-                    lon = lon
 
                 new_geographic_info = Geographic(genome_id, country, local, lat, lon)
 
