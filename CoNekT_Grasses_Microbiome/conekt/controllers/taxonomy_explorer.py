@@ -146,44 +146,48 @@ def get_genome_counts(level):
 @taxonomy_explorer.route('/species_genomes/<int:cluster_id>', methods=['GET'])
 def show_genomes(cluster_id):
     try:
-        # Fetch the species name 
-        species_name = (
-            db.session.query(GTDBTaxon.species)
+        # Fetch the species name and taxon path
+        species_info = (
+            db.session.query(GTDBTaxon.species, GTDBTaxon.taxon_path)
             .join(Cluster, Cluster.gtdb_id == GTDBTaxon.id)
             .filter(Cluster.id == cluster_id)
             .first()
         )
-
-        # Query to get genome data along with geographic and ontology information through GenomeENVO
+        
+        species_name = species_info[0]  # Nome da espécie
+        taxon_path = species_info[1]    # Caminho taxonômico
+        
+        # Query para obter os dados genômicos
         genomes = (
             db.session.query(
                 Genome.genome_id,
                 Genome.genome_type,
                 Geographic.country,
                 Geographic.local,
-                Geographic.lat,  # Include latitude
-                Geographic.lon,  # Include longitude
+                Geographic.lat,
+                Geographic.lon,
+                GenomeENVO.envo_habitat,  
                 EnvironmentOntology.envo_class,
                 EnvironmentOntology.envo_annotation,
                 NCBI.ncbi_accession
             )
-            .outerjoin(Geographic, Geographic.genome_id == Genome.genome_id)  # Outer join for geographic data
-            .outerjoin(GenomeENVO, GenomeENVO.genome_id == Genome.genome_id)  # Join GenomeENVO to link to ontologies
-            .outerjoin(EnvironmentOntology, EnvironmentOntology.envo_term == GenomeENVO.envo_habitat)  # Join for envo_class and envo_annotation
+            .outerjoin(Geographic, Geographic.genome_id == Genome.genome_id)  
+            .outerjoin(GenomeENVO, GenomeENVO.genome_id == Genome.genome_id)  
+            .outerjoin(EnvironmentOntology, EnvironmentOntology.envo_term == GenomeENVO.envo_habitat)  
             .outerjoin(NCBI, NCBI.genome_id == Genome.genome_id)
-            .filter(Genome.cluster_id == cluster_id)  # Filter by the cluster_id for the selected species
+            .filter(Genome.cluster_id == cluster_id)
             .all()
         )
         
-        # Prepare the data to be passed to the front-end
+        # Preparar os dados a serem enviados para o front-end
         genome_data = [
             {
                 'genome_id': genome.genome_id,
                 'genome_type': genome.genome_type,
                 'country': genome.country,
                 'local': genome.local,
-                'lat': float(genome.lat) if genome.lat else None,  # Pass latitude as float
-                'lon': float(genome.lon) if genome.lon else None,  # Pass longitude as float
+                'lat': float(genome.lat) if genome.lat else None,
+                'lon': float(genome.lon) if genome.lon else None,
                 'envo_class': genome.envo_class,
                 'envo_annotation': genome.envo_annotation,
                 'ncbi_accession': genome.ncbi_accession
@@ -191,11 +195,14 @@ def show_genomes(cluster_id):
             for genome in genomes
         ]
 
-        # Pass the species name and genome data to the template
-        return render_template('species_genomes.html', genomes=genome_data, species_name=species_name[0], cluster_id=cluster_id)
+        # Passar species_name, taxon_path e genome_data para o template
+        return render_template('species_genomes.html', species_name=species_name, taxon_path=taxon_path, genomes=genome_data, cluster_id=cluster_id)
+    
     except Exception as e:
         current_app.logger.error(f"An error occurred: {str(e)}")
         return f"An error occurred: {str(e)}", 500
+
+
 
 
     

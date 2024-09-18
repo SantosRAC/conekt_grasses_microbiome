@@ -13,6 +13,7 @@
     <div class="banner-green text-center" style="padding: 20px; background-color: #4CAF50; color: white;">
         <h1>{{ species_name }}</h1>
         <p>Explore detailed genomic data for <strong>{{ species_name }}</strong></p>
+        <p><em>{{ taxon_path }}</em></p>  <!-- Exibindo o taxon path aqui -->
     </div>
 
     <!-- "Back to Chart" Button -->
@@ -81,14 +82,74 @@
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // Lista de genomas com coordenadas para o mapa
+     // Definir cores para cada envo_class
+     var classColors = {
+        'Oil reservoir': 'darkblue',
+        'Oil field': 'navy',
+        'Oil reservoir offshore': 'cornflowerblue',
+        'Activated Sludge, Bioreactor': 'limegreen',
+        'Oil polluted sediment': 'orange',
+        'Not reported': 'gray',
+        'Oil polluted soil': 'saddlebrown',
+        'Host-associated': 'red',
+        'Lab experiment': 'purple',
+        'Oil refinery': 'darkorange',
+        'Bioremediation': 'green',
+        'Soil': 'green',
+        'Oil spill offshore': 'lightblue',
+        'Fracturing fluids': 'purple',
+        'Sea water': 'deepskyblue',
+        'Hydrothermal vent sediments': 'darkslategray',
+        'Sea water microcosms': 'aquamarine',
+        'Oil polluted sea water': 'dodgerblue',
+        'MIC': 'crimson',
+        'Tailing pond': 'lightseagreen',
+        'Crude oil': 'black',
+        'Machinery Facilities': 'gold',
+        'Wastewater': 'turquoise',
+        'Formation water': 'blue',
+        'Water': 'royalblue',
+        'Hot springs': 'red',
+        'Crude oil microcosms': 'black',
+        'Deep sea sediments seepage': 'darkcyan',
+        'Groundwater': 'teal',
+        'Microcosms': 'orchid',
+        'Deep sea water': 'mediumblue',
+        'Tar': 'sienna',
+        'Oil polluted mangrove': 'forestgreen',
+        'Marine sediment': 'lightcoral',
+        'Produced water': 'lightsteelblue',
+        'Injection water': 'lightskyblue',
+        'Oil polluted water': 'dodgerblue',
+        'Sediment': 'peru',
+        'Water-oil': 'darkolivegreen',
+        'MIC-biofilm': 'darkred',
+        'Sediment microcosms': 'darkgoldenrod',
+        'Soil enriched microcosms': 'darkgreen',
+        'Vulcano': 'darkorange',
+        'in-situ microcosms': 'mediumpurple',
+        'Biofuel polluted soil': 'maroon',
+        'Unpolluted samples': 'lightgray',
+        'Deep sea sediment microcosms': 'mediumturquoise',
+        'Sediment enriched microcosms': 'olive',
+        'gas seeps': 'chartreuse',
+        'Engineered': 'orchid',
+        'Aquatic': 'cyan',
+        'Terrestrial': 'brown',
+        'Marine': 'blue',
+        'Other': 'magenta'  // Fallback para classes não especificadas
+    };
+
+
+    // Lista de genomas com coordenadas e envo_class
     var genomesWithCoordinates = [
         {% for genome in genomes if genome.lat is not none and genome.lon is not none %}
             {
                 "genome_id": "{{ genome.genome_id }}",
                 "lat": {{ genome.lat }},
                 "lon": {{ genome.lon }},
-                "local": "{{ genome.local or 'Unknown location' }}"
+                "local": "{{ genome.local or 'Unknown location' }}",
+                "envo_class": "{{ genome.envo_class or 'Other' }}"
             }
             {% if not loop.last %}, {% endif %}
         {% endfor %}
@@ -96,9 +157,18 @@
 
     // Adiciona marcadores no mapa para cada genoma com coordenadas
     genomesWithCoordinates.forEach(function(genome) {
-        L.marker([genome.lat, genome.lon])
-            .addTo(map)
-            .bindPopup("<b>" + genome.genome_id + "</b><br>" + genome.local);
+        var envoClass = genome.envo_class;
+        var markerColor = classColors[envoClass];  // Obtém a cor correspondente ao envo_class
+
+        // Cria o marcador com a cor baseada no envo_class
+        var marker = L.circleMarker([genome.lat, genome.lon], {
+            color: markerColor,
+            radius: 8,
+            fillOpacity: 0.7
+        }).addTo(map);
+
+        // Adiciona popup ao marcador
+        marker.bindPopup("<b>" + genome.genome_id + "</b><br>" + genome.local + "<br>Class: " + envoClass);
     });
 </script>
 {% endblock %}
