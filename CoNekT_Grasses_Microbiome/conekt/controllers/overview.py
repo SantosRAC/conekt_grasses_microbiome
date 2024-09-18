@@ -8,6 +8,8 @@ from conekt.models.cluster import Cluster
 from conekt.models.genome import Genome
 from conekt.models.ontologies import EnvironmentOntology
 from conekt.models.literature import LiteratureItem
+from conekt.models.taxonomy import GTDBTaxon
+from conekt.models.geographic_genomes_information import Geographic
 
 # Blueprint para o overview
 overview = Blueprint('overview', __name__)
@@ -127,6 +129,80 @@ def get_genome_size_distribution():
     except Exception as e:
         current_app.logger.error('Error retrieving genome size data: %s', str(e))
         return jsonify({'error': 'Error retrieving data'}), 500
+
+@overview.route('/paged_statistics/taxonomy_group_counts')
+def get_taxonomy_group_counts():
+    try:
+        # Contagem de diferentes grupos taxonômicos em cada nível
+        domain_count = db.session.query(func.count(func.distinct(GTDBTaxon.domain))).scalar()
+        phylum_count = db.session.query(func.count(func.distinct(GTDBTaxon.phylum))).scalar()
+        class_count = db.session.query(func.count(func.distinct(GTDBTaxon.Class))).scalar()
+        order_count = db.session.query(func.count(func.distinct(GTDBTaxon.order))).scalar()
+        family_count = db.session.query(func.count(func.distinct(GTDBTaxon.family))).scalar()
+        genus_count = db.session.query(func.count(func.distinct(GTDBTaxon.genus))).scalar()
+        species_count = db.session.query(func.count(func.distinct(GTDBTaxon.species))).scalar()
+
+        # Retornar os dados no formato JSON
+        return jsonify({
+            'Domain': domain_count,
+            'Phylum': phylum_count,
+            'Class': class_count,
+            'Order': order_count,
+            'Family': family_count,
+            'Genus': genus_count,
+            'Species': species_count
+        })
+
+    except Exception as e:
+        current_app.logger.error('Error retrieving taxonomy group counts: %s', str(e))
+        return jsonify({'error': 'Error retrieving data'}), 500
+
+@overview.route('/paged_statistics/genome_counts_by_envo_class')
+def get_genome_count_by_envo_class():
+    try:
+        # Query para contar o número de genomas por ENVO Class
+        query = (
+            db.session.query(
+                EnvironmentOntology.envo_class,
+                func.count(GenomeENVO.genome_id).label('genome_count')
+            )
+            .join(GenomeENVO, GenomeENVO.envo_habitat == EnvironmentOntology.envo_term)
+            .group_by(EnvironmentOntology.envo_class)
+            .all()
+        )
+
+        # Organizar os dados no formato {envo_class: número de genomas}
+        data = [{'envo_class': envo_class, 'genome_count': count} for envo_class, count in query]
+
+        return jsonify(data)
+
+    except Exception as e:
+        current_app.logger.error('Error retrieving genome counts by ENVO Class: %s', str(e))
+        return jsonify({'error': 'Error retrieving data'}), 500
+
+@overview.route('/paged_statistics/genome_counts_by_country')
+def get_genome_count_by_country():
+    try:
+        # Query para contar o número de genomas por país
+        query = (
+            db.session.query(
+                Geographic.country,
+                func.count(Geographic.genome_id).label('genome_count')  # Contando os genomas por país
+            )
+            .join(Genome, Geographic.genome_id == Genome.genome_id)  # Garantindo o join com a tabela Genome
+            .group_by(Geographic.country)
+            .all()
+        )
+
+        # Organizar os dados no formato {country: número de genomas}
+        data = [{'country': country, 'genome_count': count} for country, count in query]
+
+        return jsonify(data)
+
+    except Exception as e:
+        current_app.logger.error('Error retrieving genome counts by country: %s', str(e))
+        return jsonify({'error': 'Error retrieving data'}), 500
+
     
 @overview.route('/paged_statistics/genomes_by_year')
 def get_genomes_by_year():

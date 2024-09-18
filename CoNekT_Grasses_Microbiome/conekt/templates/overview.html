@@ -75,6 +75,69 @@
         <br>
 
         <div class="row">
+            <!-- Tabela de Níveis Taxonômicos -->
+            <div class="col-md-4">
+                <h4 class="text-center" style="font-size: 18px;">Number of Distinct Taxonomic Groups</h4>
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered table-striped">
+                        <thead class="thead-dark">
+                            <tr style="background-color: rgba(76, 175, 80, 0.2);">
+                                <th style="font-size: 14px;">Taxonomic Level</th>
+                                <th style="font-size: 14px;">Number of Groups</th>
+                            </tr>
+                        </thead>
+                        <tbody id="taxonomyGroupTableBody" style="font-size: 12px;">
+                            <!-- Linhas preenchidas dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tabela de Genomas por ENVO Class -->
+            <div class="col-md-4">
+                <h4 class="text-center" style="font-size: 18px;">Number of Genomes by ENVO Class</h4>
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered table-striped">
+                        <thead class="thead-dark">
+                            <tr style="background-color: rgba(76, 175, 80, 0.2);">
+                                <th style="font-size: 14px;">ENVO Class</th>
+                                <th style="font-size: 14px;">Number of Genomes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="envoClassTableBody" style="font-size: 12px;">
+                            <!-- Linhas preenchidas dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tabela de Genomas por País -->
+            <div class="col-md-4">
+                <h4 class="text-center" style="font-size: 18px;">Number of Genomes by Country</h4>
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered table-striped">
+                        <thead class="thead-dark">
+                            <tr style="background-color: rgba(76, 175, 80, 0.2);">
+                                <th style="font-size: 14px;">Country</th>
+                                <th style="font-size: 14px;">Number of Genomes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="countryTableBody" style="font-size: 12px;">
+                            <!-- Linhas preenchidas dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+       
+        <br>
+        <br>
+        <br>
+        <br>
+        
+
+        <div class="row">
             <div class="col-md-12 center-content">
                 <h3 class="total-publications-title">Total Number of Publications</h3>
                 <p id="totalPublications" class="total-publications-value">Loading...</p>
@@ -367,6 +430,78 @@ function renderContigsScatterPlot(data) {
     });
 }
 
+async function loadTaxonomyGroupCounts() {
+        try {
+            const response = await fetch("{{ url_for('overview.get_taxonomy_group_counts') }}");
+            const data = await response.json();
+
+            const tableBody = document.getElementById('taxonomyGroupTableBody');
+            tableBody.innerHTML = '';  // Limpa a tabela antes de preencher
+
+            // Ordem dos níveis taxonômicos
+            const taxonomicLevels = ['Domain', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Species'];
+
+            // Preenche as linhas da tabela com os dados na ordem correta
+            taxonomicLevels.forEach(level => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${level}</strong></td>
+                    <td>${data[level] || 0}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        } catch (error) {
+            console.error('Error loading taxonomy group counts:', error);
+        }
+    }
+
+    // Função para buscar e renderizar os dados de contagem por ENVO Class
+    async function loadEnvoClassCounts() {
+        try {
+            const response = await fetch("{{ url_for('overview.get_genome_count_by_envo_class') }}");
+            const data = await response.json();
+
+            const tableBody = document.getElementById('envoClassTableBody');
+            tableBody.innerHTML = '';  // Limpa a tabela antes de preencher
+
+            // Preenche as linhas da tabela com os dados
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${item.envo_class || 'N/A'}</strong></td>
+                    <td>${item.genome_count}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        } catch (error) {
+            console.error('Error loading ENVO Class counts:', error);
+        }
+    }
+
+    // Função para buscar e renderizar os dados de contagem por país
+    async function loadCountryCounts() {
+        try {
+            const response = await fetch("{{ url_for('overview.get_genome_count_by_country') }}");
+            const data = await response.json();
+
+            const tableBody = document.getElementById('countryTableBody');
+            tableBody.innerHTML = '';  // Limpa a tabela antes de preencher
+
+            // Preenche as linhas da tabela com os dados
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${item.country || 'N/A'}</strong></td>
+                    <td>${item.genome_count}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        } catch (error) {
+            console.error('Error loading country counts:', error);
+        }
+    }
+
+    
 async function loadContigsData() {
     const response = await fetch("{{ url_for('overview.get_contigs_distribution') }}");
     const data = await response.json();
@@ -412,12 +547,15 @@ async function loadYearlyGenomesData() {
     }
 
     (async function() {
-    await loadHabitatData();
-    await loadTypeData();
-    await loadQualityData();
-    await loadSizeData();  // Carregar e renderizar o histograma de tamanhos dos genomas
-    await loadYearlyGenomesData();
-    await loadContigsData();
+        await loadTaxonomyGroupCounts();  // Carregar e renderizar a tabela de grupos taxonômicos
+        await loadEnvoClassCounts();  // Carregar e renderizar a tabela de ENVO Class
+        await loadCountryCounts();  // Carregar e renderizar a tabela de países
+        await loadYearlyGenomesData();
+        await loadContigsData();
+        await loadHabitatData();
+        await loadTypeData();
+        await loadQualityData();
+        await loadSizeData();
     
 })();
  
