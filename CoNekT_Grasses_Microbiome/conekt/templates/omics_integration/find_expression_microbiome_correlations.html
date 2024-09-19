@@ -79,22 +79,30 @@
     </ol>
     <h1>Correlated profiles for study {{ study.name }} ({{ species.name }})</h1>
 
+    <h2>Correlation method: <em>{{ correlation_method.stat_method }} </em></h2>
+
+    {% if correlation_method.stat_method == 'sparxcc' %}
     <p>Note that for SparXCC correlations a permutation threshold has been applied (see <a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0305032">Jensen et al. 2024</a>)<br>
     No p-value nor corrected p-value were obtained in such cases.</p>
-
+    {% endif %}
 
     <div class="row">
+        {% if correlation_method.stat_method != 'sparxcc' %}
         <div class="col-lg-12">
+        {% else %}
+        <div class="col-lg-8">
+        {% endif %}
         <table class="table table-striped" id="results_table">
             <thead>
             <tr>
                 <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>Host transcript</th>
                 <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>OTU/ASV</th>
-                <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>Correlation method</th>
                 <th class="col-xs-2" data-sort="float"><span class="sort-icon"></span>Correlation coefficient</th>
-                <th class="col-xs-1" data-sort="float"><span class="sort-icon"></span><abbr title="Click to show help" href="#" data-target="#helpModal">P-value</abbr></th>
-                <th class="col-xs-1" data-sort="float"><span class="sort-icon"></span><abbr title="Click to show help" href="#" data-target="#helpModal">Q-value</abbr></th>
-                <th>Action</th>
+                {% if correlation_method.stat_method != 'sparxcc' %}
+                <th class="col-xs-2" data-sort="float"><span class="sort-icon"></span><abbr title="Click to show help" href="#" data-target="#helpModal">P-value</abbr></th>
+                <th class="col-xs-2" data-sort="float"><span class="sort-icon"></span><abbr title="Click to show help" href="#" data-target="#helpModal">Q-value</abbr></th>
+                {% endif %}
+                <th class="col-xs-2">Action</th>
             </tr>
             </thead>
             <tbody>
@@ -103,10 +111,11 @@
                 <tr>
                     <td><a href="{{ url_for('sequence.sequence_find', sequence_name=r.gene_probe) }}">{{ r.gene_probe }}</a> (<a href="#">view profile</a>)</td>
                     <td><a href="{{ url_for('otu.otu_find', otu_original_id=r.otu_probe) }}">{{ r.otu_probe }}</a> (<a href="#">view profile</a>)</td>
-                    <td>{{ correlation_method.stat_method }}</td>
                     <td>{{ r.corr_coef }}</td>
+                    {% if correlation_method.stat_method != 'sparxcc' %}
                     <td>{{ r.pvalue }}</td>
                     <td>{{ r.qvalue }}</td>
+                    {% endif %}
                     <td><li><a href="{{ url_for('profile_correlations.profiles_scatter_modal', expression_profile_id=r.expression_profile_id, metatax_profile_id=r.metatax_profile_id) }}" data-target="#profileModal" id="profileModalURL">Show scatterplot</a></li></td>
                 </tr>
 
