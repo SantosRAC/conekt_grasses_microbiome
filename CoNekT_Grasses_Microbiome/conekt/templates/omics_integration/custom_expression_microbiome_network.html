@@ -28,7 +28,9 @@
                     <label>Method</label>
                     {{form.method_id(class_="form-control")}}<br/>
                     <label>Enter Gene IDs:</label><br />
-                    {{form.probes(class_="form-control") }}<br />
+                    {{form.gene_probes(class_="form-control") }}<br />
+                    <label>Enter OTU IDs:</label><br />
+                    {{form.otu_probes(class_="form-control") }}<br />
                     <button type="submit" class="btn btn-primary"  data-toggle="modal" data-target="#loaderModal">Draw network</button>
                     </div>
                 </form>
@@ -41,7 +43,8 @@
                 <ul>
                     <li>Select the <strong>species</strong> first. This will enable a list of studies for this species in next selector.</li>
                     <li>Next select a <strong>study</strong>. Note that studies are formed by combinations of runs from different literature sources.</li>
-                    <li>Next select a <strong>method</strong>. Methods can be Pearson or Spearman, to correlate microbiome and transcriptome profiles in a study.</li>
+                    <li>Next select a <strong>method</strong>. Methods can be Pearson, Spearman or SparXCC (whichever is available), to correlate microbiome and transcriptome profiles in a study.</li>
+                    <li>Next enter a list of <strong>Gene IDs AND/OR OTU IDs</strong>.</li>
                     <li>Click <strong>Draw network</strong></li>
                 </ul>
             </div>

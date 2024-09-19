@@ -8,6 +8,7 @@ from conekt.models.studies import Study
 from conekt.models.relationships.study_sample import StudySampleAssociation
 from conekt.models.expression.profiles import ExpressionProfile
 from conekt.models.microbiome.otu_profiles import OTUProfile
+from conekt.models.microbiome.operational_taxonomic_unit import OperationalTaxonomicUnit
 from conekt.models.sequences import Sequence
 
 from corals.threads import set_threads_for_external_libraries
@@ -273,55 +274,86 @@ class ExpMicroCorrelation(db.Model):
 
 
     @staticmethod
-    def create_custom_network(cor_method_id, probes):
+    def create_custom_network(cor_method_id, gene_probes, otu_probes):
         """
         Return a network dict for a certain set of probes/sequences, for a certain study and method
 
         :param method_id: network method to extract information from
-        :param probes: list of probe/sequence names
+        :param gene_probes: list of probe/gene sequence names
+        :param otu_probes: list of probe/otu sequence names
         :return: network dict
         """
-        nodes = []
+        gene_nodes = []
+        otu_nodes = []
         edges = []
 
-        sequences = Sequence.query.filter(Sequence.name.in_(probes)).filter_by(type='protein_coding').all()
+        gene_sequences = Sequence.query.filter(Sequence.name.in_(gene_probes)).filter_by(type='protein_coding').all()
+        otu_sequences = OperationalTaxonomicUnit.query.filter(OperationalTaxonomicUnit.original_id.in_(otu_probes)).all()
 
-        valid_nodes = []
+        valid_gene_nodes = []
+        valid_otu_nodes = []
 
-        for s in sequences:
+        for s in gene_sequences:
             gene_node = {"id": str(s.id) + "_gene",
                     "name": s.name,
                     "node_type": "gene",
                     "depth": 0}
 
-            valid_nodes.append(s.name)
-            nodes.append(gene_node)
+            valid_gene_nodes.append(s.name)
+            gene_nodes.append(gene_node)
 
-        existing_edges = []
+        for s in otu_sequences:
+            otu_node = {"id": str(s.id) + "_otu",
+                    "name": s.original_id,
+                    "node_type": "otu",
+                    "depth": 0}
 
-        for s in sequences:
+            valid_otu_nodes.append(s.original_id)
+            otu_nodes.append(otu_node)
+
+        for s in gene_sequences:
             source = str(s.id) + "_gene"
-            expression_microbiome_correlations = ExpMicroCorrelation.query.filter_by(exp_micro_correlation_method_id=cor_method_id).all()
+            expression_microbiome_correlations = ExpMicroCorrelation.query.filter_by(exp_micro_correlation_method_id=cor_method_id,
+                                                                                     gene_probe=s.name).all()
             for cor_result in expression_microbiome_correlations:
                 otu_profile = OTUProfile.query.filter_by(id=cor_result.metatax_profile_id).first()
-                if otu_profile.probe in valid_nodes:
-                    continue
-                otu_node = {"id": str(otu_profile.otu_id) + "_otu",
+                if otu_profile.probe not in valid_otu_nodes:
+                    otu_node = {"id": str(otu_profile.otu_id) + "_otu",
                     "name": str(otu_profile.probe),
                     "node_type": "otu",
                     "depth": 0}
-                nodes.append(otu_node)
-                valid_nodes.append(str(otu_profile.probe))
+                    otu_nodes.append(otu_node)
+                    valid_otu_nodes.append(str(otu_profile.probe))
                 edges.append({"source": source,
                                 "target": str(otu_profile.otu_id) + "_otu",
                                 "source_name": s.name,
                                 "target_name": otu_profile.probe,
                                 "depth": 0,
-                                "link_pcc": cor_result.corr_coef,
+                                "link_cc": cor_result.corr_coef,
                                 "edge_type": "correlation",
                                 "correlation_method": cor_result.method.stat_method})
-                existing_edges.append([source, cor_result.metatax_profile_id])
-                existing_edges.append([cor_result.metatax_profile_id, source])
+        
+        for s in otu_sequences:
+            source = str(s.id) + "_otu"
+            expression_microbiome_correlations = ExpMicroCorrelation.query.filter_by(exp_micro_correlation_method_id=cor_method_id,
+                                                                                     otu_probe=s.original_id).all()
+            for cor_result in expression_microbiome_correlations:
+                gene_profile = ExpressionProfile.query.filter_by(id=cor_result.expression_profile_id).first()
+                if gene_profile.probe not in valid_gene_nodes:
+                    gene_node = {"id": str(gene_profile.sequence_id) + "_gene",
+                    "name": str(gene_profile.probe),
+                    "node_type": "gene",
+                    "depth": 0}
+                    gene_nodes.append(gene_node)
+                    valid_gene_nodes.append(str(gene_profile.probe))
+                edges.append({"source": source,
+                                "target": str(gene_profile.sequence_id) + "_gene",
+                                "source_name": s.original_id,
+                                "target_name": gene_profile.probe,
+                                "depth": 0,
+                                "link_cc": cor_result.corr_coef,
+                                "edge_type": "correlation",
+                                "correlation_method": cor_result.method.stat_method})
 
-        return {"nodes": nodes, "edges": edges}
+        return {"nodes": otu_nodes+gene_nodes, "edges": edges}
 

@@ -7,6 +7,7 @@ from conekt.forms.omics_integration.expression_microbiome_network import CustomE
 from conekt.models.expression_microbiome.expression_microbiome_correlation import ExpMicroCorrelation
 from conekt.helpers.cytoscape import CytoscapeHelper
 from conekt.models.sequences import Sequence
+from conekt.models.microbiome.operational_taxonomic_unit import OperationalTaxonomicUnit
 
 custom_network = Blueprint('custom_network', __name__)
 
@@ -20,21 +21,28 @@ def expression_microbiome_correlation():
     form.populate_species()
 
     if request.method == 'POST':
-        terms = request.form.get('probes').split()
+        gene_terms = request.form.get('gene_probes').split()
+        otu_terms = request.form.get('otu_probes').split()
         method_id = request.form.get('method_id')
 
-        probes = terms
+        gene_probes = gene_terms
+        otu_probes = otu_terms
 
         # also do search by gene ID
-        sequences = Sequence.query.filter(Sequence.name.in_(terms)).filter_by(type='protein_coding').all()
+        sequences = Sequence.query.filter(Sequence.name.in_(gene_terms)).filter_by(type='protein_coding').all()
+        otu_sequences = OperationalTaxonomicUnit.query.filter(OperationalTaxonomicUnit.original_id.in_(otu_probes)).all()
 
         for s in sequences:
-            probes.append(s.name)
+            gene_probes.append(s.name)
+
+        for s in otu_sequences:
+            otu_probes.append(s.original_id)
 
         # make probe list unique
-        probes = list(set(probes))
+        gene_probes = list(set(gene_probes))
+        otu_probes = list(set(otu_probes))
 
-        expression_microbiome_network = ExpMicroCorrelation.create_custom_network(method_id, probes)
+        expression_microbiome_network = ExpMicroCorrelation.create_custom_network(method_id, gene_probes, otu_probes)
 
         network_cytoscape = CytoscapeHelper.parse_network(expression_microbiome_network)
 
