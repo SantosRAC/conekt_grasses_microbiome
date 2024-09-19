@@ -63,10 +63,10 @@
                         <li>
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Integration of Expression and Microbiome Tools <span class="caret"></span></a>
                             <ul class="dropdown-menu">
-                                <li class="dropdown-header">Analyze OTU Correlations</li>
-                                <li><a href="{{ url_for('search.search_correlated_profiles') }}">Find Correlations (OTUs vs. Expression)</a></li>
-                                <li><a href="#">Enrichment Analysis in Correlated sets (OTUs vs. Expression)</a></li>
-                                <li><a href="{{ url_for('custom_network.expression_microbiome_correlation') }}">Draw Network of Correlations (OTUs vs. Expression)</a></li>
+                                <li class="dropdown-header">Analyze Microbiome - Transcriptome Correlations</li>
+                                <li><a href="{{ url_for('search.search_correlated_profiles') }}">Find Correlations</a></li>
+                                <li><a href="#">Enrichment Analysis in Correlated sets</a></li>
+                                <li><a href="{{ url_for('custom_network.expression_microbiome_correlation') }}">Draw Network of Correlations</a></li>
                                 <li><a href="{{ url_for('search.search_correlated_profiles_study_groups') }}">Compare Correlations Among Groups in a Study</a></li>
                                 <li class="dropdown-header">Compare studies</li>
                                 <li><a href="{{ url_for('search.search_correlated_profiles_two_studies') }}">Compare Correlations Between Two Studies</a></li>
