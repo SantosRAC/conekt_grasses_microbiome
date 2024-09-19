@@ -81,9 +81,9 @@ $(function () { // on dom ready
                         value: 'Edge: ' + e.data('source_name') + ' and ' + e.data('target_name')
                     }];
 
-                if (e.data('link_pcc') !== undefined) {
-                    if (e.data('link_pcc') !== null) {
-                        content.push({ value: 'Correlation (PCC): ' + e.data('link_pcc').toFixed(3) });
+                if (e.data('link_cc') !== undefined) {
+                    if (e.data('link_cc') !== null) {
+                        content.push({ value: 'Correlation Coef.: ' + e.data('link_cc').toFixed(3) });
                     }
                 }
 
@@ -162,7 +162,7 @@ $(function () { // on dom ready
 
             if (Object.keys(svg_species).length > 0) { generate_legend(svg_species, 'species_color', 'species'); }
 
-            $('.cy-node-color[attr="link_pcc"]').click();
+            $('.cy-node-color[attr="link_cc"]').click();
 
             $('#loading').addClass('loaded');
             $('#legend').show();

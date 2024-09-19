@@ -94,12 +94,12 @@ edge[homology] {
         line-style: dashed;
 }
 
-edge.link_pcc {
-        line-color: mapData(link_pcc, 0.5, 1, blue, red);
+edge.link_cc {
+        line-color: mapData(link_cc, 0.5, 1, blue, red);
 }
 
-edge.link_pcc {
-        width: mapData(link_pcc, 0, 1, blue, red);
+edge.link_cc {
+        width: mapData(link_cc, 0, 1, blue, red);
 }
 
 edge.hidden {

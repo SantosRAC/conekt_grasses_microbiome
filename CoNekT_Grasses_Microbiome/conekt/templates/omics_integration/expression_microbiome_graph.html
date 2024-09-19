@@ -42,11 +42,11 @@
                                 <ul class="dropdown-menu dropdown-menu-right cy-option-menu" style="width:250px">
                                     <li class="dropdown-header">Edge Color</li>
                                     {% if expression_microbiome_network %}
-                                    <li><a href="#" class="cy-edge-color" attr="link_pcc">PCC</a></li>
+                                    <li><a href="#" class="cy-edge-color" attr="link_cc">Cor. Coef.</a></li>
                                     {% endif %}
                                     <li class="dropdown-header">Edge Width</li>
                                     {% if expression_microbiome_network %}
-                                    <li><a href="#" class="cy-edge-width" attr="link_pcc">PCC</a></li>
+                                    <li><a href="#" class="cy-edge-width" attr="link_cc">Cor. Coef.</a></li>
                                     {% endif %}
                                 </ul>
                             </div>
@@ -162,7 +162,7 @@ $(function(){
 <script src="{{ url_for('static', filename='js/planet_xgmml.js') }}"></script>
 <script src="{{ url_for('static', filename='js/planet_svg.js') }}"></script>
 
-<script src="{{ url_for('static', filename='js/cytoscape.min.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.30.2/cytoscape.min.js"></script>
 
 <script src="{{ url_for('static', filename='js/cytoscape-qtip.js') }}"></script>
 <script src="{{ url_for('static', filename='js/planet_graph.js') }}"></script>
