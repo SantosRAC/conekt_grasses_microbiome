@@ -67,6 +67,7 @@
     </ol>
     <h1>Correlated profiles for study {{ study.name }}</h1>
     <h2>Species: <em>{{ species.name }} </em></h2>
+    <h2>Correlation method: <em>{{ tool_name }} </em></h2>
     <h2>Correlation cutoff: <em>{{ cutoff }} </em></h2>
 
     <div id="upset_plot" class="center-block"></div>
@@ -76,10 +77,12 @@
         <table class="table table-striped" id="results_table">
             <thead>
             <tr>
-                <th class="col-xs-3" data-sort="string-ins"><span class="sort-icon"></span>Group Type</th>
-                <th class="col-xs-3" data-sort="string-ins"><span class="sort-icon"></span>Group Category</th>
-                <th class="col-xs-3" data-sort="string-ins"><span class="sort-icon"></span>Number of Positive Correlations</th>
-                <th class="col-xs-3" data-sort="string-ins"><span class="sort-icon"></span>Number of Negative Correlations</th>
+                <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>Group Type</th>
+                <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>Group Category</th>
+                <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>Number of Positive Correlations</th>
+                <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>Number of Negative Correlations</th>
+                <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>Exclusive Positive Correlations</th>
+                <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>Exclusive Negative Correlations</th>
             </tr>
             </thead>
             <tbody>
@@ -89,13 +92,47 @@
                     <td>{{ sample_group }}</td>
                     <td><a href="#">{{ results[sample_group]['pos']|length }}</a></td>
                     <td><a href="#">{{ results[sample_group]['neg']|length }}</a></td>
+                    <td><a href="#">{{ unique_pairs_pos[sample_group]|length }}</a></td>
+                    <td><a href="#">{{ unique_pairs_neg[sample_group]|length }}</a></td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
         <a id="DownloadTable" href="#" class="btn btn-primary">Download table</a><br /><br />
         </div>
+    </div>
+
+    <div class="row"></div>
+        <div class="col-lg-12">
+        <table class="table table-striped" id="results_table">
+            <thead>
+            <tr>
+                <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>Group 1</th>
+                <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>Group 2</th>
+                <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>Shared Positive Correlations</th>
+                <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>Shared Negative Correlations</th>
+                <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>Shared Pairs in Opposing Correlations (Neg G1-Pos G2)</th>
+                <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>Shared Pairs in Opposing Correlations (Pos G1-Neg G2)</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for sample_group1 in intersection_two_groups_pos.keys() %}
+                    {% for sample_group2 in intersection_two_groups_pos[sample_group1].keys() %}
+                <tr>
+                    <td>{{ sample_group1 }}</td>
+                    <td>{{ sample_group2 }}</td>
+                    <td><a href="#">{{ intersection_two_groups_pos[sample_group1][sample_group2]|length }}</a></td>
+                    <td><a href="#">{{ intersection_two_groups_neg[sample_group1][sample_group2]|length }}</a></td>
+                    <td><a href="#">{{ intersection_two_groups_neg_pos[sample_group1][sample_group2]|length }}</a></td>
+                    <td><a href="#">{{ intersection_two_groups_pos_neg[sample_group1][sample_group2]|length }}</a></td>
+                </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+        <a id="DownloadTable" href="#" class="btn btn-primary">Download table</a><br /><br />
         </div>
+    </div>
 
         <div class="modal" id="profileModal" tabindex="-1" role="dialog" aria-labelledby="profileModalLabel">
             <div class="modal-dialog" role="document" style="width:1000px;height:800px;">

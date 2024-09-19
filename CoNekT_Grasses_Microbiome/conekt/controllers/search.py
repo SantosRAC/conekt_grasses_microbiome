@@ -115,23 +115,42 @@ def search_correlated_profiles_study_groups():
 
         unique_pairs_pos = {}
         unique_pairs_neg = {}
+        intersection_two_groups_pos = {}
+        intersection_two_groups_neg = {}
+        intersection_two_groups_pos_neg = {}
+        intersection_two_groups_neg_pos = {}
 
         for sample_group1 in results_correlations.keys():
             pairs_all_other_groups_pos = []
             pairs_all_other_groups_neg = []
+            intersection_two_groups_pos[sample_group1] = {}
+            intersection_two_groups_neg[sample_group1] = {}
+            intersection_two_groups_pos_neg[sample_group1] = {}
+            intersection_two_groups_neg_pos[sample_group1] = {}
             for sample_group2 in results_correlations.keys():
                 if sample_group1 != sample_group2:
                     pairs_all_other_groups_pos.extend(results_correlations[sample_group2]['pos']['pairs'])
                     pairs_all_other_groups_neg.extend(results_correlations[sample_group2]['neg']['pairs'])
+            for sample_group2 in results_correlations.keys():
+                if sample_group2 in intersection_two_groups_pos.keys():
+                    if sample_group1 in intersection_two_groups_pos[sample_group2].keys():
+                        continue
+                if sample_group1 != sample_group2:
+                    intersection_two_groups_pos[sample_group1][sample_group2] = set(results_correlations[sample_group1]['pos']['pairs']).intersection(set(results_correlations[sample_group2]['pos']['pairs']))
+                    intersection_two_groups_neg[sample_group1][sample_group2] = set(results_correlations[sample_group1]['neg']['pairs']).intersection(set(results_correlations[sample_group2]['neg']['pairs']))
+                    intersection_two_groups_pos_neg[sample_group1][sample_group2] = set(results_correlations[sample_group1]['pos']['pairs']).intersection(set(results_correlations[sample_group2]['neg']['pairs']))
+                    intersection_two_groups_neg_pos[sample_group1][sample_group2] = set(results_correlations[sample_group1]['neg']['pairs']).intersection(set(results_correlations[sample_group2]['pos']['pairs']))
             unique_pairs_pos[sample_group1] = set(results_correlations[sample_group1]['pos']['pairs']).difference(set(pairs_all_other_groups_pos))
             unique_pairs_neg[sample_group1] = set(results_correlations[sample_group1]['neg']['pairs']).difference(set(pairs_all_other_groups_neg))
-            print(str(unique_pairs_pos[sample_group1])+f"- unique pos in {sample_group1}")
-            print(str(unique_pairs_neg[sample_group1])+f"- unique neg in {sample_group1}")
-        
-        exit(1)
 
         return render_template("omics_integration/compare_correlations_study_groups.html",
                                results=results_correlations,
+                               intersection_two_groups_pos=intersection_two_groups_pos,
+                               intersection_two_groups_neg=intersection_two_groups_neg,
+                               intersection_two_groups_pos_neg=intersection_two_groups_pos_neg,
+                               intersection_two_groups_neg_pos=intersection_two_groups_neg_pos,
+                               unique_pairs_pos=unique_pairs_pos,
+                               unique_pairs_neg=unique_pairs_neg,
                                species=species,
                                study=study,
                                tool_name=tool_name,
