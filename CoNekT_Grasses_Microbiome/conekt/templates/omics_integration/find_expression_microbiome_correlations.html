@@ -88,15 +88,15 @@
 
     <div class="row">
         {% if correlation_method.stat_method != 'sparxcc' %}
-        <div class="col-lg-12">
+        <div class="col-lg-14">
         {% else %}
-        <div class="col-lg-8">
+        <div class="col-lg-10">
         {% endif %}
         <table class="table table-striped" id="results_table">
             <thead>
             <tr>
-                <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>Host transcript</th>
-                <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>OTU/ASV</th>
+                <th class="col-xs-3" data-sort="string-ins"><span class="sort-icon"></span>Host transcript</th>
+                <th class="col-xs-3" data-sort="string-ins"><span class="sort-icon"></span>OTU/ASV</th>
                 <th class="col-xs-2" data-sort="float"><span class="sort-icon"></span>Correlation coefficient</th>
                 {% if correlation_method.stat_method != 'sparxcc' %}
                 <th class="col-xs-2" data-sort="float"><span class="sort-icon"></span><abbr title="Click to show help" href="#" data-target="#helpModal">P-value</abbr></th>
