@@ -55,13 +55,11 @@
                     <table class="table table-striped table-fixed" id="gtdb_table">
                         <thead>
                             <tr>
-                                <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span><abbr title="Click to show help" href="#" data-target="#helpModal">GTDB ID</abbr></th>
                                 <th class="col-xs-5" data-sort="string-ins"><span class="sort-icon"></span>Taxonomy Path (Lowest Rank Possible)</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td class="col-xs-2"><a href="https://gtdb.ecogenomic.org/genome?gid={{ taxonomy_associations['gtdb']['gtdb_id'] | replace('GB_', '') | replace('RS_', '') }}"> {{ taxonomy_associations['gtdb']['gtdb_id'] }} </a></td>
                                 <td class="col-xs-5"> {{ taxonomy_associations['gtdb']['taxon_path'] }} </td>
                             </tr>
                         </tbody>
