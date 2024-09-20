@@ -65,8 +65,9 @@
         <li><a href="{{ url_for('main.features') }}">Tools</a></li>
         <li><a href="{{ url_for('search.search_correlated_profiles_study_groups') }}">Correlated Profiles Between Groups in a Study</a></li>
     </ol>
-    <h1>Correlated profiles for study {{ study.name }}</h1>
-    <h2>Species: <em>{{ species.name }} </em></h2>
+    <h1>Correlated profiles for study:</h1>
+    <h1><em>{{ study.name }} </em></h1>
+    <h2>Species: <a href="{{ url_for('species.species_view', species_id=species.id) }}"><em>{{ species.name }} </em></a></h2>
     <h2>Correlation method: <em>{{ tool_name }} </em></h2>
     <h2>Correlation cutoff: <em>{{ cutoff }} </em></h2>
 
@@ -88,7 +89,7 @@
             <tbody>
                 {% for sample_group in results.keys() %}
                 <tr>
-                    <td>Subpopulation</td>
+                    <td>{{ results[sample_group]['group_type'] }}</td>
                     <td>{{ sample_group }}</td>
                     <td><a href="#">{{ results[sample_group]['pos']|length }}</a></td>
                     <td><a href="#">{{ results[sample_group]['neg']|length }}</a></td>
@@ -107,8 +108,8 @@
         <table class="table table-striped" id="results_table">
             <thead>
             <tr>
-                <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>Group 1</th>
-                <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>Group 2</th>
+                <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>Group 1 (G1)</th>
+                <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>Group 2 (G2)</th>
                 <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>Shared Positive Correlations</th>
                 <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>Shared Negative Correlations</th>
                 <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>Shared Pairs in Opposing Correlations (Neg G1-Pos G2)</th>

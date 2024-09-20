@@ -7,6 +7,8 @@ from conekt.forms.omics_integration.profile_correlations import SearchCorrelated
     SearchCorrelatedProfilesTwoStudiesForm, SearchCorrelatedProfilesStudyGroupsForm
 from conekt.models.species import Species
 from conekt.models.studies import Study
+from conekt.models.relationships.study_sample import StudySampleAssociation
+from conekt.models.relationships.sample_group import SampleGroupAssociation
 from conekt.models.expression_microbiome.expression_microbiome_correlation import\
     ExpMicroCorrelationMethod, ExpMicroCorrelation
 
@@ -66,6 +68,18 @@ def search_correlated_profiles_study_groups():
         species = Species.query.get_or_404(species_id)
         study = Study.query.get_or_404(study_id)
 
+        sample_ids = [sample_id[0] for sample_id in StudySampleAssociation.query.\
+            with_entities(StudySampleAssociation.sample_id).\
+            filter_by(study_id=study_id).distinct().all()]
+        
+        sample_group_associations = SampleGroupAssociation.query.filter(SampleGroupAssociation.sample_id.in_(sample_ids)).all()
+
+        group_type2name = {}
+
+        for sample_group in sample_group_associations:
+            if sample_group.group_name not in group_type2name.keys():
+                group_type2name[sample_group.group_name] = sample_group.group_type
+
         results_methods = ExpMicroCorrelationMethod.query.\
             filter_by(study_id=study_id,
                       tool_name=tool_name).all()
@@ -80,6 +94,10 @@ def search_correlated_profiles_study_groups():
                 where((ExpMicroCorrelation.corr_coef>=float(cutoff)) | (ExpMicroCorrelation.corr_coef<=-float(cutoff))).all()
 
             results_correlations[method.sample_group] = {}
+            if method.sample_group in group_type2name.keys():
+                results_correlations[method.sample_group]['group_type'] = group_type2name[method.sample_group]
+            else:
+                results_correlations[method.sample_group]['group_type'] = 'whole study'
             results_correlations[method.sample_group]['neg'] = {}
             results_correlations[method.sample_group]['pos'] = {}
             results_correlations[method.sample_group]['neg']['pairs'] = []
