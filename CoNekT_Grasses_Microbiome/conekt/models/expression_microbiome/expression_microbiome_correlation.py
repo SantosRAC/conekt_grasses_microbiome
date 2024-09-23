@@ -346,7 +346,10 @@ class ExpMicroCorrelation(db.Model):
                     "depth": 0}
                     gene_nodes.append(gene_node)
                     valid_gene_nodes.append(str(gene_profile.probe))
-                edges.append({"source": source,
+                has_edge = [ed for ed in edges if (ed["source"]==source and ed["target"]==str(gene_profile.sequence_id) + "_gene") or\
+                    (ed["source"]==str(gene_profile.sequence_id) + "_gene" and ed["target"]==source)]
+                if not has_edge:
+                    edges.append({"source": source,
                                 "target": str(gene_profile.sequence_id) + "_gene",
                                 "source_name": s.original_id,
                                 "target_name": gene_profile.probe,
