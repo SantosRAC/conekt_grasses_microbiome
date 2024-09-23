@@ -116,7 +116,7 @@
                     <td>{{ r.pvalue }}</td>
                     <td>{{ r.qvalue }}</td>
                     {% endif %}
-                    <td><li><a href="{{ url_for('profile_correlations.profiles_scatter_modal', expression_profile_id=r.expression_profile_id, metatax_profile_id=r.metatax_profile_id) }}" data-target="#profileModal" id="profileModalURL">Show scatterplot</a></li></td>
+                    <td><li><a href="{{ url_for('profile_correlations.profiles_scatter_modal', expression_profile_id=r.expression_profile_id, metatax_profile_id=r.metatax_profile_id, sample_group=sample_group) }}" data-target="#profileModal" id="profileModalURL">Show scatterplot</a></li></td>
                 </tr>
 
             {% endfor %}

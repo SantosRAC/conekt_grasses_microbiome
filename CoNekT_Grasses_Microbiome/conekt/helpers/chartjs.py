@@ -474,19 +474,21 @@ def prepare_doughnut(counts):
     return output
 
 
-def prepare_profiles_scatterplot(exp_profile, metatax_profile):
+def prepare_profiles_scatterplot(exp_profile, metatax_profile, sample_ids=[]):
     """
     Prepare a scatterplot with two profiles
 
     :param profile_1: first profile (expression profile)
     :param profile_2: second profile (metatax profile)
+    :param sample_ids: list of sample ids to include in the plot
 
     """
 
     exp_profile_p = json.loads(exp_profile.profile)
     metatax_profile_p = json.loads(metatax_profile.profile)
 
-    common_sample_ids = set(exp_profile_p['data']['sample_id'].values()).intersection(set(metatax_profile_p['data']['sample_id'].values()))
+    common_sample_ids = set(exp_profile_p['data']['sample_id'].values()).intersection(set(metatax_profile_p['data']['sample_id'].values()),
+                                                                                      set(sample_ids))
 
     profile_points = []
 

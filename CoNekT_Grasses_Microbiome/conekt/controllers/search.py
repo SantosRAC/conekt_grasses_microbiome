@@ -30,6 +30,7 @@ def search_correlated_profiles():
         species_id = request.form.get('species_id')
         study_id = request.form.get('study_id')
         method_id = request.form.get('method_id')
+        sample_group = request.form.get('sample_group')
         cutoff = request.form.get('correlation_cutoff_groups')
 
         species = Species.query.get_or_404(species_id)
@@ -44,6 +45,7 @@ def search_correlated_profiles():
                                results=results,
                                species=species,
                                study=study,
+                               sample_group=sample_group,
                                correlation_method=correlation_method)
 
 

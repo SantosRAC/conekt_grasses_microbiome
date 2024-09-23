@@ -10,6 +10,7 @@ from conekt.models.expression_microbiome.expression_microbiome_correlation impor
 from conekt.models.expression.profiles import ExpressionProfile
 from conekt.models.microbiome.otu_profiles import OTUProfile
 from conekt.models.species import Species
+from conekt.models.relationships.sample_group import SampleGroupAssociation
 
 from conekt.helpers.chartjs import prepare_profiles_scatterplot
 
@@ -109,13 +110,16 @@ def get_correlated_profiles(species_id, study_id, method_id, cutoff):
                             correlation_method=correlation_method)
 
 
-@profile_correlations.route('/modal/profile_scatterplot/<expression_profile_id>/<metatax_profile_id>/')
+@profile_correlations.route('/modal/profile_scatterplot/<expression_profile_id>/<metatax_profile_id>/<sample_group>/')
 @cache.cached()
-def profiles_scatter_modal(expression_profile_id, metatax_profile_id):
+def profiles_scatter_modal(expression_profile_id, metatax_profile_id, sample_group='whole study'):
     """
     Returns a scatterplot with correlations between two profiles in a modal
 
-    :param 
+    :param expression_profile_id: ID of the expression profile
+    :param metatax_profile_id: ID of the metatax profile
+    :param sample_group: Name of the sample group
+    
     :return: 
     """
     
@@ -123,12 +127,12 @@ def profiles_scatter_modal(expression_profile_id, metatax_profile_id):
     metatax_profile = OTUProfile.query.get_or_404(metatax_profile_id)
 
     return render_template('modals/expression_microbiome_profile_correlation.html',
-                           expression_profile=expression_profile, metatax_profile=metatax_profile)
+                           expression_profile=expression_profile, metatax_profile=metatax_profile, sample_group=sample_group)
 
 
-@profile_correlations.route('/json/profile_scatterplot/<expression_profile_id>/<metatax_profile_id>')
+@profile_correlations.route('/json/profile_scatterplot/<expression_profile_id>/<metatax_profile_id>/<group_name>')
 @cache.cached()
-def profiles_scatter_modal_json(expression_profile_id, metatax_profile_id):
+def profiles_scatter_modal_json(expression_profile_id, metatax_profile_id, group_name='whole study'):
     """
     Generates a JSON object with  that can be rendered using Chart.js line plots
     """
@@ -136,6 +140,11 @@ def profiles_scatter_modal_json(expression_profile_id, metatax_profile_id):
     expression_profile = ExpressionProfile.query.get_or_404(expression_profile_id)
     metatax_profile = OTUProfile.query.get_or_404(metatax_profile_id)
 
-    plot = prepare_profiles_scatterplot(expression_profile, metatax_profile)
+    if group_name == 'whole study':
+        sample_ids = [sample_id[0] for sample_id in SampleGroupAssociation.query.with_entities(SampleGroupAssociation.sample_id).distinct().all()]
+    else:
+        sample_ids = [sample_id[0] for sample_id in SampleGroupAssociation.query.with_entities(SampleGroupAssociation.sample_id).filter_by(group_name=group_name).distinct().all()]
+
+    plot = prepare_profiles_scatterplot(expression_profile, metatax_profile, sample_ids)
 
     return Response(json.dumps(plot), mimetype='application/json')

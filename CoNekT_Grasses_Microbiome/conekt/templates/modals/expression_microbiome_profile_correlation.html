@@ -11,7 +11,7 @@
 </div>
 <script>
     $(document).ready(function () { 
-        $.getJSON( "{{ url_for('profile_correlations.profiles_scatter_modal_json', expression_profile_id=expression_profile.id, metatax_profile_id=metatax_profile.id) }}", function( data ) {
+        $.getJSON( "{{ url_for('profile_correlations.profiles_scatter_modal_json', expression_profile_id=expression_profile.id, metatax_profile_id=metatax_profile.id, group_name=sample_group) }}", function( data ) {
 
         function mean(values) {
             return values.reduce((sum, value) => sum + value, 0) / values.length;
