@@ -113,10 +113,12 @@ class ExpMicroCorrelation(db.Model):
 
         # Get all expression profiles associated with study
         expression_profiles = ExpressionProfile.query.filter_by(normalization_method=rnaseq_norm,
-                                                                species_id=study.species_id).all()
+                                                                species_id=study.species_id,
+                                                                study_id=study_id.id).all()
         # Get all OTU profiles associated with study
         metatax_profiles = OTUProfile.query.filter_by(normalization_method=metatax_norm,
-                                                         species_id=study.species_id).all()
+                                                         species_id=study.species_id,
+                                                         study_id=study_id.id).all()
         
         # Create pandas dataframe with all expression and metatax profiles associated with study
         expression_profiles_df = pd.DataFrame()
