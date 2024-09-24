@@ -1,6 +1,5 @@
 from .blueprint import admin_controls
 
-from .asvs import add_asvs
 from .otus import add_otus
 from .otus import add_otu_classification
 from .blast import build_blast_db
