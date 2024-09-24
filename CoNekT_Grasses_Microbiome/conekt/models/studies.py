@@ -17,15 +17,19 @@ class Study(db.Model):
     description = db.Column(db.Text)
     data_type = db.Column(db.Enum('metataxonomics', 'expression_metataxonomics', name='data_type'))
     krona_html = db.deferred(db.Column(LONGTEXT))
+    expression_pca_html = db.deferred(db.Column(LONGTEXT))
+    metatax_pca_html = db.deferred(db.Column(LONGTEXT))
     species_id = db.Column(db.Integer, db.ForeignKey('species.id', ondelete='CASCADE'), index=True)
 
     def __init__(self, name, description,
                  data_type, species_id,
-                 krona_html=None):
+                 krona_html=None, expression_pca_html=None, metatax_pca_html=None):
         self.name = name
         self.description = description
         self.data_type = data_type
         self.krona_html = krona_html
+        self.expression_pca_html = expression_pca_html
+        self.metatax_pca_html = metatax_pca_html
         self.species_id = species_id
 
     def __repr__(self):

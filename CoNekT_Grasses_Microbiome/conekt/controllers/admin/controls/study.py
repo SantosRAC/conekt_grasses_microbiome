@@ -10,6 +10,7 @@ from tempfile import mkstemp
 from conekt.controllers.admin.controls import admin_controls
 
 from conekt.forms.admin.build_study import BuildStudyForm
+from conekt.forms.admin.build_study_pcas import BuildStudyPCAsForm
 
 from conekt.models.studies import Study
 
@@ -50,6 +51,35 @@ def build_study():
         
         flash(f'Added {study_type} study (study identifier: {study_id})', 'success')
 
+        return redirect(url_for('admin.index'))
+    else:
+        if not form.validate():
+            flash('Unable to validate data, potentially missing fields', 'danger')
+            return redirect(url_for('admin.index'))
+        else:
+            abort(405)
+
+
+@admin_controls.route('/build/study_pcas', methods=['POST'])
+@admin_required
+def build_study_pcas():
+    """
+    Controller that will build PCAs using profiles in a study
+
+    :return: return to admin index
+    """
+
+    form = BuildStudyPCAsForm(request.form)
+
+    if request.method == 'POST' and form.validate():
+        species_id = int(request.form.get('species_id'))
+        study_id = int(request.form.get('study_id'))
+        rnaseq_norm = request.form.get('rnaseq_norm')
+        metatax_norm = request.form.get('metatax_norm')
+
+        
+
+        flash('Successfully added correlations between microbiome and transcriptome.', 'success')
         return redirect(url_for('admin.index'))
     else:
         if not form.validate():

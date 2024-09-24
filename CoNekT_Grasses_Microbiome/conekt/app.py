@@ -170,7 +170,7 @@ def configure_admin_panel(app):
         from conekt.controllers.admin.views.microbiome.otus import AddOTUSView
         from conekt.controllers.admin.views.microbiome.otus import AddOTUClassificationView
         from conekt.controllers.admin.views.microbiome.otus import AddOTUProfilesView
-        from conekt.controllers.admin.views.study import BuildStudyView
+        from conekt.controllers.admin.views.study import BuildStudyView, BuildStudyPCAsView
         from conekt.controllers.admin.views.omics_integration.expression_microbiome_correlations import BuildCorrelationsView,\
                                             AddCorrelationsView
         from conekt.controllers.admin.views.microbiome.microbiome_profile_specificity import BuildMicrobiomeSpecificityView
@@ -245,6 +245,9 @@ def configure_admin_panel(app):
                                                endpoint='admin_build_study',
                                                url='build/study/', category='Build'))
         admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Build')
+        admin.add_menu_item(MenuLink("Study", class_name="disabled", url="#"), target_category='Build')
+        admin.add_view(BuildStudyPCAsView(name='Build Study PCAs', endpoint='admin_build_pcas',
+                                     url='build/study_pcas', category='Build'))
         admin.add_menu_item(MenuLink("Metataxonomics", class_name="disabled", url="#"), target_category='Build')
         admin.add_view(BuildMicrobiomeSpecificityView(name='Build Profile Specificity', endpoint='admin_build_metataxspecificity',
                                      url='build/metatax_specificity', category='Build'))
