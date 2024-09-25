@@ -86,7 +86,7 @@
                                 <!-- DOI as a clickable link -->
                                 <td>
                                     {% if genome.doi %}
-                                        <a href="https://doi.org/{{ genome.doi }}" target="_blank">{{ genome.doi }}</a>
+                                        <a href="https://{{ genome.doi }}" target="_blank">{{ genome.doi }}</a>
                                     {% else %}
                                         N/A
                                     {% endif %}
