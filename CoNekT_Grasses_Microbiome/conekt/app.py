@@ -17,18 +17,21 @@ from flask import Flask, render_template, g, request, url_for, flash, redirect
 from flask_admin.menu import MenuLink
 from flask_login import current_user
 from flask_admin import Admin
+from flask_wtf.csrf import CSRFProtect
 
 from conekt.extensions import db, login_manager, cache, htmlmin, \
     blast_thread, compress, migrate, csrf
 
 import coloredlogs
 
+csrf = CSRFProtect()
 
 def create_app(config):
     # Set up app, database and login manager before importing models and controllers
     # Important for db_create script
 
     app = Flask(__name__)
+    csrf.init_app(app)
 
     coloredlogs.install()
 
@@ -100,7 +103,7 @@ def configure_blueprints(app):
     from conekt.controllers.cazyme import cazyme
     from conekt.controllers.family import family
     from conekt.controllers.expression_profile import expression_profile
-    from conekt.controllers.search import search
+    from conekt.controllers.search import search_page
     from conekt.controllers.overview import overview
     from conekt.controllers.taxonomy_explorer import taxonomy_explorer
    
@@ -142,9 +145,10 @@ def configure_blueprints(app):
     app.register_blueprint(family, url_prefix='/family')
     app.register_blueprint(expression_profile, url_prefix='/profile')
     app.register_blueprint(custom_network, url_prefix='/custom_network')
-    app.register_blueprint(search, url_prefix='/search')
+    app.register_blueprint(search_page, url_prefix='/search')
     app.register_blueprint(overview, url_prefix = '/overview')
     app.register_blueprint(taxonomy_explorer, url_prefix = '/taxonomy_explorer')
+   
     
     # TODO: add URL after configuring Solr as the main search engine
     app.register_blueprint(help, url_prefix='/help')

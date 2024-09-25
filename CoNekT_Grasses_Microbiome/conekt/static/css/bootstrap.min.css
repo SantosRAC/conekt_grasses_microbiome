@@ -75,3 +75,57 @@
     align-items: center; /* Centraliza horizontalmente */
     text-align: center;
 }
+
+/* Estilos gerais para tabelas */
+.table-custom {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 25px 0;
+    font-size: 14px;
+    text-align: left;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.table-custom thead tr {
+    background-color: rgba(76, 175, 80, 0.8); /* Verde transparente */
+    color: white;
+    text-align: left;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.table-custom th,
+.table-custom td {
+    padding: 12px 15px;
+    border: 1px solid #ddd; /* Bordas suaves */
+}
+
+/* Alterna as cores das linhas para maior contraste */
+.table-custom tbody tr:nth-child(even) {
+    background-color: #f3f3f3;
+}
+
+.table-custom tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Redimensionamento e adaptação de texto */
+.table-custom th {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.table-custom td {
+    font-size: 13px;
+}
+
+/* Estilos de borda e espaço no mobile */
+@media (max-width: 767px) {
+    .table-custom {
+        font-size: 12px;
+    }
+}
+

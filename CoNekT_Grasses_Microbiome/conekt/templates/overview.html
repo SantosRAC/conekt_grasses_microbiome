@@ -9,79 +9,68 @@
         <li class="active"><strong>Statistics</strong></li>
     </ol>
 
-    <h1 class="banner-green">PaGeD Statistics</h1>
-
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12 text-center"> <!-- Centraliza o conteúdo horizontalmente -->
+    <!-- Centralized Statistic Overview -->
+    <div class="container-fluid">
+        <div class="row text-center" style="margin-bottom: 40px;">
+            <div class="col-md-12">
                 <h3 class="total-genomes-title">Total Number of Genomes</h3>
-                <div class="total-genomes-container">
-                    <p class="total-genomes-value">{{ total_genomes }}</p>
+                <div class="total-genomes-container" style="font-size: 2.5rem; font-weight: bold;">
+                    {{ total_genomes }}
                 </div>
             </div>
         </div>
-    </div>
-               
 
+        <!-- Gráficos em duas colunas -->
         <div class="row">
-            <!-- Gráfico de Donut para Habitats -->
             <div class="col-md-6">
-                <h3>Genome Distribution by Habitat</h3>
-                <div id="habitat-chart-container" class="text-center">
+                <h4 class="text-center" style="font-size: 18px;">Genome Distribution by Habitat</h4>
+                <div id="habitat-chart-container" class="text-center shadow p-3 mb-5 bg-white rounded">
                     <canvas id="habitatDonutChart" width="400" height="400"></canvas>
                 </div>
             </div>
-
-            <!-- Gráfico de Barras para Tipos de Genoma -->
             <div class="col-md-6">
-                <h3>Genome Distribution by Type</h3>
-                <div id="type-chart-container" class="text-center">
+                <h4 class="text-center" style="font-size: 18px;">Genome Distribution by Type</h4>
+                <div id="type-chart-container" class="text-center shadow p-3 mb-5 bg-white rounded">
                     <canvas id="typeBarChart" width="400" height="400"></canvas>
                 </div>
             </div>
         </div>
 
-        <br>
-        <br>
-
+        <!-- Distribuição do tamanho dos genomas -->
         <div class="row">
             <div class="col-md-6">
-                <h3>Genome Size Distribution</h3>
-                <div id="size-chart-container" class="text-center">
+                <h4 class="text-center" style="font-size: 18px;">Genome Size Distribution</h4>
+                <div id="size-chart-container" class="text-center shadow p-3 mb-5 bg-white rounded">
                     <canvas id="genomeSizeHistogram" width="400" height="400"></canvas>
                 </div>
             </div>
             <div class="col-md-6">
-                <h3>Quality Distribution</h3>
-                <div id="boxplot-container" class="text-center">
+                <h4 class="text-center" style="font-size: 18px;">Genome Quality Distribution</h4>
+                <div id="boxplot-container" class="text-center shadow p-3 mb-5 bg-white rounded">
                     <canvas id="qualityBoxPlot" width="400" height="400"></canvas>
                 </div>
             </div>
         </div>
-        <br>
-        <br>
-        <div class="col-md-12">
-            <h3>Distribution of Contigs vs Genome Size by Genome Type</h3>
-            <div id="contigs-scatter-chart-container" class="text-center">
-                <canvas id="contigsScatterChart" width="800" height="400"></canvas>
+
+        <!-- Scatter plot para contigs vs tamanho dos genomas -->
+        <div class="row">
+            <div class="col-md-12">
+                <h4 class="text-center" style="font-size: 18px;">Distribution of Contigs vs Genome Size by Genome Type</h4>
+                <div id="contigs-scatter-chart-container" class="text-center shadow p-3 mb-5 bg-white rounded">
+                    <canvas id="contigsScatterChart" width="800" height="400"></canvas>
+                </div>
             </div>
-            <br>
-        <br>
         </div>
 
-        <br>
-        <br>
-        <br>
-        <br>
-
+        <!-- Tabelas de contagem com visual moderno -->
         <div class="row">
             <!-- Tabela de Níveis Taxonômicos -->
             <div class="col-md-4">
-                <h4 class="text-center" style="font-size: 18px;">Number of Distinct Taxonomic Groups</h4>
-                <div class="table-responsive">
+                <h4 class="text-center" style="font-size: 18px;">Distinct Taxonomic Groups</h4>
+                <div class="table-responsive shadow p-3 mb-5 bg-white rounded">
                     <table class="table table-hover table-bordered table-striped">
-                        <thead class="thead-dark">
-                            <tr style="background-color: rgba(76, 175, 80, 0.2);">
+                        <thead style="background-color: rgba(76, 175, 80, 0.2);">
+                            <tr>
                                 <th style="font-size: 14px;">Taxonomic Level</th>
                                 <th style="font-size: 14px;">Number of Groups</th>
                             </tr>
@@ -95,11 +84,11 @@
 
             <!-- Tabela de Genomas por ENVO Class -->
             <div class="col-md-4">
-                <h4 class="text-center" style="font-size: 18px;">Number of Genomes by ENVO Class</h4>
-                <div class="table-responsive">
+                <h4 class="text-center" style="font-size: 18px;">Genomes by ENVO Class</h4>
+                <div class="table-responsive shadow p-3 mb-5 bg-white rounded">
                     <table class="table table-hover table-bordered table-striped">
-                        <thead class="thead-dark">
-                            <tr style="background-color: rgba(76, 175, 80, 0.2);">
+                        <thead style="background-color: rgba(76, 175, 80, 0.2);">
+                            <tr>
                                 <th style="font-size: 14px;">ENVO Class</th>
                                 <th style="font-size: 14px;">Number of Genomes</th>
                             </tr>
@@ -113,12 +102,12 @@
 
             <!-- Tabela de Genomas por País -->
             <div class="col-md-4">
-                <h4 class="text-center" style="font-size: 18px;">Number of Genomes by Country</h4>
-                <div class="table-responsive">
+                <h4 class="text-center" style="font-size: 18px;">Genomes by Country</h4>
+                <div class="table-responsive shadow p-3 mb-5 bg-white rounded">
                     <table class="table table-hover table-bordered table-striped">
-                        <thead class="thead-dark">
-                            <tr style="background-color: rgba(76, 175, 80, 0.2);">
-                                <th style="font-size: 14px;">Country</th>
+                        <thead style="background-color: rgba(76, 175, 80, 0.2);">
+                            <tr>
+                                <th style =="font-size: 14px;">Country</th>
                                 <th style="font-size: 14px;">Number of Genomes</th>
                             </tr>
                         </thead>
@@ -130,34 +119,24 @@
             </div>
         </div>
 
-       
-        <br>
-        <br>
-        <br>
-        <br>
-        
-
+        <!-- Contagem de Publicações -->
         <div class="row">
             <div class="col-md-12 center-content">
                 <h3 class="total-publications-title">Total Number of Publications</h3>
-                <p id="totalPublications" class="total-publications-value">Loading...</p>
+                <p id="totalPublications" class="total-publications-value" style="font-size: 24px; font-weight: bold;">Loading...</p>
             </div>
         </div>
-        
-        <div class="row"></div>
+
+        <!-- Contagem de Genomas por Ano -->
+        <div class="row">
             <div class="col-md-12">
-                <h3>Genome Counts by Publication Year</h3>
-                <div id="genomes-chart-container" class="text-center">
+                <h4 class="text-center" style="font-size: 18px;">Genome Counts by Publication Year</h4>
+                <div id="genomes-chart-container" class="text-center shadow p-3 mb-5 bg-white rounded">
                     <canvas id="genomesChart" width="800" height="400"></canvas>
                 </div>
             </div>
         </div>
-        
-                  
     </div>
-        
-        
-
 </div>
 {% endblock %}
 

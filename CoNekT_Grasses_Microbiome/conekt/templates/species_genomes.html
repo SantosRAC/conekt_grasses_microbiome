@@ -53,7 +53,7 @@
                             <td>{{ genome.envo_annotation or 'N/A' }}</td>
                             <td>
                                 {% if genome.ncbi_accession and genome.ncbi_accession != 'ND' %}
-                                    <a href="https://www.ncbi.nlm.nih.gov/nuccore/{{ genome.ncbi_accession }}" target="_blank">{{ genome.ncbi_accession }}</a>
+                                    <a href="https://www.ncbi.nlm.nih.gov/datasets/genome/{{ genome.ncbi_accession }}" target="_blank">{{ genome.ncbi_accession }}</a>
                                 {% else %}
                                     {{ genome.ncbi_accession or 'N/A' }}
                                 {% endif %}

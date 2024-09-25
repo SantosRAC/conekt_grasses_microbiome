@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+
+{% block title %}Search{% endblock %}
+
+{% block container %}
+    <div class="container">
+        <h1>Search Page</h1>
+        <form method="POST" action="{{ url_for('search.search') }}">
+            <div class="row">
+                <!-- Campo de busca para Taxonomy -->
+                <div class="col-md-2">
+                    <label for="taxonomy">Taxonomy:</label>
+                    <input type="text" class="form-control" name="taxonomy" id="taxonomy">
+                </div>
+                
+                <!-- Campo de busca para Country -->
+                <div class="col-md-2">
+                    <label for="country">Country:</label>
+                    <input type="text" class="form-control" name="country" id="country" list="countryList">
+                    <datalist id="countryList"> 
+                    </datalist>
+                </div>
+                
+                <!-- Campo de busca para ENVO Class -->
+                <div class="col-md-2">
+                    <label for="envo_class">ENVO Class:</label>
+                    <input type="text" class="form-control" name="envo_class" id="envo_class" list="envoClassList">
+                    <datalist id="envoClassList">
+                        <!-- As opções serão preenchidas dinamicamente -->
+                    </datalist>
+                </div>
+
+                <!-- Campo de busca para ENVO Annotation -->
+                <div class="col-md-2">
+                    <label for="envo_annotation">ENVO Annotation:</label>
+                    <input type="text" class="form-control" name="envo_annotation" id="envo_annotation" list="envoAnnotationList">
+                    <datalist id="envoAnnotationList">
+                        <!-- As opções serão preenchidas dinamicamente -->
+                    </datalist>
+                </div>
+            </div>
+            <br>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+
+        <hr>
+
+        <h2>Search Results</h2>
+
+        {% if results %}
+            <div class="table-responsive">
+                <table class="table table-custom">
+                    <thead>
+                        <tr>
+                            <th>Genome ID</th>
+                            <th>Type</th>
+                            <th>Taxon Path</th>
+                            <th>Quality</th>
+                            <th>Country</th>
+                            <th>Local</th>
+                            <th>ENVO Class</th>
+                            <th>ENVO Annotation</th>
+                            <th>DOI</th>
+                            <th>NCBI Accession</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for genome in results %}
+                            <tr>
+                                <td>{{ genome.genome_id }}</td>
+                                <td>{{ genome.genome_type }}</td>
+                                
+                                <!-- Taxon Path as a clickable link -->
+                                <td>
+                                    <a href="{{ url_for('taxonomy_explorer.show_genomes', cluster_id=genome.cluster_id) }}">
+                                        {{ genome.taxon_path or 'N/A' }}
+                                    </a>
+                                </td>
+                                
+                                <td>{{ genome.quality or 'N/A' }}</td>
+                                <td>{{ genome.country or 'N/A' }}</td>
+                                <td>{{ genome.local or 'N/A' }}</td>
+                                <td>{{ genome.envo_class or 'N/A' }}</td>
+                                <td>{{ genome.envo_annotation or 'N/A' }}</td>
+                                
+                                <!-- DOI as a clickable link -->
+                                <td>
+                                    {% if genome.doi %}
+                                        <a href="https://doi.org/{{ genome.doi }}" target="_blank">{{ genome.doi }}</a>
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                
+                                <!-- NCBI Accession as a clickable link -->
+                                <td>
+                                    {% if genome.ncbi_accession %}
+                                        <a href="https://www.ncbi.nlm.nih.gov/datasets/genome/{{ genome.ncbi_accession }}" target="_blank">
+                                            {{ genome.ncbi_accession }}
+                                        </a>
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p>No results found.</p>
+        {% endif %}
+    </div>
+{% endblock %}
+
+
+{% block extrajs %}
+<script>
+
+    // Função para carregar as opções de Country no campo de busca
+    async function loadCountries() {
+        try {
+            const response = await fetch('{{ url_for("search.get_country") }}');
+            console.log("Fetching countries, response status:", response.status);  // Log fetch status
+
+            if (!response.ok) {
+                console.error('Network response was not ok', response.status);
+                return;
+            }
+
+            const countries = await response.json();
+            console.log('Countries received:', countries);  // Log fetched data
+
+            const dataList = document.getElementById('countryList');
+            dataList.innerHTML = '';  // Clear any previous options
+
+            countries.forEach(function(item) {
+                const option = document.createElement('option');
+                option.value = item;
+                dataList.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error loading countries:', error);  // Log errors
+        }
+    }
+
+    // Função para carregar as opções de ENVO Class no campo de busca
+    async function loadEnvoClasses() {
+        try {
+            const response = await fetch('{{ url_for("search.get_envo_classes") }}');
+            const envoClasses = await response.json();
+            const dataList = document.getElementById('envoClassList');
+
+            envoClasses.forEach(function(item) {
+                const option = document.createElement('option');
+                option.value = item;
+                dataList.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error loading ENVO classes:', error);
+        }
+    }
+
+    // Função para carregar as opções de ENVO Annotation no campo de busca
+    async function loadEnvoAnnotations() {
+        try {
+            const response = await fetch('{{ url_for("search.get_envo_annotations") }}');
+            const envoAnnotations = await response.json();
+            const dataList = document.getElementById('envoAnnotationList');
+
+            envoAnnotations.forEach(function(item) {
+                const option = document.createElement('option');
+                option.value = item;
+                dataList.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error loading ENVO annotations:', error);
+        }
+    }
+
+    // Chamar as funções para carregar as opções quando a página carregar
+    document.addEventListener('DOMContentLoaded', function() {
+        loadCountries(); // <--- Added loadCountries to be called
+        loadEnvoClasses();
+        loadEnvoAnnotations();
+    });
+</script>
+
+{% endblock %}
