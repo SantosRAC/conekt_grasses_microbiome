@@ -29,16 +29,16 @@
 
         <h1><strong><em><a href="{{url_for('study.study_krona', study_id=study.id)}}">View Taxonomy (Krona)</em></strong></h1></a>
         
-        {{ if study.expression_plot_html }}
+        {% if study.expression_plot_html %}
         <h2>PCA Plot Expression</h2>
         <div>{{ study.expression_plot_html|safe }}</div>
-        {{ endif }}
+        {% endif %}
 
-        {{ if study.metatax_plot_html }}
+        {% if study.metatax_plot_html %}
         <h2>PCA Plot Metataxonomics</h2>
         <div>{{ study.metatax_plot_html|safe }}</div>
-        {{ endif }}
-        
+        {% endif %}
+    
         <div class="row">
             <div class="col-lg-12">
                 <br />
