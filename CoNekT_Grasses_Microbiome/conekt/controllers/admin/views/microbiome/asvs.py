@@ -23,6 +23,7 @@ class AddASVClassificationView(AdminBaseView):
     @expose('/')
     def index(self):
         form = AddASVClassificationForm()
+        form.populate_literature()
 
         return self.render('admin/add/asv_classification.html', form=form)
 
