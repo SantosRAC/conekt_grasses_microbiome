@@ -72,14 +72,32 @@ def build_study_pcas():
     form = BuildStudyPCAsForm(request.form)
 
     if request.method == 'POST' and form.validate():
-        species_id = int(request.form.get('species_id'))
         study_id = int(request.form.get('study_id'))
-        rnaseq_norm = request.form.get('rnaseq_norm')
-        metatax_norm = request.form.get('metatax_norm')
-
         
+        expression_pca_html = request.files[form.expression_pca_file.name].read()
+        metatax_pca_html = request.files[form.metatax_pca_file.name].read()
 
-        flash('Successfully added correlations between microbiome and transcriptome.', 'success')
+        # Add PCA plots to study
+        fd_expression_pca, temp_path_expression_pca = mkstemp()
+
+        with open(temp_path_expression_pca, 'wb') as file_writer:
+            file_writer.write(expression_pca_html)
+
+        os.close(fd_expression_pca)
+        os.remove(temp_path_expression_pca)
+
+        fd_metatax_pca, temp_path_metatax_pca = mkstemp()
+
+        with open(temp_path_metatax_pca, 'wb') as file_writer:
+            file_writer.write(metatax_pca_html)
+
+        os.close(fd_metatax_pca)
+        os.remove(temp_path_metatax_pca)
+
+        # Add PCAs to study
+        Study.build_pcas_study(study_id, expression_pca_html, metatax_pca_html)
+
+        flash('Successfully added PCAs for the study.', 'success')
         return redirect(url_for('admin.index'))
     else:
         if not form.validate():

@@ -50,3 +50,15 @@ class Study(db.Model):
         db.session.commit()
         
         return new_study.id
+
+    @staticmethod
+    def build_pcas_study(study_id, expression_pca_file, metatax_pca_file):
+        
+        study = Study.query.get(study_id)
+
+        if expression_pca_file:
+            study.expression_pca_html = expression_pca_file
+        if metatax_pca_file:
+            study.metatax_pca_html = metatax_pca_file
+
+        db.session.commit()

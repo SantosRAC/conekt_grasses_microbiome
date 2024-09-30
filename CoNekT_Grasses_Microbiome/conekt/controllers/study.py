@@ -61,7 +61,31 @@ def study_krona(study_id):
     krona_html = current_study.krona_html
 
     return render_template('study/krona.html', krona_html=krona_html, current_study=current_study)
-    
+
+@study.route('/expression_pca/<study_id>')
+@cache.cached()
+def expression_pca_plot(study_id):
+    """
+    Get a study based on the ID and show the PCA plot.
+
+    :param study_id: ID of the study to show
+    """
+    current_study = db.session.get(Study, study_id)
+
+    return render_template('study/expression_pca.html', current_study=current_study)
+
+
+@study.route('/metatax_pca/<study_id>')
+@cache.cached()
+def metatax_pca_plot(study_id):
+    """
+    Get a study based on the ID and show the PCA plot.
+
+    :param study_id: ID of the study to show
+    """
+    current_study = db.session.get(Study, study_id)
+
+    return render_template('study/metatax_pca.html', current_study=current_study)
 
 
 @study.route('/studies_papers/<study_id>/')

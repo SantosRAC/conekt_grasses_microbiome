@@ -25,6 +25,22 @@
         {{ form.metatax_norm.label }}
         {{ form.metatax_norm(class_="form-control") }}
     </div>
+    
+    <div class="form-group">
+        <p>Add expression PCA for the study.</p>
+        <label class="btn btn-default" for="expression_pca_file" id="my-file-button-expression_pca">
+            {{ form.expression_pca_file(style="display:none;", onchange="")}}
+            <span id="expression_pca_file-selector-text">Select Expression PCA File</span>
+        </label>
+    </div>
+
+    <div class="form-group">
+        <p>Add metataxonomics PCA for the study.</p>
+        <label class="btn btn-default" for="metatax_pca_file" id="my-file-button-metatax_pca">
+            {{ form.metatax_pca_file(style="display:none;", onchange="")}}
+            <span id="metatax_pca_file-selector-text">Select Metataxonomics PCA File</span>
+        </label>
+    </div>
 
     <button type="submit" class="btn btn-success">Build PCAs</button>
 </form>
@@ -55,6 +71,19 @@
             })
         })
     }
+
+    $(function() {
+        $("#expression_pca_file").change(function() {
+                $('#expression_pca_file-selector-text').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#my-file-button-expression_pca').toggleClass('btn-default btn-success');
+        });
+    });
+
+    $(function() {
+        $("#metatax_pca_file").change(function() {
+                $('#metatax_pca_file-selector-text').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#my-file-button-metatax_pca').toggleClass('btn-default btn-success');
+        });
+    });
+
 </script>
 
 {{ super() }}
