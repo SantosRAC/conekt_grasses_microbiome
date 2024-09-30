@@ -109,8 +109,8 @@
             {% for r in results %}
 
                 <tr>
-                    <td><a href="{{ url_for('sequence.sequence_find', sequence_name=r.gene_probe) }}">{{ r.gene_probe }}</a> (<a href="#">view profile</a>)</td>
-                    <td><a href="{{ url_for('otu.otu_find', otu_original_id=r.otu_probe) }}">{{ r.otu_probe }}</a> (<a href="#">view profile</a>)</td>
+                    <td><a href="{{ url_for('sequence.sequence_find', sequence_name=r.gene_probe) }}">{{ r.gene_probe }}</a> </td>
+                    <td><a href="{{ url_for('otu.otu_find', otu_original_id=r.otu_probe) }}">{{ r.otu_probe }}</a> </td>
                     <td>{{ r.corr_coef }}</td>
                     {% if correlation_method.stat_method != 'sparxcc' %}
                     <td>{{ r.pvalue }}</td>
@@ -140,7 +140,7 @@
 {% endblock %}
 
 {% block extrajs %}
-<script src="{{ url_for('static', filename='js/bootstrap-slider.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap-slider.min.js') }}"></script>  
 <script src="{{ url_for('static', filename='js/table2CSV.js') }}" > </script>
 <script src="{{ url_for('static', filename='js/Chart.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/chartjs-plugin-zoom.min.js') }}"></script>
@@ -172,6 +172,15 @@ $(function () {
   });
 
 })
+
+    var csv_data = $("#results_table").table2CSV({delivery:'value'});
+    csv_data = csv_data.replace(/,"Action"\n/,'\n');
+    csv_data = csv_data.replace(/,"\s+"\n/gi,'\n');
+    csv_data = csv_data.replace(/,"\s+"$/gi,'\n');
+
+    $("#DownloadTable").attr('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(csv_data));
+    $("#DownloadTable").attr('download', "table_correlations.csv");
+
 </script>
 
 {% if form %}
