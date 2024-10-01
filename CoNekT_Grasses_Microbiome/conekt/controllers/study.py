@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, g, jsonify
+from flask import Blueprint, render_template, g, jsonify, Response
 from markdown import markdown
 
 from conekt import db, cache
@@ -14,6 +14,10 @@ from conekt.models.species import Species
 from conekt.models.seq_run import SeqRun
 from conekt.models.studies import Study
 from conekt.models.microbiome.specificity import MicrobiomeSpecificityMethod
+
+from conekt.helpers.chartjs import prepare_doughnut
+
+import json
 
 study = Blueprint('study', __name__)
 
@@ -47,6 +51,34 @@ def study_view(study_id):
         else markdown(current_study.description, extensions=['markdown.extensions.tables', 'markdown.extensions.attr_list'])
 
     return render_template('study.html', study=current_study, description=description)
+
+@study.route('/json/study_gtdb_taxonomy_doughnut/<study_id>')
+@cache.cached()
+def study_gtdb_taxonomy_doughnut_json(study_id):
+    """
+    Generates a JSON object that can be rendered using Chart.js doughnut plots
+    """
+    
+    #TODO: Create the counts for the taxonomy (or give it a different name)
+
+    counts = {}
+
+    counts["Testing"] = {}
+    counts["Testing"]["label"] = "s.species.name"
+    counts["Testing"]["value"] = 1
+    counts["Testing"]["color"] = "#00FF00"
+    counts["Testing2"] = {}
+    counts["Testing2"]["label"] = "s.species.name2"
+    counts["Testing2"]["color"] = "#FF0000"
+    counts["Testing2"]["value"] = 4
+    counts["Testing3"] = {}
+    counts["Testing3"]["label"] = "s.species.name9"
+    counts["Testing3"]["color"] = "#0000FF"
+    counts["Testing3"]["value"] = 9
+
+    plot = prepare_doughnut(counts)
+    
+    return Response(json.dumps(plot), mimetype='application/json')
 
 @study.route('/krona/<study_id>')
 @cache.cached()

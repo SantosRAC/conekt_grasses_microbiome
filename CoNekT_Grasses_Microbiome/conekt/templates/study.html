@@ -27,7 +27,14 @@
         {% endif %}
         <br />
 
-        <h1><strong><em><a href="{{url_for('study.study_krona', study_id=study.id)}}">View Taxonomy (Krona)</em></strong></h1></a>
+        <h1>Taxonomy Explorer</h1>
+        
+        <div id="canvas-holder" class="center-block"  style="height:300px;max-height:300px">
+            <div id="chart-loader"></div>
+            <canvas id="chart-area" class="center-block" width="300" height="300" style="display:none"/>
+        </div>
+
+        <h2><strong><em><a href="{{url_for('study.study_krona', study_id=study.id)}}">View Taxonomy (Krona)</em></strong></h2></a>
         
         {% if study.expression_pca_html %}
         <h1><strong><em><a href="{{url_for('study.expression_pca_plot', study_id=study.id)}}">View Expression PCA</em></strong></h1></a>
@@ -90,5 +97,16 @@
 {% endblock %}
 
 {% block extrajs %}
-    
+
+<script src="{{ url_for('static', filename='js/Chart.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/chartjs-plugin-zoom.min.js') }}"></script>
+<script>
+
+{% if study %}
+{% import "macros/chartjs.html" as chartjs %}
+{{ chartjs.pie_chart_loader("chart-area", url_for('study.study_gtdb_taxonomy_doughnut_json', study_id=study.id), "chart-loader") }}
+{% endif %}
+
+</script>
+
 {% endblock %}
