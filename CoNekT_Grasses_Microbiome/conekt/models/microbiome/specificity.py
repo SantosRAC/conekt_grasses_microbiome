@@ -28,13 +28,10 @@ class MicrobiomeSpecificityMethod(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.Text)
     conditions = db.Column(db.Text)
-    data_type = db.Column(db.Enum('condition', 'po_anatomy',
-                                  'po_dev_stage', 'peco',
-                                  'envo', 'subpopulation',
-                                  name='data_type'))
+    data_type = db.Column(db.String(200, collation=SQL_COLLATION))
     study_id = db.Column(db.Integer, db.ForeignKey('studies.id', ondelete='CASCADE'))
 
-    def __init__(self, description, conditions, study_id, data_type='condition'):
+    def __init__(self, description, conditions, study_id, data_type):
         self.description = description
         self.conditions = conditions
         self.study_id = study_id
@@ -44,7 +41,7 @@ class MicrobiomeSpecificityMethod(db.Model):
         return str(self.id) + ". " + self.description + ' [' + self.study_id + ']'
 
     @staticmethod
-    def calculate_specificities(study_id, description, remove_background=False, use_max=True):
+    def calculate_specificities(study_id, description, remove_background=False):
         """
         Function calculates specific genes based on the samples ontologies and groups. 
         This also allows conditions to be excluded in case they are unrelated with a specific tissue.
@@ -52,7 +49,6 @@ class MicrobiomeSpecificityMethod(db.Model):
         :param study_id: internal id of the study
         :param description: description for the method to determine the specificity
         :param remove_background: substracts the lowest value to correct for background noise
-        :param use_max: uses the maximum of mean values instead of the mean of all values
         :return id of the new method
         """
 
@@ -150,11 +146,12 @@ class MicrobiomeSpecificityMethod(db.Model):
                 else:
                     sample_groups_dict['envo'][sample_envo.envo_id] = [sample_envo.sample_id]
 
-        if 'subpopulation' in sample_groups_dict.keys() and len(sample_groups_dict['subpopulation'].keys()) > 1:
-            new_method = MicrobiomeSpecificityMethod(description + " - " + "Subpopulation",
-                                                     str([group for group in sample_groups_dict['subpopulation'].keys()]),
-                                                     study_id, data_type = 'subpopulation')
-            db.session.add(new_method)
+        for group_key in sample_groups_dict.keys():
+            if len(sample_groups_dict[group_key].keys()) > 1:
+                new_method = MicrobiomeSpecificityMethod(description + " - " + group_key.capitalize(),
+                                                     str([group for group in sample_groups_dict[group_key].keys()]),
+                                                     study_id, data_type = group_key)
+                db.session.add(new_method)
 
         db.session.commit()
 
@@ -164,14 +161,14 @@ class MicrobiomeSpecificityMethod(db.Model):
 
         # detect specifities and add to the database
         specificities = []
-        new_methods_ids = []
+        new_methods_ids = []        
 
         for profile_id, profile_probe, profile in profiles:
             # prepare profile data for calculation
             profile_data = json.loads(profile)
             profile_means = {}
             for group_type in sample_groups_dict.keys():
-                if sample_groups_dict[group_type]:
+                if len(sample_groups_dict[group_type].keys()) > 1:
 
                     profile_means[group_type] = {}
 

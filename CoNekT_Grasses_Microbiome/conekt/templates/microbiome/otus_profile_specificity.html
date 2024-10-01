@@ -15,25 +15,27 @@
             <li class="active"><strong>Results</strong></li>
         </ol>
 
-        <h1>Specific profiles for study {{ current_study.name }} ({{ current_species.name }})</h1>
+        <h1>Specific profiles for study {{ current_study.name }} (<em>{{ current_species.name }}</em>)</h1>
+
+        <h2>Groups of: <em>{{ current_method.data_type }} </em></h2>
 
         <div class="row">
-        <div class="col-lg-9">
+        <div class="col-lg-10">
         <table class="table table-striped" id="results_table">
             <thead>
             <tr>
-                <th class="col-xs-3" data-sort="string-ins"><span class="sort-icon"></span>OTU</th>
-                <th class="col-xs-3" data-sort="string-ins"><span class="sort-icon"></span>Condition</th>
-                <th class="col-xs-1" data-sort="float"><span class="sort-icon"></span>SPM score</th>
-                <th class="col-xs-1" data-sort="float"><span class="sort-icon"></span>Entropy score</th>
-                <th class="col-xs-1" data-sort="float"><span class="sort-icon"></span>Tau score</th>
+                <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>OTU</th>
+                <th class="col-xs-2" data-sort="string-ins"><span class="sort-icon"></span>Condition</th>
+                <th class="col-xs-2" data-sort="float"><span class="sort-icon"></span>SPM score</th>
+                <th class="col-xs-2" data-sort="float"><span class="sort-icon"></span>Entropy score</th>
+                <th class="col-xs-2" data-sort="float"><span class="sort-icon"></span>Tau score</th>
             </tr>
             </thead>
             <tbody>
             {% for p in specific_profiles %}
 
                 <tr>
-                    <td><a href="{{ url_for('otu.otu_find', otu_original_id=p.otu_probe) }}">{{ p.otu_probe }}</a> (<a href="#">view profile</a>)</td>
+                    <td><a href="{{ url_for('otu.otu_find', otu_original_id=p.otu_probe) }}">{{ p.otu_probe }}</a></td>
                     <td>{{ p.condition }}</td>
                     <td>{{ p.score }}</td>
                     <td>{{ p.entropy }}</td>
@@ -142,6 +144,14 @@
           });
         
         })
+
+        var csv_data = $("#results_table").table2CSV({delivery:'value'});
+        csv_data = csv_data.replace(/,"Action"\n/,'\n');
+        csv_data = csv_data.replace(/,"\s+"\n/gi,'\n');
+        csv_data = csv_data.replace(/,"\s+"$/gi,'\n');
+
+        $("#DownloadTable").attr('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(csv_data));
+        $("#DownloadTable").attr('download', "table_correlations.csv");
     </script>
 
     <script>

@@ -113,17 +113,19 @@ def find_specific_profiles():
     if request.method == 'POST':
         species_id = request.form.get('species_id')
         study_id = request.form.get('study_id')
-        conditions = request.form.get('conditions')
+        method_id = request.form.get('conditions')
         spm_cutoff = request.form.get('spm_cutoff')
 
+        current_method = MicrobiomeSpecificityMethod.query.get(method_id)
         current_species = Species.query.get(species_id)
         current_study = Study.query.get(study_id)
 
-        specific_profiles = MicrobiomeSpecificityMethod.get_method_specificities(conditions, spm_cutoff)
+        specific_profiles = MicrobiomeSpecificityMethod.get_method_specificities(method_id, spm_cutoff)
 
         return render_template("microbiome/otus_profile_specificity.html",
                                specific_profiles=specific_profiles,
                                current_species=current_species,
+                               current_method=current_method,
                                current_study=current_study)
     else:
         
