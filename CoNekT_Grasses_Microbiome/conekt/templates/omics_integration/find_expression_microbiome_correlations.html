@@ -79,7 +79,45 @@
     </ol>
     <h1>Correlated profiles for study {{ study.name }} ({{ species.name }})</h1>
 
-    <h2>Correlation method: <em>{{ correlation_method.stat_method }} </em></h2>
+    <h2>GO enrichment for genes in correlated set</h2>
+
+    <div class="row">
+        <div class="col-lg-10">
+        <table class="table table-striped" id="enrichment_results_table">
+            <thead>
+            <tr>
+                <th class="col-xs-3" data-sort="string-ins"><span class="sort-icon"></span>GO Term</th>
+                <th class="col-xs-3" data-sort="string-ins"><span class="sort-icon"></span>GO Class</th>
+                <th class="col-xs-2" data-sort="float"><span class="sort-icon"></span>P-value</th>
+                <th class="col-xs-2">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+
+                <tr>
+                    <td> Example GO (term) </td>
+                    <td> Example GO (class) </td>
+                    <td> 0.01 </td>
+                    <td> Extra column </td>
+                </tr>
+
+                <tr>
+                    <td> Example GO (term) - example 2 </td>
+                    <td> Example GO (class) - example 2 </td>
+                    <td> 0.03 </td>
+                    <td> Extra column for example 2 </td>
+                </tr>
+
+
+            </tbody>
+        </table>
+        <a id="DownloadTableGO" href="#" class="btn btn-primary">Download table</a><br /><br />
+        </div>
+    </div>
+
+    <h2>Correlated Pairs</h2>
+    
+    <h3>Correlation method: <em>{{ correlation_method.stat_method }} </em></h3>
 
     {% if correlation_method.stat_method == 'sparxcc' %}
     <p>Note that for SparXCC correlations a permutation threshold has been applied (see <a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0305032">Jensen et al. 2024</a>)<br>
