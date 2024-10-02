@@ -27,7 +27,7 @@
         {% endif %}
         <br />
 
-        <h1>Taxonomy Explorer</h1>
+        <h1>Taxonomy Explorer - GTDB Top Ten <em>Classes</em></h1>
         
         <div id="canvas-holder" class="center-block"  style="height:300px;max-height:300px">
             <div id="chart-loader"></div>
@@ -36,34 +36,29 @@
 
         <h2><strong><em><a href="{{url_for('study.study_krona', study_id=study.id)}}">View Taxonomy (Krona)</em></strong></h2></a>
         
-        <h1>Principal Component Analysis (PCA)</h1>
-
-        {% if study.expression_pca_html %}
-        <h2><strong><em><a href="{{url_for('study.expression_pca_plot', study_id=study.id)}}">View Expression PCA</em></strong></h2></a>
-        {% else %}
-        <h2><strong>No Expression PCA available</strong></h2>
-        {% endif %}
-
         {% if study.metatax_pca_html %}
         <h2><strong><em><a href="{{url_for('study.metatax_pca_plot', study_id=study.id)}}">View Metataxonomics PCA</em></strong></h2></a>
         {% else %}
         <h2><strong>No Metataxonomics PCA available</strong></h2>
         {% endif %}
     
-        <div class="row">
-            <div class="col-lg-12">
-                <br />
-                <div class="btn-group">
-                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Download  <span class="caret"></span></button>
-                    <ul class="dropdown-menu">
-                        <li><a href="{{url_for('otu.study_download_otus', study_id=study.id)}}"  download="Study_{{study.id}}.otus.fasta">OTU Representative Sequences</a></li>
-                    </ul>
-                </div>
-                <br /><br />
-            </div>
-        </div>
-    
         {{ macro.pagination('OTUs', url_for('study.study_otus', study_id=study.id), 0, none, 'otus') }}
+
+        <div class="btn-group">
+            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Download  <span class="caret"></span></button>
+            <ul class="dropdown-menu">
+                <li><a href="{{url_for('otu.study_download_otus', study_id=study.id)}}"  download="Study_{{study.id}}.otus.fasta">OTU Representative Sequences</a></li>
+            </ul>
+        </div>
+        <br/><br/><br/>
+
+        <h1>Expression Data</h1>
+
+        {% if study.expression_pca_html %}
+        <h2><strong><em><a href="{{url_for('study.expression_pca_plot', study_id=study.id)}}">View Expression PCA</em></strong></h2></a>
+        {% else %}
+        <h2><strong>No Expression PCA available</strong></h2>
+        {% endif %}
 
     {% elif all_studies %}
         <ol class="breadcrumb">
