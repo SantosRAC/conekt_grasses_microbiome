@@ -14,6 +14,7 @@ from conekt.models.species import Species
 from conekt.models.seq_run import SeqRun
 from conekt.models.studies import Study
 from conekt.models.microbiome.specificity import MicrobiomeSpecificityMethod
+from conekt.models.relationships_microbiome.otu_classification import OTUClassificationGTDB
 
 from conekt.helpers.chartjs import prepare_doughnut
 
@@ -59,24 +60,44 @@ def study_gtdb_taxonomy_doughnut_json(study_id):
     Generates a JSON object that can be rendered using Chart.js doughnut plots
     """
     
-    #TODO: Create the counts for the taxonomy (or give it a different name)
+    lit_info = StudyLiteratureAssociation.query.with_entities(StudyLiteratureAssociation.literature_id).filter_by(study_id=study_id).distinct().all()
+
+    otu_methods = OperationalTaxonomicUnitMethod.query.with_entities(OperationalTaxonomicUnitMethod.id).filter(OperationalTaxonomicUnitMethod.literature_id.in_([lit_id[0] for lit_id in lit_info])).all()
+
+    otus = OperationalTaxonomicUnit.query.with_entities(OperationalTaxonomicUnit.id).filter(OperationalTaxonomicUnit.method_id.in_([method_id[0] for method_id in otu_methods]))
+    
+    otu_gtdb_paths = OTUClassificationGTDB.query.with_entities(OTUClassificationGTDB.lowest_path_available).filter(OTUClassificationGTDB.otu_id.in_([otu[0] for otu in otus])).all()
 
     counts = {}
+    counts["Unclassified"] = {}
+    counts["Unclassified"]["value"] = 0
+    counts["Unclassified"]["label"] = "Unclassified"
 
-    counts["Testing"] = {}
-    counts["Testing"]["label"] = "s.species.name"
-    counts["Testing"]["value"] = 1
-    counts["Testing"]["color"] = "#00FF00"
-    counts["Testing2"] = {}
-    counts["Testing2"]["label"] = "s.species.name2"
-    counts["Testing2"]["color"] = "#FF0000"
-    counts["Testing2"]["value"] = 4
-    counts["Testing3"] = {}
-    counts["Testing3"]["label"] = "s.species.name9"
-    counts["Testing3"]["color"] = "#0000FF"
-    counts["Testing3"]["value"] = 9
+    for otu_gtdb_path in otu_gtdb_paths:
+        class_from_path = [ele.replace("c__", "") for ele in otu_gtdb_path[0].split(";") if ele.startswith("c__")]
+        if class_from_path:
+            if class_from_path[0] in counts.keys():
+                counts[class_from_path[0]]["value"] += 1
+            else:
+                counts[class_from_path[0]] = {}
+                counts[class_from_path[0]]["value"] = 1
+                counts[class_from_path[0]]["label"] = class_from_path[0]
+        else:
+            counts["Unclassified"]["value"] += 1
 
-    plot = prepare_doughnut(counts)
+    colors = ['rgb(193,139,65, 0.6)', 'rgb(91,158,212, 0.6)', 'rgb(196,91,108, 0.6)', 'rgb(190,125,186, 0.6)',
+    'rgb(210,69,149, 0.6)', 'rgb(126,163,66, 0.6)', 'rgb(162,89,199, 0.6)', 'rgb(74,170,126, 0.6)',
+    'rgb(203,83,54, 0.6)', 'rgb(100,108,198, 0.6)']
+
+    top_ten_counts = sorted(counts.items(), key=lambda item: item[1]["value"], reverse=True)[:10]
+
+    top_ten_counts_dict = {}
+
+    for i, (key, value) in enumerate(top_ten_counts):
+        top_ten_counts_dict[key] = value
+        top_ten_counts_dict[key]["color"] = colors[i]
+
+    plot = prepare_doughnut(top_ten_counts_dict)
     
     return Response(json.dumps(plot), mimetype='application/json')
 
