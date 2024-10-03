@@ -67,13 +67,11 @@
                             </ul>
                         </li>
                         <li>
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Search <span class="caret"></span></a>
                             <ul class="dropdown-menu">
                                 {% if g.blast_enabled %}
                                     <li class="divider"></li>
                                     <li><a href="{{ url_for('blast.blast_main') }}">BLAST</a></li>
                                 {% endif %}
-
                             </ul>
                         </li>
                     </ul>
