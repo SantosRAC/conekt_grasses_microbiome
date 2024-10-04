@@ -167,6 +167,33 @@ def add_otu_classification():
             exact_path_match = True
         else:
             exact_path_match = False
+        
+        # verify if literature option was inserted or not
+        additional_classification = request.form.get('additional_classification')
+
+        #literature_id = None
+
+        if additional_classification == 'yes':
+
+            otu_classification_method_gg = request.form.get('otu_classification_method_gg')
+            classifier_version_gg = request.form.get('classifier_version_gg')
+            classification_ref_db_release_gg = request.form.get('release_gg')
+            otu_gg_classification_file = request.files[form.gg_otu_classification_file.name].read()
+
+            # Add GG classification file for OTUs
+            fd_gg_classification_file, temp_gg_classification_file_path = mkstemp()
+
+            with open(temp_gg_classification_file_path, 'wb') as otu_gg_classification_file_writer:
+                otu_gg_classification_file_writer.write(otu_gg_classification_file)
+
+            OTUClassificationGG.add_otu_classification_from_table(temp_gg_classification_file_path,
+                                        otu_classification_description,
+                                        otu_classification_method_gg,
+                                        classifier_version_gg,
+                                        classification_ref_db_release_gg)
+
+            os.close(fd_gtdb_classification_file)
+            os.remove(temp_gtdb_classification_file_path)
 
         # Add GTDB classification file for OTUs
         fd_gtdb_classification_file, temp_gtdb_classification_file_path = mkstemp()

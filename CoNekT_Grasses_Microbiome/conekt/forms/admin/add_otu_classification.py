@@ -25,7 +25,15 @@ class AddOTUClassificationForm(FlaskForm):
 
     exact_path_match = RadioField('Exact Path Match?', choices=[(True, 'Yes'), (False, 'No')], default='no')
 
-    additional_classification = RadioField('Add Additional Classification Databases? (e.g. SILVA)', choices=[('yes', 'Yes'), ('no', 'No')], default='no')
+    additional_classification = RadioField('Add Additional Classification Databases? (e.g. GreenGenes)', choices=[('yes', 'Yes'), ('no', 'No')], default='no')
+
+    otu_classification_method_gg = SelectField('OTU classifier (to assign GG taxonomy IDs)', choices=[('uclust', 'uclust'),
+                                                    ('qiime2_classify-sklearn', 'qiime2_classify-sklearn'),
+                                                    ('other', 'Other')])
+    classifier_version_gg = StringField('Classifier version (assign GG taxonomy IDs)', [InputRequired()])
+    release_gg = StringField('Reference Database release', [InputRequired()])
+    
+    gg_otu_classification_file = FileField('GG OTU Classification File')
 
     def populate_literature(self):
         # Get distinct species ids from sample table

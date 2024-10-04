@@ -49,7 +49,7 @@ class OperationalTaxonomicUnitMethod(db.Model):
         self.literature_id = literature_id
     
     def __repr__(self):
-        return str(self.id) + ". " + self.id (self.clustering_method, self.clustering_algorithm)
+        return str(self.id) + ". " + str(self.id) (self.clustering_method, self.clustering_algorithm)
 
 class OperationalTaxonomicUnit(db.Model):
     __tablename__ = 'otus'
@@ -64,7 +64,7 @@ class OperationalTaxonomicUnit(db.Model):
         self.method_id = method_id
     
     def __repr__(self):
-        return str(self.id) + ". " + self.method_id
+        return str(self.id) + ". " + str(self.method_id)
 
     @staticmethod
     def add_otus_from_fasta(otus_fasta,

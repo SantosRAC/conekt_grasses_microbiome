@@ -113,11 +113,10 @@ class OTUClassificationGG(db.Model):
                     otu_record = OperationalTaxonomicUnit.query.filter_by(original_id=otu_name).first()
 
                     # get the GG taxon record
-                    #taxon_db_record = GGTaxon.query.filter_by(taxon_path=path).first()
+                    taxon_db_record = GGTaxon.query.filter_by(taxon_path=path).first()
 
                     # create a new OTU classification record
-                    new_otu_classification = OTUClassificationGG(1,
-                                                                 #taxon_db_record.id,
+                    new_otu_classification = OTUClassificationGG(taxon_db_record.id,
                                                                  otu_record.id,
                                                                  new_classification_method.id)
 

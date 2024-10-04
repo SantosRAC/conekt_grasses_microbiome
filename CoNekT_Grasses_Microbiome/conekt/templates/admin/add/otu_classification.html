@@ -71,9 +71,33 @@
             </div>
 
             <div id="additional_classification">
-                <p>Please, add additional classification files</p>
-                <p>Currently, this is a TEST only.</p>
-            </div>            
+                <p>Please, add additional classification information (currently, only GreenGenes is available)</p>
+                
+                <div class="form-group">
+                    {{ form.otu_classification_method_gg.label }}
+                    {{ form.otu_classification_method_gg(class_="form-control") }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.classifier_version_gg.label }}
+                    {{ form.classifier_version_gg(class_="form-control") }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.release_gg.label }}
+                    {{ form.release_gg(class_="form-control") }}
+                </div>
+
+                <div class="form-group">
+                    <label>GreenGenes OTU Classification file</label>
+                    <p>Text file with tab-delimited columns with one line header.</p>
+                    <label class="btn btn-default" for="gg_otu_classification_file" id="gg-otu-classification-file-button">
+                        {{ form.gg_otu_classification_file(style="display:none;", onchange="")}}
+                        <span id="gg-otu-classification-file-selector-text">Select File</span>
+                    </label>
+                </div>
+
+            </div>
 
             <button type="submit" class="btn btn-success pull-right">Add OTU Classification</button>
         </form>
@@ -84,6 +108,7 @@
             <div class="panel-body">
                 <li>Adds <strong>OTU classification</strong> to the database</li>
                 <li>It is mandatory to provide at least a GTDB classification file</li>
+                <li>For the additional classification, only GreenGenes is available</li>
             </div>
         </div>
     </div>
@@ -123,6 +148,12 @@ literature_select.onchange = function() {
 $(function() {
     $("#gtdb_otu_classification_file").change(function() {
         $('#gtdb-otu-classification-file-selector-text').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#gtdb-otu-classification-file-button').toggleClass('btn-default btn-success');
+    });
+});
+
+$(function() {
+    $("#gg_otu_classification_file").change(function() {
+        $('#gg-otu-classification-file-selector-text').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#gg-otu-classification-file-button').toggleClass('btn-default btn-success');
     });
 });
 
