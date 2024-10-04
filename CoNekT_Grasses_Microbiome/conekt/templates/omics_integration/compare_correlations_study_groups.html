@@ -70,8 +70,9 @@
     <h2>Species: <a href="{{ url_for('species.species_view', species_id=species.id) }}"><em>{{ species.name }} </em></a></h2>
     <h2>Correlation method: <em>{{ tool_name }} </em></h2>
     <h2>Correlation cutoff: <em>{{ cutoff }} </em></h2>
+    <h3>Correlated pairs across all groups in study: {{ union_pos|length }} (positive correlations) / {{ union_neg|length }} (negative correlations)</h2>
 
-    <div id="upset_plot" class="center-block"></div>
+    <div id="upset_plot_pos" class="center-block" style="width: 1000px; height: 800px;"></div>
 
     <div class="row">
         <div class="col-lg-12">
@@ -91,8 +92,8 @@
                 <tr>
                     <td>{{ results[sample_group]['group_type'] }}</td>
                     <td>{{ sample_group }}</td>
-                    <td><a href="#">{{ results[sample_group]['pos']|length }}</a></td>
-                    <td><a href="#">{{ results[sample_group]['neg']|length }}</a></td>
+                    <td><a href="#">{{ results[sample_group]['pos']['pairs']|length }}</a></td>
+                    <td><a href="#">{{ results[sample_group]['neg']['pairs']|length }}</a></td>
                     <td><a href="#">{{ unique_pairs_pos[sample_group]|length }}</a></td>
                     <td><a href="#">{{ unique_pairs_neg[sample_group]|length }}</a></td>
                 </tr>
@@ -237,18 +238,24 @@ $(function () {
 
 <script>
 
-    study_data = {{ results.study|safe }};
-    upset_plot_div = document.getElementById("upset_plot");
+    {% for sample_group in results.keys() %}
+        study_data_{{ loop.index }} = {{ results[sample_group]['pos']['pairs']|safe }};
+        console.log(study_data_{{ loop.index }});
+    {% endfor %}
+    upset_plot_pos_div = document.getElementById("upset_plot_pos");
 
     const data = [
-          { name: 'Study 1', elems: study1_data },
+          {% for sample_group in results.keys() %}
+            { name: '{{ sample_group }}', elems: study_data_{{ loop.index }} },
+          {% endfor %}
         ];
         const sets = UpSetJS.asSets(data);
-        UpSetJS.render(upset_plot_div, { 
-          sets: sets,
-          width: 600,
-          height: 400,
+        UpSetJS.render(upset_plot_pos_div, { 
+            sets: sets,
+            width: 1000,
+            height: 800,
         });
+
 </script>
 
 {% endif %}

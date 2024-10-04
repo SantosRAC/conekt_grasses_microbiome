@@ -53,11 +53,14 @@ def study_view(study_id):
 
     return render_template('study.html', study=current_study, description=description)
 
-@study.route('/json/study_gtdb_taxonomy_doughnut/<study_id>')
+@study.route('/json/study_gtdb_taxonomy_doughnut/<study_id>/<taxonomy_rank>')
 @cache.cached()
-def study_gtdb_taxonomy_doughnut_json(study_id):
+def study_gtdb_taxonomy_doughnut_json(study_id, taxonomy_rank="class"):
     """
     Generates a JSON object that can be rendered using Chart.js doughnut plots
+
+    :param study_id: ID of the study to show
+    :param taxonomy_rank: Taxonomy rank to show
     """
     
     lit_info = StudyLiteratureAssociation.query.with_entities(StudyLiteratureAssociation.literature_id).filter_by(study_id=study_id).distinct().all()
@@ -73,15 +76,23 @@ def study_gtdb_taxonomy_doughnut_json(study_id):
     counts["Unclassified"]["value"] = 0
     counts["Unclassified"]["label"] = "Unclassified"
 
+    taxonomy_from_path = None
+
     for otu_gtdb_path in otu_gtdb_paths:
-        class_from_path = [ele.replace("c__", "") for ele in otu_gtdb_path[0].split(";") if ele.startswith("c__")]
-        if class_from_path:
-            if class_from_path[0] in counts.keys():
-                counts[class_from_path[0]]["value"] += 1
+        if taxonomy_rank == "class":
+            taxonomy_from_path = [ele.replace("c__", "") for ele in otu_gtdb_path[0].split(";") if ele.startswith("c__")]
+        elif taxonomy_rank == "family":
+            taxonomy_from_path = [ele.replace("f__", "") for ele in otu_gtdb_path[0].split(";") if ele.startswith("f__")]
+        else:
+            print("Invalid taxonomy rank")
+            exit(1)
+        if taxonomy_from_path:
+            if taxonomy_from_path[0] in counts.keys():
+                counts[taxonomy_from_path[0]]["value"] += 1
             else:
-                counts[class_from_path[0]] = {}
-                counts[class_from_path[0]]["value"] = 1
-                counts[class_from_path[0]]["label"] = class_from_path[0]
+                counts[taxonomy_from_path[0]] = {}
+                counts[taxonomy_from_path[0]]["value"] = 1
+                counts[taxonomy_from_path[0]]["label"] = taxonomy_from_path[0]
         else:
             counts["Unclassified"]["value"] += 1
 

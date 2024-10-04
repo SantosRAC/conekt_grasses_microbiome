@@ -126,12 +126,12 @@ def search_correlated_profiles_study_groups():
         sets_pos = [set(lst) for lst in all_pairs_pos]
         sets_neg = [set(lst) for lst in all_pairs_neg]
 
-        # Get the intersection of the sets
-        intersection_pos = set.intersection(*sets_pos)
-        intersection_neg = set.intersection(*sets_neg)
+        # Get the union of all the sets of positive and negative correlation pairs
+        union_pos = set.union(*sets_pos)
+        union_neg = set.union(*sets_neg)
 
-        print("Intersection pos: ", intersection_pos)
-        print("Intersection neg: ", intersection_neg)
+        print("union pos: ", union_pos)
+        print("union neg: ", union_neg)
 
         unique_pairs_pos = {}
         unique_pairs_neg = {}
@@ -165,6 +165,8 @@ def search_correlated_profiles_study_groups():
 
         return render_template("omics_integration/compare_correlations_study_groups.html",
                                results=results_correlations,
+                               union_pos=union_pos,
+                               union_neg=union_neg,
                                intersection_two_groups_pos=intersection_two_groups_pos,
                                intersection_two_groups_neg=intersection_two_groups_neg,
                                intersection_two_groups_pos_neg=intersection_two_groups_pos_neg,
