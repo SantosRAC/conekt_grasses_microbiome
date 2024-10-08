@@ -192,8 +192,8 @@ def add_otu_classification():
                                         classifier_version_gg,
                                         classification_ref_db_release_gg)
 
-            os.close(fd_gtdb_classification_file)
-            os.remove(temp_gtdb_classification_file_path)
+            os.close(fd_gg_classification_file)
+            os.remove(temp_gg_classification_file_path)
 
         # Add GTDB classification file for OTUs
         fd_gtdb_classification_file, temp_gtdb_classification_file_path = mkstemp()

@@ -14,7 +14,8 @@ from conekt.models.species import Species
 from conekt.models.seq_run import SeqRun
 from conekt.models.studies import Study
 from conekt.models.microbiome.specificity import MicrobiomeSpecificityMethod
-from conekt.models.relationships_microbiome.otu_classification import OTUClassificationGTDB
+from conekt.models.relationships_microbiome.otu_classification import OTUClassificationGTDB,\
+                    OTUClassificationGG
 
 from conekt.helpers.chartjs import prepare_doughnut
 
@@ -53,13 +54,14 @@ def study_view(study_id):
 
     return render_template('study.html', study=current_study, description=description)
 
-@study.route('/json/study_gtdb_taxonomy_doughnut/<study_id>/<taxonomy_rank>')
+@study.route('/json/study_db_taxonomy_doughnut/<study_id>/<taxonomy_db>/<taxonomy_rank>')
 @cache.cached()
-def study_gtdb_taxonomy_doughnut_json(study_id, taxonomy_rank="class"):
+def study_db_taxonomy_doughnut_json(study_id, taxonomy_db, taxonomy_rank="class"):
     """
     Generates a JSON object that can be rendered using Chart.js doughnut plots
 
     :param study_id: ID of the study to show
+    :param taxonomy_db: Taxonomy database to use
     :param taxonomy_rank: Taxonomy rank to show
     """
     
@@ -69,7 +71,12 @@ def study_gtdb_taxonomy_doughnut_json(study_id, taxonomy_rank="class"):
 
     otus = OperationalTaxonomicUnit.query.with_entities(OperationalTaxonomicUnit.id).filter(OperationalTaxonomicUnit.method_id.in_([method_id[0] for method_id in otu_methods]))
     
-    otu_gtdb_paths = OTUClassificationGTDB.query.with_entities(OTUClassificationGTDB.lowest_path_available).filter(OTUClassificationGTDB.otu_id.in_([otu[0] for otu in otus])).all()
+    otu_db_paths = None
+
+    if taxonomy_db == "gtdb":
+        otu_db_paths = OTUClassificationGTDB.query.with_entities(OTUClassificationGTDB.lowest_path_available).filter(OTUClassificationGTDB.otu_id.in_([otu[0] for otu in otus])).all()
+    elif taxonomy_db == "gg":
+        otu_db_paths = OTUClassificationGG.query.with_entities(OTUClassificationGG.lowest_path_available).filter(OTUClassificationGG.otu_id.in_([otu[0] for otu in otus])).all()
 
     counts = {}
     counts["Unclassified"] = {}
@@ -78,21 +85,35 @@ def study_gtdb_taxonomy_doughnut_json(study_id, taxonomy_rank="class"):
 
     taxonomy_from_path = None
 
-    for otu_gtdb_path in otu_gtdb_paths:
+    for otu_db_paths in otu_db_paths:
         if taxonomy_rank == "class":
-            taxonomy_from_path = [ele.replace("c__", "") for ele in otu_gtdb_path[0].split(";") if ele.startswith("c__")]
+            taxonomy_from_path = [ele.replace("c__", "") for ele in otu_db_paths[0].replace("; ", ";").split(";") if ele.startswith("c__")]
+        elif taxonomy_rank == "order":
+            taxonomy_from_path = [ele.replace("o__", "") for ele in otu_db_paths[0].replace("; ", ";").split(";") if ele.startswith("o__")]
+        elif taxonomy_rank == "phylum":
+            taxonomy_from_path = [ele.replace("p__", "") for ele in otu_db_paths[0].replace("; ", ";").split(";") if ele.startswith("p__")]
+        elif taxonomy_rank == "genus":
+            taxonomy_from_path = [ele.replace("g__", "") for ele in otu_db_paths[0].replace("; ", ";").split(";") if ele.startswith("g__")]
         elif taxonomy_rank == "family":
-            taxonomy_from_path = [ele.replace("f__", "") for ele in otu_gtdb_path[0].split(";") if ele.startswith("f__")]
+            taxonomy_from_path = [ele.replace("f__", "") for ele in otu_db_paths[0].replace("; ", ";").split(";") if ele.startswith("f__")]
         else:
             print("Invalid taxonomy rank")
             exit(1)
         if taxonomy_from_path:
             if taxonomy_from_path[0] in counts.keys():
-                counts[taxonomy_from_path[0]]["value"] += 1
+                if taxonomy_from_path[0] == '':
+                    counts[f"Unclassified ({taxonomy_rank} level)"]["value"] += 1
+                else:
+                    counts[taxonomy_from_path[0]]["value"] += 1
             else:
-                counts[taxonomy_from_path[0]] = {}
-                counts[taxonomy_from_path[0]]["value"] = 1
-                counts[taxonomy_from_path[0]]["label"] = taxonomy_from_path[0]
+                if taxonomy_from_path[0] == '':
+                    counts[f"Unclassified ({taxonomy_rank} level)"] = {}
+                    counts[f"Unclassified ({taxonomy_rank} level)"]["value"] = 1
+                    counts[f"Unclassified ({taxonomy_rank} level)"]["label"] = f"Unclassified ({taxonomy_rank} level)"
+                else:
+                    counts[taxonomy_from_path[0]] = {}
+                    counts[taxonomy_from_path[0]]["value"] = 1
+                    counts[taxonomy_from_path[0]]["label"] = taxonomy_from_path[0]
         else:
             counts["Unclassified"]["value"] += 1
 

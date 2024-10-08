@@ -30,8 +30,15 @@
         <h1>Taxonomy Explorer - GTDB Top Ten <em>Classes</em></h1>
         
         <div id="canvas-holder" class="center-block"  style="height:300px;max-height:300px">
-            <div id="chart-loader"></div>
-            <canvas id="chart-area" class="center-block" width="300" height="300" style="display:none"/>
+            <div id="chart-loader-gtdb"></div>
+            <canvas id="chart-area-gtdb" class="center-block" width="300" height="300" style="display:none"/>
+        </div>
+
+        <h1>Taxonomy Explorer - GG Top Ten <em>Classes</em></h1>
+
+        <div id="canvas-holder" class="center-block"  style="height:300px;max-height:300px">
+            <div id="chart-loader-gg"></div>
+            <canvas id="chart-area-gg" class="center-block" width="300" height="300" style="display:none"/>
         </div>
 
         <h2><strong><em><a href="{{url_for('study.study_krona', study_id=study.id)}}">View Taxonomy (Krona)</em></strong></h2></a>
@@ -105,7 +112,8 @@
 
 {% if study %}
 {% import "macros/chartjs.html" as chartjs %}
-{{ chartjs.pie_chart_loader("chart-area", url_for('study.study_gtdb_taxonomy_doughnut_json', study_id=study.id, taxonomy_rank="class"), "chart-loader") }}
+{{ chartjs.pie_chart_loader("chart-area-gtdb", url_for('study.study_db_taxonomy_doughnut_json', study_id=study.id, taxonomy_db="gtdb", taxonomy_rank="class"), "chart-loader-gtdb") }}
+{{ chartjs.pie_chart_loader("chart-area-gg", url_for('study.study_db_taxonomy_doughnut_json', study_id=study.id, taxonomy_db="gg", taxonomy_rank="class"), "chart-loader-gg") }}
 {% endif %}
 
 </script>

@@ -36,23 +36,21 @@ class OTUClassificationMethod(db.Model):
 
         taxonomy_associations = {}
 
-        if source == 'gtdb':
-            taxonomy_associations['gtdb'] = {}
-            otu_classification = OTUClassificationGTDB.query.filter_by(otu_id=otu_id).first()
-            gtdb_record = GTDBTaxon.query.filter_by(id=otu_classification.gtdb_id).first()
-            taxonomy_associations['gtdb'] = {
-                'taxon_path': otu_classification.lowest_path_available,
-                'gtdb_id': gtdb_record.gtdb_id,
-            }
+        taxonomy_associations['gtdb'] = {}
+        otu_classification = OTUClassificationGTDB.query.filter_by(otu_id=otu_id).first()
+        gtdb_record = GTDBTaxon.query.filter_by(id=otu_classification.gtdb_id).first()
+        taxonomy_associations['gtdb'] = {
+            'taxon_path': otu_classification.lowest_path_available,
+            'gtdb_id': gtdb_record.gtdb_id,
+        }
 
-        if source == 'gg':
-            taxonomy_associations['gg'] = {}
-            otu_classification = OTUClassificationGG.query.with_entities(OTUClassificationGG.gtdb_id).filter_by(otu_id=otu_id).first()
-            gg_record = GGTaxon.query.filter_by(id=otu_classification.gg_id).first()
-            taxonomy_associations['gg'] = {
-                'taxon_path': gg_record.taxon_path,
-                'gg_id': gg_record.gg_id,
-            }
+        taxonomy_associations['gg'] = {}
+        otu_classification = OTUClassificationGG.query.filter_by(otu_id=otu_id).first()
+        gg_record = GGTaxon.query.filter_by(id=otu_classification.gg_id).first()
+        taxonomy_associations['gg'] = {
+            'taxon_path': otu_classification.lowest_path_available,
+            'gg_id': gg_record.gg_id,
+        }
 
         return taxonomy_associations
 
@@ -63,11 +61,13 @@ class OTUClassificationGG(db.Model):
     gg_id = db.Column(db.Integer, db.ForeignKey('gg_taxonomy.id'), index=True)
     otu_id = db.Column(db.Integer, db.ForeignKey('otus.id', ondelete='CASCADE'), index=True)
     method_id = db.Column(db.Integer, db.ForeignKey('otu_classification_methods.id', ondelete='CASCADE'), index=True)
+    lowest_path_available = db.Column(db.String(255, collation=SQL_COLLATION), default='')
 
-    def __init__(self, gg_id, otu_id, method_id):
+    def __init__(self, gg_id, otu_id, method_id, lowest_path_available):
         self.gg_id = gg_id
         self.otu_id = otu_id
         self.method_id = method_id
+        self.lowest_path_available = lowest_path_available
     
     def __repr__(self):
         return str(self.id) + ". " + self.otu_id + " " + self.method_id
@@ -115,10 +115,33 @@ class OTUClassificationGG(db.Model):
                     # get the GG taxon record
                     taxon_db_record = GGTaxon.query.filter_by(taxon_path=path).first()
 
-                    # create a new OTU classification record
-                    new_otu_classification = OTUClassificationGG(taxon_db_record.id,
+                    lowest_path_available = ''
+
+                    if taxon_db_record is None:
+
+                        taxon_parts = path.split('; ')
+                        if taxon_parts[-1].startswith('s__'):
+                            lowest_path_available = '; '.join(taxon_parts[:-1])
+                        else:
+                            lowest_path_available = path
+                        taxon_db_record = GGTaxon.query.filter(GGTaxon.taxon_path.like(f'%{lowest_path_available}%')).first()
+            
+                        # create a new OTU classification record
+                        
+                        if taxon_db_record:
+                            new_otu_classification = OTUClassificationGG(None,
                                                                  otu_record.id,
-                                                                 new_classification_method.id)
+                                                                 new_classification_method.id,
+                                                                 lowest_path_available)
+
+                    else:
+
+                        lowest_path_available = path                
+                        # create a new OTU classification record
+                        new_otu_classification = OTUClassificationGG(taxon_db_record.id,
+                                                                 otu_record.id,
+                                                                 new_classification_method.id,
+                                                                 lowest_path_available)
 
                     db.session.add(new_otu_classification)
                     classified_otus+=1
