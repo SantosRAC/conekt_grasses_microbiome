@@ -172,7 +172,7 @@ def configure_admin_panel(app):
         from conekt.controllers.admin.views.microbiome.otus import AddOTUProfilesView
         from conekt.controllers.admin.views.study import BuildStudyView, BuildStudyPCAsView
         from conekt.controllers.admin.views.omics_integration.expression_microbiome_correlations import BuildCorrelationsView,\
-                                            AddCorrelationsView
+                                            AddCorrelationsView, AddGOEnrichCorrelationsView
         from conekt.controllers.admin.views.microbiome.microbiome_profile_specificity import BuildMicrobiomeSpecificityView
 
         from conekt.models.users import User
@@ -239,6 +239,9 @@ def configure_admin_panel(app):
         admin.add_view(AddCorrelationsView(name='Paired Correlations OTU and Expression Profiles',
                                                  endpoint='admin_add_rnametataxcor',
                                                  url='add/exp_metatax_correlations/', category='Add Microbiome Data'))
+        admin.add_view(AddGOEnrichCorrelationsView(name='GO Enrichment in Paired Correlations (OTU vs. Exp.)',
+                                                 endpoint='admin_add_rnametataxcor_goenrich',
+                                                 url='add/exp_metatax_correlations_goenrich/', category='Add Microbiome Data'))
 
         # Build Menu
         admin.add_view(BuildStudyView(name='Create Study',
