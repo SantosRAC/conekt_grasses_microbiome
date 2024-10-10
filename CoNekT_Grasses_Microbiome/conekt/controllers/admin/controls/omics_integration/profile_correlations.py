@@ -106,19 +106,19 @@ def add_go_enrichment_profile_correlations():
 
     if request.method == 'POST' and form.validate():
 
-        study_id = int(request.form.get('study_id'))
         go_enrichment_method = request.form.get('go_enrichment_method')
         exp_microbiome_correlation_method = request.form.get('exp_microbiome_correlation_method')
         go_enrichment_file = request.files[form.go_enrichment_file.name].read()
+        correlation_threshold = float(request.form.get('correlation_threshold'))
 
         if go_enrichment_file != b'':
             fd_go_enrichment_file, temp_go_enrichment_file_path = mkstemp()
 
             with open(temp_go_enrichment_file_path, 'wb') as go_enrichment_file_writer:
-                go_enrichment_file_writer.write(fd_go_enrichment_file)
+                go_enrichment_file_writer.write(go_enrichment_file)
 
-            GroupCorPairsGOEnrichment.add_go_enrichment_expression_metataxonomic_correlations(study_id, exp_microbiome_correlation_method,
-                                                                          temp_go_enrichment_file_path, go_enrichment_method)
+            GroupCorPairsGOEnrichment.add_go_enrichment_expression_metataxonomic_correlations(exp_microbiome_correlation_method,
+                                                                          temp_go_enrichment_file_path, correlation_threshold, go_enrichment_method)
 
             os.close(fd_go_enrichment_file)
             os.remove(temp_go_enrichment_file_path)
