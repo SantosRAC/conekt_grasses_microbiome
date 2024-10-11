@@ -35,11 +35,11 @@ class CytoscapeHelper:
         for n in output["nodes"]:
             if n["data"]["id"] is not None and n["data"]["node_type"] == "gene":
                 n["data"]["gene_link"] = url_for("sequence.sequence_view", sequence_id=int(n["data"]["id"].split("_")[0]))
-                n["data"]["color"] = "#26837c"
+                n["data"]["color"] = "#E1BE6A"
             
             if n["data"]["id"] is not None and n["data"]["node_type"] == "otu":
                 n["data"]["otu_link"] = url_for("otu.otu_view", otu_id=int(n["data"]["id"].split("_")[0]))
-                n["data"]["color"] = "#852e2e"
+                n["data"]["color"] = "#40B0A6"
 
             n["data"]["shape"] = "ellipse"
 

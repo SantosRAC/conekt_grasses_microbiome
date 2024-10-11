@@ -114,13 +114,13 @@ $(function () { // on dom ready
             cy.style()
                 .selector('edge[link_cc > 0]')
                 .style({
-                    'line-color': 'green',   // Color for positive edges
-                    'target-arrow-color': 'green'
+                    'line-color': '#40B0A6',   // Color for positive edges
+                    'target-arrow-color': '#40B0A6'
                 })
                 .selector('edge[link_cc < 0]')
                 .style({
-                    'line-color': 'red',     // Color for negative edges
-                    'target-arrow-color': 'red'
+                    'line-color': '#E1BE6A',     // Color for negative edges
+                    'target-arrow-color': '#E1BE6A'
                 })
                 .update();
 
