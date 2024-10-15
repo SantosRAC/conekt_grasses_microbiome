@@ -11,6 +11,8 @@ from conekt.models.relationships.study_sample import StudySampleAssociation
 from conekt.models.relationships.sample_group import SampleGroupAssociation
 from conekt.models.expression_microbiome.expression_microbiome_correlation import\
     ExpMicroCorrelationMethod, ExpMicroCorrelation
+from conekt.models.expression_microbiome.pairs_go_enrichment import GroupCorPairsGOEnrichment
+from conekt.models.go import GO
 
 
 @search.route('/correlated/profiles', methods=['GET', 'POST'])
@@ -40,13 +42,33 @@ def search_correlated_profiles():
         results = ExpMicroCorrelation.query.\
             filter(ExpMicroCorrelation.exp_micro_correlation_method_id == method_id).\
             filter((ExpMicroCorrelation.corr_coef>=float(cutoff)) | (ExpMicroCorrelation.corr_coef<=-float(cutoff)))
+        
+        enrich_go_dict = {}
+        
+        go_ids = [go_id[0] for go_id in GroupCorPairsGOEnrichment.query.\
+            with_entities(GroupCorPairsGOEnrichment.go_id).\
+            filter_by(cor_method_id=method_id).distinct().all()]
+        
+        enrich_gos = GO.query.filter(GO.id.in_(go_ids)).all()
+
+        for go in enrich_gos:
+            enrich_go_dict[go.id] = {}
+            enrich_go_dict[go.id]['label'] = go.label
+            enrich_go_dict[go.id]['name'] = go.name
+            enrich_go_dict[go.id]['type'] = go.type
+        
+        results_gos = GroupCorPairsGOEnrichment.query.\
+            filter_by(cor_method_id=method_id).all()
 
         return render_template("omics_integration/find_expression_microbiome_correlations.html",
                                results=results,
                                species=species,
                                study=study,
                                sample_group=sample_group,
-                               correlation_method=correlation_method)
+                               correlation_cutoff=cutoff,
+                               correlation_method=correlation_method,
+                               enrich_go_dict=enrich_go_dict,
+                               results_gos=results_gos)
 
 
 @search.route('/correlated/profiles_study_groups', methods=['GET', 'POST'])

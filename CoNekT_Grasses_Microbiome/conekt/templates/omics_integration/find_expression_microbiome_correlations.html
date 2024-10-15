@@ -79,45 +79,59 @@
     </ol>
     <h1>Correlated profiles for study {{ study.name }} ({{ species.name }})</h1>
 
+    <h3>Cross-correlation method: <em>{{ correlation_method.stat_method }} </em></h3>
+
+    <h3>Sample group: <em>{{ sample_group }}</em></h3>
+
     <h2>GO enrichment for genes in correlated set</h2>
 
+    {% if results_gos %}
+
+    <div class="alert alert-danger" role="alert">
+        <strong>Warning:</strong> Enrichment analysis was conducted with <a href="https://github.com/tanghaibao/goatools">GOATOOLS</a> only for the group of genes with <strong>cross-correlations coefficients > 0.5 or < -0.5</strong>.
+        <br>Also, at this stage <strong>corrected p-values are not available</strong>.
+    </div>
+
     <div class="row">
-        <div class="col-lg-10">
+        <div class="col-lg-8">
         <table class="table table-striped" id="enrichment_results_table">
             <thead>
             <tr>
-                <th class="col-xs-3" data-sort="string-ins"><span class="sort-icon"></span>GO Term</th>
+                <th class="col-xs-1" data-sort="string-ins"><span class="sort-icon"></span>GO Term</th>
                 <th class="col-xs-3" data-sort="string-ins"><span class="sort-icon"></span>GO Class</th>
-                <th class="col-xs-2" data-sort="float"><span class="sort-icon"></span>P-value</th>
-                <th class="col-xs-2">Action</th>
+                <th class="col-xs-2" data-sort="float"><span class="sort-icon"></span>Domain</th>
+                <th class="col-xs-1" data-sort="float"><span class="sort-icon"></span>Enrichment Type</th>
+                <th class="col-xs-1" data-sort="float"><span class="sort-icon"></span>P-value</th>
             </tr>
             </thead>
             <tbody>
-
+                {% for r_go in results_gos %}
                 <tr>
-                    <td> Example GO (term) </td>
-                    <td> Example GO (class) </td>
-                    <td> 0.01 </td>
-                    <td> Extra column </td>
+                    <td> <a href="{{ url_for('go.go_view', go_id=r_go.go_id) }}">{{ enrich_go_dict[r_go.go_id]['label'] }}</a> </td>
+                    <td> {{ enrich_go_dict[r_go.go_id]['name'] }} </td>
+                    <td> {{ enrich_go_dict[r_go.go_id]['type'] }} </td>
+                    <td> {{ r_go.enrichment }} </td>
+                    <td> {{ r_go.p_value }} </td>
                 </tr>
-
-                <tr>
-                    <td> Example GO (term) - example 2 </td>
-                    <td> Example GO (class) - example 2 </td>
-                    <td> 0.03 </td>
-                    <td> Extra column for example 2 </td>
-                </tr>
-
-
+                {% endfor %}
             </tbody>
         </table>
         <a id="DownloadTableGO" href="#" class="btn btn-primary">Download table</a><br /><br />
         </div>
     </div>
+    {% else %}
 
-    <h2>Correlated Pairs</h2>
+    <div class="alert alert-danger" role="alert">
+        <strong>Warning:</strong> Enrichment analysis was not computed for cross-correlations in this group.
+    </div>
+
+    {% endif %}
+
+    <h2>Cross-correlated Pairs</h2>
     
-    <h3>Correlation method: <em>{{ correlation_method.stat_method }} </em></h3>
+    <h3>Cross-correlation method: <em>{{ correlation_method.stat_method }} </em></h3>
+
+    <h3>Pairs shown for cross-correlation cutoff: <em>> {{ correlation_cutoff }} or < -{{ correlation_cutoff }}</em></h3>
 
     {% if correlation_method.stat_method == 'sparxcc' %}
     <p>Note that for SparXCC correlations a permutation threshold has been applied (see <a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0305032">Jensen et al. 2024</a>)<br>
