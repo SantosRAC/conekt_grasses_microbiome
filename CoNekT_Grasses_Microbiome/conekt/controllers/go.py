@@ -46,9 +46,7 @@ def go_view(go_id):
 
     sequence_count = len(sequences)
 
-    enriched_clusters = current_go.enriched_clusters.all()
-
-    return render_template('go.html', go=current_go, count=sequence_count, clusters=enriched_clusters)
+    return render_template('go.html', go=current_go, count=sequence_count)
 
 
 @go.route('/sequences/<go_id>/')
