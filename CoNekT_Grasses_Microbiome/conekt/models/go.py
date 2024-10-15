@@ -29,11 +29,6 @@ class GO(db.Model):
 
     sequences = db.relationship('Sequence', secondary=sequence_go, lazy='dynamic')
 
-    # Other properties
-    #
-    # sequence_associations declared in 'SequenceGOAssociation'
-    # enriched_clusters declared in 'ClusterGOEnrichment'
-
     def __init__(self, label, name, go_type, description, obsolete, is_a, extended_go):
         self.label = label
         self.name = name
