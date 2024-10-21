@@ -239,8 +239,7 @@ $(function () {
 <script>
 
     {% for sample_group in results.keys() %}
-        study_data_{{ loop.index }} = {{ results[sample_group]['pos']['pairs']|safe }};
-        console.log(study_data_{{ loop.index }});
+        study_data_{{ loop.index }} = {{ results[sample_group]['pos']['string_pairs']|safe }};
     {% endfor %}
     upset_plot_pos_div = document.getElementById("upset_plot_pos");
 

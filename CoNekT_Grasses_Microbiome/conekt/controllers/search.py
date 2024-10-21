@@ -126,6 +126,8 @@ def search_correlated_profiles_study_groups():
             results_correlations[method.sample_group]['pos'] = {}
             results_correlations[method.sample_group]['neg']['pairs'] = []
             results_correlations[method.sample_group]['pos']['pairs'] = []
+            results_correlations[method.sample_group]['pos']['string_pairs'] = []
+            results_correlations[method.sample_group]['neg']['string_pairs'] = []
 
             for corr in correlation_results:
                 if float(corr.corr_coef) >= 0:
@@ -134,12 +136,14 @@ def search_correlated_profiles_study_groups():
                     results_correlations[method.sample_group]['pos'][corr.id]['gene_probe'] = corr.gene_probe
                     results_correlations[method.sample_group]['pos'][corr.id]['otu_probe'] = corr.otu_probe
                     results_correlations[method.sample_group]['pos']['pairs'].append((corr.gene_probe, corr.otu_probe))
+                    results_correlations[method.sample_group]['pos']['string_pairs'].append(corr.gene_probe+"_"+corr.otu_probe)
                 else:
                     results_correlations[method.sample_group]['neg'][corr.id] = {}
                     results_correlations[method.sample_group]['neg'][corr.id]['corr_coef'] = corr.corr_coef
                     results_correlations[method.sample_group]['neg'][corr.id]['gene_probe'] = corr.gene_probe
                     results_correlations[method.sample_group]['neg'][corr.id]['otu_probe'] = corr.otu_probe
                     results_correlations[method.sample_group]['neg']['pairs'].append((corr.gene_probe, corr.otu_probe))
+                    results_correlations[method.sample_group]['neg']['string_pairs'].append(corr.gene_probe+"_"+corr.otu_probe)
 
         all_pairs_pos = [results_correlations[sample_group]['pos']['pairs'] for sample_group in results_correlations.keys()]
         all_pairs_neg = [results_correlations[sample_group]['neg']['pairs'] for sample_group in results_correlations.keys()]
