@@ -11,13 +11,13 @@ from conekt.models.microbiome.otu_profiles import OTUProfile
 from conekt.models.microbiome.operational_taxonomic_unit import OperationalTaxonomicUnit
 from conekt.models.sequences import Sequence
 
-from corals.threads import set_threads_for_external_libraries
-set_threads_for_external_libraries(n_threads=1)
-import numpy as np
-from corals.correlation.full.default import cor_full
-from corals.correlation.utils import derive_pvalues, multiple_test_correction
+#from corals.threads import set_threads_for_external_libraries
+#set_threads_for_external_libraries(n_threads=1)
+#import numpy as np
+#from corals.correlation.full.default import cor_full
+#from corals.correlation.utils import derive_pvalues, multiple_test_correction
 
-import pandas as pd
+#import pandas as pd
 
 class ExpMicroCorrelationMethod(db.Model):
     __tablename__ = 'expression_microbiome_correlation_methods'
