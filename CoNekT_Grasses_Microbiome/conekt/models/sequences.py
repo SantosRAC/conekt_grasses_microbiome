@@ -25,19 +25,6 @@ class Sequence(db.Model):
     is_mitochondrial = db.Column(db.SmallInteger, default=False)
     is_chloroplast = db.Column(db.SmallInteger, default=False)
 
-    expression_profiles = db.relationship('ExpressionProfile', backref=db.backref('sequence', lazy='joined'),
-                                          lazy='dynamic',
-                                          cascade="all, delete-orphan",
-                                          passive_deletes=True)
-
-    # Other properties
-    #
-    # coexpression_cluster_associations declared in 'SequenceCoexpressionClusterAssociation'
-    # interpro_associations declared in 'SequenceInterproAssociation'
-    # go_associations declared in 'SequenceGOAssociation'
-    # cazyme_associations declared in 'SequenceCAZYmeAssociation'
-    # family_associations declared in 'SequenceFamilyAssociation'
-
     go_labels = db.relationship('GO', secondary=sequence_go, lazy='dynamic')
     interpro_domains = db.relationship('Interpro', secondary=sequence_interpro, lazy='dynamic')
     cazymes = db.relationship('CAZYme', secondary=sequence_cazyme, lazy='dynamic')

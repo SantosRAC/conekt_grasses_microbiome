@@ -12,8 +12,6 @@ class Species(db.Model):
     color = db.Column(db.String(7), default="#C7C7C7")
     highlight = db.Column(db.String(7), default="#DEDEDE")
     sequence_count = db.Column(db.Integer)
-    network_count = db.Column(db.Integer)
-    profile_count = db.Column(db.Integer)
     description = db.Column(db.Text)
     source = db.Column(db.String(50, collation=SQL_COLLATION))
     literature_id = db.Column(db.Integer, db.ForeignKey('literature.id', ondelete='SET NULL'))
@@ -21,7 +19,6 @@ class Species(db.Model):
 
     samples = db.relationship('Sample', backref='species', lazy='dynamic', cascade="all, delete-orphan", passive_deletes=True)
     sequences = db.relationship('Sequence', backref='species', lazy='dynamic', cascade="all, delete-orphan", passive_deletes=True)
-    profiles = db.relationship('ExpressionProfile', backref='species', lazy='dynamic', cascade="all, delete-orphan", passive_deletes=True)
 
     def __init__(self, code, name, data_type='genome',
                  color="#C7C7C7", highlight="#DEDEDE", description=None, source=None, literature_id=None, genome_version=None):

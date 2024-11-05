@@ -114,7 +114,6 @@ def configure_blueprints(app):
     from conekt.controllers.tree import tree
     from conekt.controllers.study import study
     from conekt.controllers.literature import literature
-    from conekt.controllers.omics_integration.custom_expression_microbiome_network import custom_network
 
     LOGIN_ENABLED = app.config['LOGIN_ENABLED']
     BLAST_ENABLED = app.config['BLAST_ENABLED']
@@ -137,20 +136,10 @@ def configure_blueprints(app):
     app.register_blueprint(interpro, url_prefix='/interpro')
     app.register_blueprint(cazyme, url_prefix='/cazyme')
     app.register_blueprint(family, url_prefix='/family')
-    app.register_blueprint(expression_profile, url_prefix='/profile')
-    app.register_blueprint(custom_network, url_prefix='/custom_network')
     app.register_blueprint(search_page, url_prefix='/search')
     app.register_blueprint(overview, url_prefix = '/overview')
     app.register_blueprint(taxonomy_explorer, url_prefix = '/taxonomy_explorer')
-   
-    
-    # TODO: add URL after configuring Solr as the main search engine
     app.register_blueprint(help, url_prefix='/help')
-    app.register_blueprint(profile_comparison, url_prefix='/profile_comparison')
-    app.register_blueprint(otu, url_prefix='/otu')
-    app.register_blueprint(asvs_profile, url_prefix='/asvs_profile')
-    app.register_blueprint(otus_profile, url_prefix='/otus_profile')
-    app.register_blueprint(profile_correlations, url_prefix='/profile_correlations')
     app.register_blueprint(literature, url_prefix='/literature')
 
 
@@ -160,28 +149,16 @@ def configure_admin_panel(app):
     if LOGIN_ENABLED:
         from conekt.controllers.admin.views import MyAdminIndexView
 
-        # from conekt.controllers.admin.views.sequences import AddSequenceDescriptionsView
-        # from conekt.controllers.admin.views.expression_profiles import AddExpressionProfilesView
-        # from conekt.controllers.admin.views.functional_data import AddInterProView
-        # from conekt.controllers.admin.views.functional_data import AddGOView
-        # from conekt.controllers.admin.views.functional_data import AddCAZYmeView
+
         from conekt.controllers.admin.views.functional_data import AddFunctionalDataView
         from conekt.controllers.admin.views.taxonomy import AddTaxonomyView
-        # from conekt.controllers.admin.views.families import AddFamilyAnnotationView
         from conekt.controllers.admin.views.families import GeneFamilyMethodAdminView
-        # from conekt.controllers.admin.views.samples import AddSamplesView
-        # from conekt.controllers.admin.views.species import AddSpeciesView
         from conekt.controllers.admin.views.clusters import AddClustersView
         from conekt.controllers.admin.views.genomes import AddGenomesView
         from conekt.controllers.admin.views.species import SpeciesAdminView
         from conekt.controllers.admin.views.controls import ControlsView
         from conekt.controllers.admin.views.news import NewsAdminView
         from conekt.controllers.admin.views.ontology import AddOntologyView
-        # from conekt.controllers.admin.views.asvs import AddASVSView
-        # from conekt.controllers.admin.views.otus import AddOTUSView
-        # from conekt.controllers.admin.views.otus import AddOTUClassificationView
-        # from conekt.controllers.admin.views.study import BuildStudyView
-        from conekt.controllers.admin.views.omics_integration.expression_microbiome_correlations import BuildCorrelationsView
 
         from conekt.models.users import User
         from conekt.models.species import Species
@@ -216,56 +193,6 @@ def configure_admin_panel(app):
         admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Add Genomes')
         admin.add_view(AddGenomesView(name='Genomes', endpoint='admin_add_genomes', url='add/genomes/', category='Add Genomes'))
         admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Add Genomes')
-        # admin.add_view(AddSequenceDescriptionsView(name='Sequence Descriptions',
-        #                                            endpoint='admin_add_sequence_descriptions',
-        #                                            url='add/sequence_descriptions/', category='Add Species'))
-        # admin.add_view(AddGOView(name='GO Genes',
-        #                          endpoint='admin_add_go_sequences',
-        #                          url='add/go/', category='Add Species'))
-        # admin.add_view(AddInterProView(name='InterPro Genes',
-        #                                endpoint='admin_add_interpro_sequences',
-        #                                url='add/interpro/', category='Add Species'))
-        # admin.add_view(AddCAZYmeView(name='CAZYme Genes',
-        #                             endpoint='admin_add_cazyme_sequences',
-        #                             url='add/cazyme/', category='Add Species'))
-
-        # # Add views for Expression data
-        # admin.add_menu_item(MenuLink("Expression", class_name="disabled", url="#"), target_category='Add Expression')
-        # admin.add_view(AddExpressionProfilesView(name='Expression profiles',
-        #                                          endpoint='admin_add_expression_profiles',
-        #                                          url='add/expression_profiles/', category='Add Expression'))
-
-        # # Add Microbiome data
-        # admin.add_menu_item(MenuLink("Microbiome", class_name="disabled", url="#"), target_category='Add Microbiome Data')
-        # admin.add_view(AddASVSView(name='ASVs',
-        #                                          endpoint='admin_add_asvs',
-        #                                          url='add/asvs/', category='Add Microbiome Data'))
-        # admin.add_view(AddOTUSView(name='OTUs',
-        #                                          endpoint='admin_add_otus',
-        #                                          url='add/otus/', category='Add Microbiome Data'))
-        # admin.add_view(AddOTUClassificationView(name='OTU Classification',
-        #                                          endpoint='admin_add_otu_classification',
-        #                                          url='add/otu_classification/', category='Add Microbiome Data'))
-
-        # # Build Menu
-        # admin.add_view(BuildStudyView(name='Study',
-        #                                        endpoint='admin_build_study',
-        #                                        url='build/study/', category='Build'))
-        # admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Build')
-        # admin.add_menu_item(MenuLink("Update Counts", url="/admin_controls/update/counts", class_name="confirmation"),
-        #                     target_category='Build')
-        # admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Build')
-        # admin.add_menu_item(MenuLink("Assign Clades", url="/admin_controls/update/clades", class_name="confirmation"),
-        #                     target_category='Build')
-
-        # admin.add_view(AddFamilyAnnotationView(name='Family-wise annotation',
-        #                                        endpoint='admin_add_family_annotation',
-        #                                        url='build/family_annotation/', category='Build'))
-
-        # admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Build')
-        # admin.add_menu_item(MenuLink("Integration of RNAseq and Metataxonomics", class_name="disabled", url="#"), target_category='Build')
-        # admin.add_view(BuildCorrelationsView(name='Build RNAseq - Metataxonomics Profile Correlations', endpoint='admin_build_rnametataxcor',
-        #                              url='build/exp_metatax_correlations', category='Build'))
 
         # Control panel
         admin.add_view(ControlsView(name='Controls', url='controls/'))

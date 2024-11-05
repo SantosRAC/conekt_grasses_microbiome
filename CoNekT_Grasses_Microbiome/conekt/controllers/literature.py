@@ -3,7 +3,6 @@ from flask import Blueprint, render_template, g, flash, redirect, url_for
 from conekt import db, cache
 
 from conekt.models.literature import LiteratureItem
-from conekt.models.microbiome.operational_taxonomic_unit import OperationalTaxonomicUnit, OperationalTaxonomicUnitMethod
 
 literature = Blueprint('literature', __name__)
 
