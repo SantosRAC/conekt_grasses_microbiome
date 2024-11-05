@@ -1,3 +1,0 @@
-id  name    defn
-PECO:0007174	cold temperature exposure	The treatment involving an exposure to cold or sub-optimal temperature, which may depend on the study type or the regional environment. Source: Gramene:pankaj_jaiswal, Gramene:pankaj_jaiswal
-PECO:0007173	warm/hot temperature exposure	The treatment involving an exposure to above optimal temperature, which may depend on the study type or the regional environment. Source: Gramene:pankaj_jaiswal, Gramene:pankaj_jaiswal

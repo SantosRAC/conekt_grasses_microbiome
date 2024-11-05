@@ -1,4 +1,0 @@
-ASV	SILVA_PATH
-asv4	Archaea;Crenarchaeota;
-asv5	Archaea;Crenarchaeota;Nitrososphaeria;
-asv6	Archaea;Crenarchaeota;Nitrososphaeria;SCGC AB-179-E04;
