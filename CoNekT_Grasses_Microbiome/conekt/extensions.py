@@ -12,10 +12,8 @@ from sqlalchemy.engine import Engine
 from sqlalchemy import event
 from sqlite3 import Connection as SQLite3Connection
 
-from conekt.flask_blast import BlastThread
-
 __all__ = ['db', 'login_manager', 'cache', 'htmlmin',
-           'blast_thread', 'compress', 'migrate', 'csrf']
+           'compress', 'migrate', 'csrf']
 
 db = SQLAlchemy()
 
@@ -55,7 +53,6 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
 login_manager = LoginManager()
 cache = Cache()
 htmlmin = HTMLMIN()
-blast_thread = BlastThread()
 compress = Compress()
 migrate = Migrate()
 csrf = CSRFProtect()

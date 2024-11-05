@@ -20,7 +20,7 @@ from flask_admin import Admin
 from flask_wtf.csrf import CSRFProtect
 
 from conekt.extensions import db, login_manager, cache, htmlmin, \
-    blast_thread, compress, migrate, csrf
+    compress, migrate, csrf
 
 import coloredlogs
 
@@ -73,12 +73,6 @@ def configure_extensions(app):
     csrf.init_app(app)
 
     migrate.init_app(app, db=db)
-
-    BLAST_ENABLED = app.config['BLAST_ENABLED']
-
-    # Enable BLAST
-    if BLAST_ENABLED:
-        blast_thread.init_app(app)
 
     from conekt.models.users import User
 

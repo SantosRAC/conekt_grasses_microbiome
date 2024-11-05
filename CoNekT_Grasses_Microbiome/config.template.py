@@ -45,21 +45,6 @@ MINIFY_PAGE = not DEBUG
 # temp dir
 TMP_DIR = tempfile.mkdtemp()
 
-# BLAST settings
-BLAST_ENABLED = False
-BLAST_TMP_DIR = tempfile.mkdtemp()
-BLASTP_PATH = ''
-BLASTP_DB_PATH = ''
-BLASTN_PATH = ''
-BLASTN_DB_PATH = ''
-BLASTP_CMD = '"' + BLASTP_PATH + '" -db "' + BLASTP_DB_PATH + '" -query "<IN>" -out "<OUT>" -outfmt 6 -num_threads 1'
-BLASTN_CMD = '"' + BLASTN_PATH + '" -db "' + BLASTN_DB_PATH + '" -query "<IN>" -out "<OUT>" -outfmt 6 -num_threads 1'
-
-MAKEBLASTDB_PATH = ''
-MAKEBLASTDB_PROT_CMD = '"' + MAKEBLASTDB_PATH + '" -in "<IN>"' ' -out "' + BLASTP_DB_PATH + '" -dbtype prot'
-MAKEBLASTDB_NUCL_CMD = '"' + MAKEBLASTDB_PATH + '" -in "<IN>"' ' -out "' + BLASTN_DB_PATH + '" -dbtype nucl'
-
-
 # Debug settings
 DEBUG_TB_INTERCEPT_REDIRECTS = False
 
