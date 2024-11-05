@@ -89,7 +89,6 @@ def configure_blueprints(app):
     # Import controllers and register as blueprint
     from conekt.controllers.main import main
     from conekt.controllers.auth import auth, no_login
-    from conekt.controllers.blast import blast
     from conekt.controllers.sequence import sequence
     from conekt.controllers.species import species
     from conekt.controllers.go import go
@@ -110,7 +109,6 @@ def configure_blueprints(app):
     from conekt.controllers.literature import literature
 
     LOGIN_ENABLED = app.config['LOGIN_ENABLED']
-    BLAST_ENABLED = app.config['BLAST_ENABLED']
 
     app.register_blueprint(main)
     if LOGIN_ENABLED:
@@ -119,9 +117,6 @@ def configure_blueprints(app):
     else:
         app.register_blueprint(no_login, url_prefix='/auth')
         app.register_blueprint(no_login, url_prefix='/admin_controls')
-
-    if BLAST_ENABLED:
-        app.register_blueprint(blast, url_prefix='/blast')
 
     app.register_blueprint(sequence, url_prefix='/sequence')
     app.register_blueprint(species, url_prefix='/species')
@@ -239,7 +234,6 @@ def configure_hooks(app):
     from conekt.forms.search import BasicSearchForm
 
     LOGIN_ENABLED = app.config['LOGIN_ENABLED']
-    BLAST_ENABLED = app.config['BLAST_ENABLED']
     TWITTER_HANDLE = app.config['TWITTER_HANDLE'] if 'TWITTER_HANDLE' in app.config.keys() else None
     TUTORIAL_URL = app.config['TUTORIAL_URL'] if 'TUTORIAL_URL' in app.config.keys() else None
     IMPRINT = app.config['IMPRINT_URL'] if 'IMPRINT_URL' in app.config.keys() else None
@@ -248,7 +242,6 @@ def configure_hooks(app):
     @app.before_request
     def before_request():
         g.login_enabled = LOGIN_ENABLED
-        g.blast_enabled = BLAST_ENABLED
         g.search_form = BasicSearchForm()
         g.twitter_handle = TWITTER_HANDLE
         g.imprint = IMPRINT
