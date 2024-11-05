@@ -9,8 +9,7 @@ from werkzeug.utils import redirect
 
 from conekt.controllers.admin.controls import admin_controls
 from conekt.forms.admin.add_ontology import AddOntologyDataForm
-from conekt.models.ontologies import PlantOntology,\
-    PlantExperimentalConditionsOntology, EnvironmentOntology
+from conekt.models.ontologies import EnvironmentOntology
 
 
 @admin_controls.route('/add/ontology', methods=['POST'])
@@ -23,28 +22,10 @@ def add_ontology():
     form = AddOntologyDataForm(request.form)
 
     if request.method == 'POST' and form.validate():
-        po_data = request.files[form.po.name].read()
-        peco_data = request.files[form.peco.name].read()
         envo_data = request.files[form.envo.name].read()
 
-        if po_data != b'' or\
-            peco_data != b'' or\
-            envo_data != b'':
-            po_fd, po_temp_path = mkstemp()
-            peco_fd, peco_temp_path = mkstemp()
+        if envo_data != b'':
             envo_fd, envo_temp_path = mkstemp()
-
-            # Add PO
-            with open(po_temp_path, 'wb') as po_writer:
-                po_writer.write(po_data)
-
-            PlantOntology.add_tabular_po(po_temp_path, empty=True)
-
-            # Add PECO
-            with open(peco_temp_path, 'wb') as peco_writer:
-                peco_writer.write(peco_data)
-            
-            PlantExperimentalConditionsOntology.add_tabular_peco(peco_temp_path, empty=True)
 
             # Add ENVO
             with open(envo_temp_path, 'wb') as envo_writer:
@@ -52,10 +33,6 @@ def add_ontology():
             
             EnvironmentOntology.add_tabular_envo(envo_temp_path, empty=True)
 
-            os.close(po_fd)
-            os.remove(po_temp_path)
-            os.close(peco_fd)
-            os.remove(peco_temp_path)
             os.close(envo_fd)
             os.remove(envo_temp_path)
             flash('Ontologies data added.', 'success')

@@ -153,7 +153,6 @@ def configure_admin_panel(app):
         from conekt.models.clades import Clade
         from conekt.models.news import News
         from conekt.models.trees import TreeMethod
-        from conekt.models.ontologies import PlantOntology
         from conekt.models.genome_envo import GenomeENVO
         from conekt.models.ncbi_information import NCBI
 

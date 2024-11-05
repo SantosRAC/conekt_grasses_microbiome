@@ -17,7 +17,7 @@ def add_taxonomy():
     """
     Adds taxonomy information.
 
-    Admins can add NCBI Taxonomy and SILVA Taxonomy information to the database.
+    Admins can add GTDB Taxonomy information to the database.
     :return: Redirect to admin panel interface
     """
     form = AddTaxonomyForm(request.form)
