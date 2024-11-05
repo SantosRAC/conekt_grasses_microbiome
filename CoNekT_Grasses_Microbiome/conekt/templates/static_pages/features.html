@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    CoNekT Grasses Microbiome - Features
+    PaGeD - Features
 {% endblock %}
 
 {% block container %}
@@ -10,47 +10,20 @@
         <li><a href="{{ url_for('main.screen') }}">Home</a></li>
         <li class="active"><strong>Features</strong></li>
     </ol>
-    <h1>CoNekT Grasses Microbiome Features</h1>
+    <h1>PaGeD Features</h1>
 
     <h3 class="banner-green" >Search</h3>
 
-    <p>CoNekT Grasses Microbiome comes packed with functions to quickly find relevant data. A general keyword search is available on
-    each page (search box top right corner), though for more complex searches users have the tools below at their
-    disposal.</p>
-
-    <div class="row equal">
-        {% if g.blast_enabled %}
-        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-6" >
-            <div class="panel panel-default panel-card">
-            <div class="panel-heading">BLAST</div>
-                <a href="{{ url_for('blast.blast_main') }}">
-                    <img class="img-responsive img-card" src="{{ url_for('static', filename='img/cards/blast.png') }}"/>
-                </a>
-            <div class="panel-body">
-                <p>Find <strong>sequences</strong> in CoNekT similar to a query sequence</p>
-            </div>
-        </div>
-        </div>
-        {% endif %}
-        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-6" >
-            <div class="panel panel-default panel-card">
-            <div class="panel-heading">Correlated profiles</div>
-            <div class="panel-body">
-                <p>Find <strong>correlated</strong> profiles for microbiome and expression data for a selected study</p>
-            </div>
-        </div>
-        </div>
-
-    </div>
+    <p>PaGeD comes packed with functions to quickly find relevant data.</p>
 
     <h3 class="banner-green" >Tools</h3>
 
-    <p>Tools allow users to either compare data included in CoNekT or create plots using a custom set of genes.</p>
+    <p>Tools allow users to either compare data included in PaGeD.</p>
     <div class="row equal">
         <div class="col-lg-3 col-md-3 col-sm-6 col-xs-6 panel-card" >
             <div class="panel panel-default">
                 <div class="panel-heading">Compare profiles</div>
-                <a href="{{ url_for('profile_comparison.profile_comparison_main') }}">
+                <a href="#">
                     <img class="img-responsive img-card" src="{{ url_for('static', filename='img/cards/profile_comparison.png') }}" />
                 </a>
                 <div class="panel-body">
