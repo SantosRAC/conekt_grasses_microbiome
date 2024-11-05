@@ -105,7 +105,6 @@ def configure_blueprints(app):
     from conekt.controllers.clade import clade
     from conekt.controllers.admin.controls import admin_controls
     from conekt.controllers.tree import tree
-    from conekt.controllers.study import study
     from conekt.controllers.literature import literature
 
     LOGIN_ENABLED = app.config['LOGIN_ENABLED']
@@ -120,7 +119,6 @@ def configure_blueprints(app):
 
     app.register_blueprint(sequence, url_prefix='/sequence')
     app.register_blueprint(species, url_prefix='/species')
-    app.register_blueprint(study, url_prefix='/study')
     app.register_blueprint(go, url_prefix='/go')
     app.register_blueprint(interpro, url_prefix='/interpro')
     app.register_blueprint(cazyme, url_prefix='/cazyme')
