@@ -102,7 +102,6 @@ def configure_blueprints(app):
     from conekt.controllers.interpro import interpro
     from conekt.controllers.cazyme import cazyme
     from conekt.controllers.family import family
-    from conekt.controllers.expression_profile import expression_profile
     from conekt.controllers.search import search_page
     from conekt.controllers.overview import overview
     from conekt.controllers.taxonomy_explorer import taxonomy_explorer
@@ -114,11 +113,6 @@ def configure_blueprints(app):
     from conekt.controllers.admin.controls import admin_controls
     from conekt.controllers.tree import tree
     from conekt.controllers.study import study
-    from conekt.controllers.profile_comparison import profile_comparison
-    from conekt.controllers.microbiome.asvs_profile import asvs_profile
-    from conekt.controllers.microbiome.otu_profiles import otus_profile
-    from conekt.controllers.microbiome.otus import otu
-    from conekt.controllers.omics_integration.profile_correlations import profile_correlations
     from conekt.controllers.literature import literature
     from conekt.controllers.omics_integration.custom_expression_microbiome_network import custom_network
 
