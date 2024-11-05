@@ -1,8 +1,6 @@
 from conekt import db
 
 from conekt.models.sample import Sample
-from conekt.models.relationships.sample_po import SamplePOAssociation
-from conekt.models.relationships.sample_peco import SamplePECOAssociation
 from conekt.models.relationships.sample_envo import SampleENVOAssociation
 
 import os

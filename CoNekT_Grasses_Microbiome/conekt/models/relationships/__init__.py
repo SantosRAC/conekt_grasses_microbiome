@@ -5,13 +5,6 @@ additional model needs to be created that extends these.
 
 from conekt import db
 
-sample_po = db.Table('sample_po',
-                     db.Column('id', db.Integer, primary_key=True),
-                     db.Column('sample_id', db.Integer, db.ForeignKey('samples.id'), index=True),
-                     db.Column('po_id', db.Integer, db.ForeignKey('plant_ontology.id'), index=True),
-                     db.Column('species_id', db.Integer, db.ForeignKey('species.id'), index=True)
-                    )
-
 sequence_go = db.Table('sequence_go',
                        db.Column('id', db.Integer, primary_key=True),
                        db.Column('sequence_id', db.Integer, db.ForeignKey('sequences.id'), index=True),
