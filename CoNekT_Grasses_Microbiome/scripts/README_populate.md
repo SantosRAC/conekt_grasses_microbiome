@@ -10,6 +10,20 @@ For `nextflow version 24.10.0.5928`, which is currently being used (Ubuntu 22.04
 curl -s https://get.nextflow.io | bash 
 ```
 
+## Setting up the MariaDB database
+
+Usually, we will want to separate the database used in production from the one we fill with new data (especially during development stages). Here's a summary of how to setup this database for filling with data using the NextFlow pipeline.
+
+Steps to create the new/parallel database `conekt_microbiome_dev_db` are described below. Commands must be executed with admin permission. Also, ignore the `CREATE USER` if it already existed.
+
+```sql
+CREATE USER conekt_microbiome_admin@localhost IDENTIFIED BY 'E,~5*;{9f{p2VGp^';
+CREATE DATABASE conekt_microbiome_dev_db CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci';
+GRANT INDEX, CREATE, DROP, SELECT, UPDATE, DELETE, ALTER, EXECUTE, INSERT on conekt_microbiome_dev_db.* TO conekt_microbiome_admin@localhost;
+GRANT FILE on *.* TO conekt_microbiome_admin@localhost;
+FLUSH PRIVILEGES;
+```
+
 
 ## Running the NextFlow pipeline
 
