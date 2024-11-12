@@ -6,38 +6,29 @@
     <div class="container">
         <h1>Search Page</h1>
         <form method="POST" action="{{ url_for('search.search') }}">
+            {{ form.csrf_token }}
             <div class="row">
                 <!-- Campo de busca para Taxonomy -->
-                <div class="col-md-2">
-                    <label for="taxonomy">Taxonomy:</label>
-                    <input type="text" class="form-control" name="taxonomy" id="taxonomy">
-                </div>
-                
-                <!-- Campo de busca para Country -->
-                <div class="col-md-2">
-                    <label for="country">Country:</label>
-                    <input type="text" class="form-control" name="country" id="country" list="countryList">
-                    <datalist id="countryList"> 
-                    </datalist>
-                </div>
-                
-                <!-- Campo de busca para ENVO Class -->
-                <div class="col-md-2">
-                    <label for="envo_class">ENVO Class:</label>
-                    <input type="text" class="form-control" name="envo_class" id="envo_class" list="envoClassList">
-                    <datalist id="envoClassList">
-                        <!-- As opções serão preenchidas dinamicamente -->
-                    </datalist>
+                <div class="form-group">
+                    {{ form.taxonomy.label }}
+                    {{ form.taxonomy(class_="form-control") }}
                 </div>
 
-                <!-- Campo de busca para ENVO Annotation -->
-                <div class="col-md-2">
-                    <label for="envo_annotation">ENVO Annotation:</label>
-                    <input type="text" class="form-control" name="envo_annotation" id="envo_annotation" list="envoAnnotationList">
-                    <datalist id="envoAnnotationList">
-                        <!-- As opções serão preenchidas dinamicamente -->
-                    </datalist>
+                <div class="form-group">
+                    {{ form.country.label }}
+                    {{ form.country(class_="form-control") }}
                 </div>
+
+                <div class="form-group">
+                    {{ form.envo_class.label }}
+                    {{ form.envo_class(class_="form-control") }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.envo_annotation.label }}
+                    {{ form.envo_annotation(class_="form-control") }}
+                </div>
+
             </div>
             <br>
             <button type="submit" class="btn btn-primary">Search</button>

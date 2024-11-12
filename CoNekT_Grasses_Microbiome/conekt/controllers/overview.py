@@ -3,7 +3,7 @@ from flask import Blueprint, json, jsonify, current_app, render_template, reques
 from conekt import db
 from conekt.models.genome_envo import GenomeENVO
 from sqlalchemy import func
-from conekt.models.genomes_quality import Genomes_quality
+from conekt.models.genomes_quality import GenomesQuality
 from conekt.models.cluster import Cluster
 from conekt.models.genome import Genome
 from conekt.models.ontologies import EnvironmentOntology
@@ -83,8 +83,8 @@ def get_genome_quality_distribution():
         # Query para obter os dados de qualidade dos genomas
         query = (
             db.session.query(
-                func.cast(Genomes_quality.completeness, db.Float).label('completeness'),
-                func.cast(Genomes_quality.contamination, db.Float).label('contamination')
+                func.cast(GenomesQuality.completeness, db.Float).label('completeness'),
+                func.cast(GenomesQuality.contamination, db.Float).label('contamination')
             ).all()
         )
 

@@ -2,7 +2,7 @@ from conekt import db
 from sqlalchemy.orm import undefer
 from conekt.models.literature import LiteratureItem
 from conekt.models.cluster import Cluster
-from conekt.models.genomes_quality import Genomes_quality
+from conekt.models.genomes_quality import GenomesQuality
 from conekt.models.geographic_genomes_information import Geographic
 from conekt.models.genome_envo import GenomeENVO
 from conekt.models.ncbi_information import NCBI
@@ -92,14 +92,7 @@ class Genome(db.Model):
 
                 ncbi_accession = parts[20]
                 biosample = parts[21]
-                bioproject = parts[22]
-                
-              
-
-                # Debugging prints
-                print(f"Processing line: {line.strip()}")
-                print(f"Genome ID: {genome_id}, DOI: {doi}, Type: {genome_type}, Length: {length}, N50: {N50}, GC%: {gc_perc}, Contigs: {num_contigs}, Cluster ID: {cluster_id}, Representative: {representative}")
-               
+                bioproject = parts[22]               
 
                 # Check for existing genome entry
                 existing_genome = Genome.query.filter_by(genome_id=genome_id).first()
@@ -108,7 +101,7 @@ class Genome(db.Model):
                     print(f"Genome {genome_id} already exists in the database, skipping...")
                     continue
 
-                if doi == 'unpublished':
+                if doi.lower() == 'unpublished':
                     literature_id = None  # or any other indicator for unpublished
                 else:
                     literature = LiteratureItem.query.filter_by(doi=doi).first()
@@ -123,7 +116,7 @@ class Genome(db.Model):
                 db.session.add(new_genome)
 
                  # add the genome quality to the database
-                new_genome_quality_info = Genomes_quality(genome_id, completeness, contamination, quality, rrna_16S, copies_16S_rrna)
+                new_genome_quality_info = GenomesQuality(genome_id, completeness, contamination, quality, rrna_16S, copies_16S_rrna)
                 db.session.add(new_genome_quality_info)
 
                 # add the geographic information to the database

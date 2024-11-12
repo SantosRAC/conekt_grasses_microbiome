@@ -178,7 +178,6 @@ def configure_admin_panel(app):
         admin.add_view(AddClustersView(name='Clusters', endpoint='admin_add_clusters', url='add/clusters/', category='Add Genomes'))
         admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Add Genomes')
         admin.add_view(AddGenomesView(name='Genomes', endpoint='admin_add_genomes', url='add/genomes/', category='Add Genomes'))
-        admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Add Genomes')
 
         # Control panel
         admin.add_view(ControlsView(name='Controls', url='controls/'))
@@ -228,8 +227,6 @@ def configure_error_handlers(app):
 
 def configure_hooks(app):
     # Register form for basic searches, needs to be done here as it is included on every page!
-    from conekt.forms.search import BasicSearchForm
-
     LOGIN_ENABLED = app.config['LOGIN_ENABLED']
     TWITTER_HANDLE = app.config['TWITTER_HANDLE'] if 'TWITTER_HANDLE' in app.config.keys() else None
     TUTORIAL_URL = app.config['TUTORIAL_URL'] if 'TUTORIAL_URL' in app.config.keys() else None
@@ -239,7 +236,6 @@ def configure_hooks(app):
     @app.before_request
     def before_request():
         g.login_enabled = LOGIN_ENABLED
-        g.search_form = BasicSearchForm()
         g.twitter_handle = TWITTER_HANDLE
         g.imprint = IMPRINT
         g.privacy = PRIVACY

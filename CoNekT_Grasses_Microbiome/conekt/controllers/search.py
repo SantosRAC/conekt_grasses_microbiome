@@ -6,15 +6,19 @@ from conekt.models.taxonomy import GTDBTaxon
 from conekt.models.geographic_genomes_information import Geographic
 from conekt.models.genome_envo import GenomeENVO
 from conekt.models.ontologies import EnvironmentOntology
-from conekt.models.genomes_quality import Genomes_quality
+from conekt.models.genomes_quality import GenomesQuality
 from conekt.models.literature import LiteratureItem
 from conekt.models.ncbi_information import NCBI
+
+from conekt.forms.search import BasicSearchForm
 
 search_page = Blueprint('search', __name__)
 
 @search_page.route('/search', methods=['GET', 'POST'])
 def search():
     results = []
+
+    form = BasicSearchForm(request.form)
 
     if request.method == 'POST':
         # Captura os dados do formulário
@@ -28,7 +32,7 @@ def search():
             Genome.genome_id,
             Genome.genome_type,
             GTDBTaxon.taxon_path,
-            Genomes_quality.quality,
+            GenomesQuality.quality,
             Geographic.country,
             Geographic.local,
             EnvironmentOntology.envo_class,
@@ -38,7 +42,7 @@ def search():
             Cluster.id.label('cluster_id')  # Incluir o cluster_id
         ).outerjoin(Cluster, Genome.cluster_id == Cluster.id) \
          .outerjoin(GTDBTaxon, Cluster.gtdb_id == GTDBTaxon.id) \
-         .outerjoin(Genomes_quality, Genome.genome_id == Genomes_quality.genome_id) \
+         .outerjoin(GenomesQuality, Genome.genome_id == GenomesQuality.genome_id) \
          .outerjoin(Geographic, Genome.genome_id == Geographic.genome_id) \
          .outerjoin(GenomeENVO, Genome.genome_id == GenomeENVO.genome_id) \
          .outerjoin(EnvironmentOntology, GenomeENVO.envo_habitat == EnvironmentOntology.envo_term) \
@@ -58,7 +62,7 @@ def search():
         # Executa a consulta e armazena os resultados
         results = query.all()
 
-    return render_template('search.html', results=results)
+    return render_template('search.html', results=results, form=form)
 
 
 # Rota para buscar country (para preenchimento automático)

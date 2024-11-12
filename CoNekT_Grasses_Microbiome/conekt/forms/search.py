@@ -4,4 +4,8 @@ from wtforms.validators import InputRequired
 
 
 class BasicSearchForm(FlaskForm):
-    terms = StringField('Terms', [InputRequired()])
+    
+    taxonomy = StringField('Taxonomy')
+    country = StringField('Country')
+    envo_class = StringField('ENVO Class')
+    envo_annotation = StringField('ENVO Annot')

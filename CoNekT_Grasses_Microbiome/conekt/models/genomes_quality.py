@@ -4,7 +4,7 @@ from sqlalchemy.orm import undefer
 
 SQL_COLLATION = 'NOCASE' if db.engine.name == 'sqlite' else ''
 
-class Genomes_quality(db.Model):
+class GenomesQuality(db.Model):
     __tablename__ = 'genomes_quality'
     id = db.Column(db.Integer, primary_key=True)
     genome_id = db.Column(db.String(11, collation=SQL_COLLATION), db.ForeignKey('genomes.genome_id', ondelete='NO ACTION'))

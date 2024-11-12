@@ -9,10 +9,6 @@ from werkzeug.utils import redirect
 from conekt.controllers.admin.controls import admin_controls
 from conekt.forms.admin.add_genomes import AddGenomesForm
 from conekt.models.genome import Genome
-from conekt.models.genome_envo import GenomeENVO
-from conekt.models.genomes_quality import Genomes_quality
-from conekt.models.geographic_genomes_information import Geographic
-from conekt.models.ncbi_information import NCBI
 
 
 @admin_controls.route('/add/genomes', methods=['POST'])
