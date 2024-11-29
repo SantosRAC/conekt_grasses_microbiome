@@ -1,14 +1,44 @@
 # Setting up mod_wsgi with Apache
 
+## Installing Apache2 and initial setup
+
+Installing Apache2:
+
+```bash
+sudo apt install apache2
+```
+
+Common XXXXXX:
+
+```bash
+service apache2 status
+service apache2 start # this could be used to start Apache2 if necessary (sudo may be necessary)
+service apache2 stop # used to stop Apache2
+```
+
 Copy `conekt.template.wsgi` to conekt.wsgi and add the correct paths. 
 
-    WSGI_PATH = 'location of your app'
-    WSGI_ENV = 'location of activate_this.py, in the bin folder of the virtual environment'
+    WSGI_PATH = 'location of your app' (e.g., `/path/to/CoNekT_Grasses_Microbiome`)
+    WSGI_ENV = 'location of activate_this.py, in the bin folder of the virtual environment' (e.g., `/path/to/CoNekT_Grasses_Microbiome/bin/activate_this.py`)
 
-When using the built-in venv module in Python 3.6 and up activate_this.py is no longer automatically included in 
-the virtual environment and needs to be added manually. You can find it [here](https://github.com/pypa/virtualenv/blob/master/virtualenv_embedded/activate_this.py)
-    
+`virtualenv` will automatically create the `activate_this.py` file inside the `/bin` folder.
+
+
+The default apache2 user is called `www-data`.
+
+A `.conf` file must be created in the sites-available (usually here: `/etc/apache2/sites-available/`).
+
+VirtualHost
+
+ * mods-available (wsgi.load loads the module from a particular environment - e.g., conekt_grasses)
+ * mods-enabled (symbolic links to files in mods-available)
+
 Configure apache, example below can be added to the default VirtualHost. A valid user (non-admin), usually www-data, is required for this:
+
+    ServerName paged.unicamp.br
+    ServerAlias www.paged.unicamp.br
+    LogLevel debug
+    #Include conf-available/serve-cgi-bin.conf
 
     # This part is optional, but will improve speed
     Alias /conekt/static /path/to/conekt/static
@@ -18,7 +48,7 @@ Configure apache, example below can be added to the default VirtualHost. A valid
     </Directory>
 	
 	# Set up WSGI
-	WSGIDaemonProcess application user=user group=user threads=5
+	WSGIDaemonProcess application user=www-data group=www-data threads=5
 	WSGIScriptAlias /conekt /path/to/conekt.wsgi
 
 	<Location /conekt>
@@ -26,3 +56,8 @@ Configure apache, example below can be added to the default VirtualHost. A valid
 	    WSGIApplicationGroup %{GLOBAL}
 	    Require all granted
 	</Location>
+
+    ServerAdmin test_paged_unicamp@gmail.com
+    DocumentRoot /path/to/conekt/static/
+    ErrorLog /DataBig/apache_log/paged_error.log
+    CustomLog /DataBig/apache_log/paged_access.log combined
