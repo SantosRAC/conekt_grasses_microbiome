@@ -59,5 +59,7 @@ Configure apache, example below can be added to the default VirtualHost. A valid
 
     ServerAdmin test_paged_unicamp@gmail.com
     DocumentRoot /path/to/conekt/static/
-    ErrorLog /DataBig/apache_log/paged_error.log
-    CustomLog /DataBig/apache_log/paged_access.log combined
+    ErrorLog /Directory/apache_log/paged_error.log
+    CustomLog /Directory/apache_log/paged_access.log combined
+
+    
