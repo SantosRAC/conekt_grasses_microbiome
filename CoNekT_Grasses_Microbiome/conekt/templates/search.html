@@ -3,6 +3,10 @@
 {% block title %}Search{% endblock %}
 
 {% block container %}
+<script>
+    var resultados = {{ results }}; 
+    console.log("OI", resultados);
+</script>
     <div class="container">
         <h1>Search Page</h1>
         <form method="POST" action="{{ url_for('search.search') }}">
@@ -37,6 +41,7 @@
         <hr>
 
         <h2>Search Results</h2>
+        {{ results }}
 
         {% if results %}
             <div class="table-responsive">
@@ -103,6 +108,7 @@
         {% endif %}
     </div>
 {% endblock %}
+
 
 
 {% block extrajs %}

@@ -7,10 +7,12 @@ from conekt.models.geographic_genomes_information import Geographic
 from conekt.models.genome_envo import GenomeENVO
 from conekt.models.ncbi_information import NCBI
 from conekt.models.geocode_utils import geocode_location
+from conekt import db, whooshee
 
 SQL_COLLATION = 'NOCASE' if db.engine.name == 'sqlite' else ''
 
 
+@whooshee.register_model('genome_id', 'genome_type')
 class Genome(db.Model):
     __tablename__ = 'genomes'
     genome_id = db.Column(db.String(11, collation=SQL_COLLATION), primary_key=True)

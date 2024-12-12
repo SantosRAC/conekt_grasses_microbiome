@@ -9,6 +9,7 @@ from conekt.models.ontologies import EnvironmentOntology
 from conekt.models.genomes_quality import GenomesQuality
 from conekt.models.literature import LiteratureItem
 from conekt.models.ncbi_information import NCBI
+from flask_whooshee import WhoosheeQuery
 
 from conekt.forms.search import BasicSearchForm
 
@@ -16,51 +17,35 @@ search_page = Blueprint('search', __name__)
 
 @search_page.route('/search', methods=['GET', 'POST'])
 def search():
+    print("oi")
     results = []
-
     form = BasicSearchForm(request.form)
 
     if request.method == 'POST':
-        # Captura os dados do formulário
         taxonomy = request.form.get('taxonomy')
         country = request.form.get('country')
         envo_class = request.form.get('envo_class')
         envo_annotation = request.form.get('envo_annotation')
+        
+        print(taxonomy, country, envo_class, envo_annotation)
 
-        # Monta a consulta dinâmica
-        query = db.session.query(
-            Genome.genome_id,
-            Genome.genome_type,
-            GTDBTaxon.taxon_path,
-            GenomesQuality.quality,
-            Geographic.country,
-            Geographic.local,
-            EnvironmentOntology.envo_class,
-            EnvironmentOntology.envo_annotation,
-            LiteratureItem.doi,
-            NCBI.ncbi_accession,
-            Cluster.id.label('cluster_id')  # Incluir o cluster_id
-        ).outerjoin(Cluster, Genome.cluster_id == Cluster.id) \
-         .outerjoin(GTDBTaxon, Cluster.gtdb_id == GTDBTaxon.id) \
-         .outerjoin(GenomesQuality, Genome.genome_id == GenomesQuality.genome_id) \
-         .outerjoin(Geographic, Genome.genome_id == Geographic.genome_id) \
-         .outerjoin(GenomeENVO, Genome.genome_id == GenomeENVO.genome_id) \
-         .outerjoin(EnvironmentOntology, GenomeENVO.envo_habitat == EnvironmentOntology.envo_term) \
-         .outerjoin(LiteratureItem, Genome.literature_id == LiteratureItem.id) \
-         .outerjoin(NCBI, Genome.genome_id == NCBI.genome_id)
-
-        # Adiciona os filtros de acordo com os parâmetros de busca
+        # Executar busca para cada parâmetro, se fornecido
         if taxonomy:
-            query = query.filter(GTDBTaxon.taxon_path.like(f"%{taxonomy}%"))
-        if country:
-            query = query.filter(Geographic.country.like(f"%{country}%"))
-        if envo_class:
-            query = query.filter(EnvironmentOntology.envo_class.like(f"%{envo_class}%"))
-        if envo_annotation:
-            query = query.filter(EnvironmentOntology.envo_annotation.like(f"%{envo_annotation}%"))
+            taxonomy_results = Genome.query.whooshee_search(taxonomy).all()
+            results.extend(taxonomy_results)
 
-        # Executa a consulta e armazena os resultados
-        results = query.all()
+        if country:
+            country_results = Geographic.query.whooshee_search(country).all()
+            results.extend(country_results)
+
+        if envo_class:
+            envo_class_results = EnvironmentOntology.query.whooshee_search(envo_class).all()
+            results.extend(envo_class_results)
+
+        if envo_annotation:
+            envo_annotation_results = EnvironmentOntology.query.whooshee_search(envo_annotation).all()
+            results.extend(envo_annotation_results)
+
 
     return render_template('search.html', results=results, form=form)
 

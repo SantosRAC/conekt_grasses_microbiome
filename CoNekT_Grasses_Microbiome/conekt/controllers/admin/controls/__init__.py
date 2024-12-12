@@ -14,5 +14,6 @@ from .xrefs import add_xrefs, add_xrefs_family
 from .ontology import add_ontology
 from .clusters import add_clusters
 from .genomes import add_genomes
+from .whooshee import reindex_whooshee
 
 

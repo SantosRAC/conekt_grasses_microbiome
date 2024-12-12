@@ -20,7 +20,7 @@ from flask_admin import Admin
 from flask_wtf.csrf import CSRFProtect
 
 from conekt.extensions import db, login_manager, cache, htmlmin, \
-    compress, migrate, csrf
+    compress, migrate, csrf, whooshee
 
 import coloredlogs
 
@@ -53,8 +53,8 @@ def configure_extensions(app):
     db.app = app
     db.init_app(app)
 
-    # Enable Solr
-    # TODO: implement Solr as the 
+    # Enable Whooshee
+    whooshee.init_app(app)
 
     # Enable login manager
     login_manager.init_app(app)

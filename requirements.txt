@@ -21,6 +21,7 @@ Flask-Migrate==4.0.5
 Flask-SQLAlchemy==3.1.1
 Flask-Testing==0.8.1
 Flask-WTF==1.2.0
+flask-whooshee==0.6.0
 greenlet==3.0.1
 htmlmin==0.1.12
 humanfriendly==10.0
@@ -59,5 +60,6 @@ urllib3==1.26.16
 Werkzeug==3.0.1
 WTForms==3.1.1
 zipp==3.17.0
+Whoosh==2.7.4
 newick==1.9.0
 yattag==1.15.2

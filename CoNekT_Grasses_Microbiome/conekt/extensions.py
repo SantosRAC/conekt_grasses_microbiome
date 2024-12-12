@@ -7,13 +7,15 @@ from flask_login import LoginManager, current_user, user_unauthorized
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
+from flask_whooshee import Whooshee
+
 
 from sqlalchemy.engine import Engine
 from sqlalchemy import event
 from sqlite3 import Connection as SQLite3Connection
 
 __all__ = ['db', 'login_manager', 'cache', 'htmlmin',
-           'compress', 'migrate', 'csrf']
+           'compress', 'migrate', 'csrf', 'whooshee']
 
 db = SQLAlchemy()
 
@@ -55,4 +57,5 @@ cache = Cache()
 htmlmin = HTMLMIN()
 compress = Compress()
 migrate = Migrate()
+whooshee = Whooshee()
 csrf = CSRFProtect()

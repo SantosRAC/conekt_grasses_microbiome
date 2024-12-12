@@ -1,9 +1,12 @@
 from conekt import db
 from sqlalchemy.orm import undefer
+from conekt import db, whooshee
+
 
 
 SQL_COLLATION = 'NOCASE' if db.engine.name == 'sqlite' else ''
 
+@whooshee.register_model('id', 'country', 'genome_id', 'local')
 class Geographic(db.Model):
     __tablename__ = 'geographic_info'
     id = db.Column(db.Integer, primary_key=True)
