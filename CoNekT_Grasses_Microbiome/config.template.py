@@ -40,6 +40,13 @@ WTF_CSRF_TIME_LIMIT = None
 # Minify pages when debug is off
 MINIFY_PAGE = not DEBUG
 
+# Whooshee settings
+WHOOSHEE_DIR = tempfile.mkdtemp()
+WHOOSHEE_MIN_STRING_LEN = 3
+WHOOSHEE_WRITER_TIMEOUT = 2
+WHOOSHEE_MEMORY_STORAGE = False
+WHOOSHEE_ENABLE_INDEXING = True
+
 # TODO: Solr settings
 
 # temp dir
