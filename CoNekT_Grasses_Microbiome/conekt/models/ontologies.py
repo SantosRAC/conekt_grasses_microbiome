@@ -14,8 +14,8 @@ class PlantOntology(db.Model):
     __tablename__ = 'plant_ontology'
     id = db.Column(db.Integer, primary_key=True)
     po_term = db.Column(db.String(10, collation=SQL_COLLATION), unique=True)
-    po_class = db.Column(db.String(50, collation=SQL_COLLATION), unique=True)
-    po_annotation = db.Column(db.String(500, collation=SQL_COLLATION))
+    po_class = db.Column(db.String(80, collation=SQL_COLLATION), unique=True)
+    po_annotation = db.Column(db.Text)
 
     def __init__(self, po_term, po_class, po_annotation):
         self.po_term = po_term
@@ -80,8 +80,8 @@ class PlantExperimentalConditionsOntology(db.Model):
     __tablename__ = 'plant_experimental_conditions_ontology'
     id = db.Column(db.Integer, primary_key=True)
     peco_term = db.Column(db.String(13, collation=SQL_COLLATION), unique=True)
-    peco_class = db.Column(db.String(50, collation=SQL_COLLATION), unique=True)
-    peco_annotation = db.Column(db.String(500, collation=SQL_COLLATION))
+    peco_class = db.Column(db.String(80, collation=SQL_COLLATION), unique=True)
+    peco_annotation = db.Column(db.Text)
 
     def __init__(self, peco_term, peco_class, peco_annotation):
         self.peco_term = peco_term
@@ -147,8 +147,8 @@ class EnvironmentOntology(db.Model):
     __tablename__ = 'environment_ontology'
     id = db.Column(db.Integer, primary_key=True)
     envo_term = db.Column(db.String(13, collation=SQL_COLLATION), unique=True)
-    envo_class = db.Column(db.String(50, collation=SQL_COLLATION), unique=True)
-    envo_annotation = db.Column(db.String(500, collation=SQL_COLLATION))
+    envo_class = db.Column(db.String(120, collation=SQL_COLLATION))
+    envo_annotation = db.Column(db.Text)
 
     def __init__(self, envo_term, envo_class, envo_annotation):
         self.envo_term = envo_term
@@ -208,19 +208,3 @@ class EnvironmentOntology(db.Model):
                        'species_id': species_id}
     
         db.session.execute(SampleENVOAssociation.__table__.insert(), association)
-
-
-class OntologyHostMicrobeInteraction(db.Model):
-    __tablename__ = 'ohmi'
-    id = db.Column(db.Integer, primary_key=True)
-    ohmi_term = db.Column(db.String(10, collation=SQL_COLLATION), unique=True)
-    ohmi_class = db.Column(db.String(50, collation=SQL_COLLATION), unique=True)
-    ohmi_annotation = db.Column(db.String(500, collation=SQL_COLLATION))
-
-    def __init__(self, ohmi_term, ohmi_class, ohmi_annotation):
-        self.ohmi_term = ohmi_term
-        self.ohmi_class = ohmi_class
-        self.ohmi_annotation = ohmi_annotation
-
-    def __repr__(self):
-        return str(self.id) + ". " + self.ohmi_term

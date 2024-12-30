@@ -18,6 +18,10 @@ parser.add_argument('--plant_e_c_ontology', type=str, metavar='peco.txt',
                     dest='peco_file',
                     help='The plant experimental condition ontology file',
                     required=False)
+parser.add_argument('--envo', type=str, metavar='envo.txt',
+                    dest='envo_file',
+                    help='The environment ontology file',
+                    required=False)
 parser.add_argument('--db_admin', type=str, metavar='DB admin',
                     dest='db_admin',
                     help='The database admin user',
@@ -88,8 +92,37 @@ def add_tabular_po(filename, empty=True, compressed=False):
                     session.add(po)
                     i += 1
             if i % 40 == 0:
-            # commit to the db frequently to allow WHOOSHEE's indexing function to work without timing out
+                # commit to the db frequently to allow WHOOSHEE's indexing function to work without timing out
                 session.commit()
+        session.commit()
+
+def add_tabular_envo(filename, empty=True):
+
+    # If required empty the table first
+    file_size = os.stat(filename).st_size
+    if empty and file_size > 0:
+        # If required empty the table first
+        with engine.connect() as conn:
+            stmt = delete(EnvironmentOntology)
+            conn.execute(stmt)
+            conn.commit()
+
+    with open(filename, 'r') as fin:
+        i = 0
+        for line in fin:
+            if line.startswith('ENVO:'):
+                parts = line.strip().split('\t')
+                if len(parts) == 3:
+                    envo_term, envo_name, envo_annotation = parts[0], parts[1], parts[2]
+                    envo = EnvironmentOntology(envo_term=envo_term,
+                            envo_class=envo_name,
+                            envo_annotation=envo_annotation)
+                    session.add(envo)
+                    i += 1
+            if i % 40 == 0:
+                # commit to the db frequently to allow WHOOSHEE's indexing function to work without timing out
+                session.commit()
+         
         session.commit()
 
 db_admin = args.db_admin
@@ -106,6 +139,7 @@ Base.prepare(engine, reflect=True)
 
 PlantExperimentalConditionsOntology = Base.classes.plant_experimental_conditions_ontology
 PlantOntology = Base.classes.plant_ontology
+EnvironmentOntology = Base.classes.environment_ontology
 
 # Create a Session
 Session = sessionmaker(bind=engine)
@@ -113,6 +147,7 @@ session = Session()
 
 peco_file = args.peco_file
 po_file = args.po_file
+envo_file = args.envo_file
 
 ontology_data_count = 0
 
@@ -123,6 +158,10 @@ if peco_file:
 if po_file:
     ontology_data_count+=1
     add_tabular_po(po_file)
+
+if envo_file:
+    ontology_data_count+=1
+    add_tabular_envo(envo_file)
 
 if ontology_data_count == 0:
     print("Must add at least one type of ontology data (e.g., --plant_ontology)\
