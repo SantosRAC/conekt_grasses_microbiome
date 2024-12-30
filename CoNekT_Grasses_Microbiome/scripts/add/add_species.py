@@ -111,16 +111,6 @@ class Fasta:
                 print(">" + k, file=f)
                 print(v, file=f)
 
-def print_memory_usage():
-    # Get memory usage statistics
-    memory = psutil.virtual_memory()
-
-    # Print memory usage
-    print(f"Total Memory: {memory.total / (1024.0 ** 3):.2f} GB")
-    print(f"Available Memory: {memory.available / (1024.0 ** 3):.2f} GB")
-    print(f"Used Memory: {memory.used / (1024.0 ** 3):.2f} GB")
-    print(f"Memory Usage Percentage: {memory.percent}%\n")
-
 def add_literature(doi, engine):
 
         works = Works()
@@ -219,12 +209,10 @@ def add_from_fasta(filename, species_id, compressed=False, sequence_type='protei
         # add 400 sequences at the time
         if len(new_sequences) > 400:
             session.commit()
-            print_memory_usage()
             new_sequences = []
 
     # add the last set of sequences
     session.commit()
-    print_memory_usage()
 
     return len(fasta_data.sequences.keys())
 
