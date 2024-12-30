@@ -10,28 +10,6 @@
         <form method="POST"  action="{{ url_for('admin_controls.add_taxonomy') }}"  role="form" enctype="multipart/form-data">
             {{ form.csrf_token }}
             <div class="form-group">
-                <label>{{ form.ncbi_release.label }}</label>
-                {{form.ncbi_release(class_="form-control", placeholder="NCBI Release") }}
-            </div>
-
-            <br />
-            <div class="form-group">
-                <p>Add NCBI Taxonomy nodes file.</p>
-                <label class="btn btn-default" for="ncbi_taxonomy_nodes_file" id="my-file-button-ncbi-taxonomy-nodes">
-                    {{ form.ncbi_taxonomy_nodes_file(style="display:none;", onchange="")}}
-                    <span id="file-selector-text-ncbi-taxonomy-nodes">Select NCBI Taxonomy Nodes File</span>
-                </label>
-            </div>
-
-            <div class="form-group">
-                <p>Add NCBI Taxonomy names file.</p>
-                <label class="btn btn-default" for="ncbi_taxonomy_names_file" id="my-file-button-ncbi-taxonomy-names">
-                    {{ form.ncbi_taxonomy_names_file(style="display:none;", onchange="")}}
-                    <span id="file-selector-text-ncbi-taxonomy-names">Select NCBI Taxonomy Names File</span>
-                </label>
-            </div>
-
-            <div class="form-group">
                 <label>{{ form.silva_release.label }}</label>
                 {{form.silva_release(class_="form-control", placeholder="SILVA Release") }}
             </div>
@@ -97,18 +75,6 @@
 <script src="{{ url_for('static', filename='js/jscolor.min.js') }}"></script>
 <script>
     
-$(function() {
-    $("#ncbi_taxonomy_nodes_file").change(function() {
-        $('#file-selector-text-ncbi-taxonomy-nodes').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#my-file-button-ncbi-taxonomy-nodes').toggleClass('btn-default btn-success');
-    });
-});
-
-$(function() {
-    $("#ncbi_taxonomy_names_file").change(function() {
-        $('#file-selector-text-ncbi-taxonomy-names').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#my-file-button-ncbi-taxonomy-names').toggleClass('btn-default btn-success');
-    });
-});
-
 $(function() {
     $("#silva_taxonomy_file").change(function() {
         $('#file-selector-text-silva-taxonomy').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#my-file-button-silva-taxonomy').toggleClass('btn-default btn-success');

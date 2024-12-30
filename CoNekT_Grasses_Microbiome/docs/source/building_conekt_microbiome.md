@@ -6,7 +6,6 @@
 
 TODO: Add a description of the taxonomy
 
- * NCBI Taxonomy
  * SILVA Taxonomy
  * GTDB Taxonomy
  * GreenGenes Taxonomy
