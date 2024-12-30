@@ -8,7 +8,6 @@ class Species(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(50, collation=SQL_COLLATION), unique=True)
     name = db.Column(db.String(200, collation=SQL_COLLATION))
-    data_type = db.Column(db.Enum('genome', 'transcriptome', name='data_type'))
     color = db.Column(db.String(7), default="#C7C7C7")
     highlight = db.Column(db.String(7), default="#DEDEDE")
     sequence_count = db.Column(db.Integer)
@@ -23,11 +22,10 @@ class Species(db.Model):
     sequences = db.relationship('Sequence', backref='species', lazy='dynamic', cascade="all, delete-orphan", passive_deletes=True)
     profiles = db.relationship('ExpressionProfile', backref='species', lazy='dynamic', cascade="all, delete-orphan", passive_deletes=True)
 
-    def __init__(self, code, name, data_type='genome',
+    def __init__(self, code, name,
                  color="#C7C7C7", highlight="#DEDEDE", description=None, source=None, literature_id=None, genome_version=None):
         self.code = code
         self.name = name
-        self.data_type = data_type
         self.color = color
         self.highlight = highlight
         self.sequence_count = 0
@@ -78,10 +76,10 @@ class Species(db.Model):
             return False
 
     @staticmethod
-    def add(code, name, data_type='genome',
+    def add(code, name,
             color="#C7C7C7", highlight="#DEDEDE", description=None, source=None, literature_id=None, genome_version=None):
 
-        new_species = Species(code, name, data_type=data_type, color=color, highlight=highlight,
+        new_species = Species(code, name, color=color, highlight=highlight,
                                description=description, source=source, literature_id=literature_id, genome_version=genome_version)
 
         species = Species.query.filter_by(code=code).first()

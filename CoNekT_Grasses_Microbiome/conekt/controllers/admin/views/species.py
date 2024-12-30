@@ -8,7 +8,7 @@ class SpeciesAdminView(MyModelView):
     """
     Species view in admin page, specifies what is available in CRUD
     """
-    form_columns = ('code', 'name', 'data_type', 'color', 'highlight', 'description', 'source')
+    form_columns = ('code', 'name', 'color', 'highlight', 'description', 'source')
     form_create_rules = form_columns
     form_edit_rules = form_columns
 

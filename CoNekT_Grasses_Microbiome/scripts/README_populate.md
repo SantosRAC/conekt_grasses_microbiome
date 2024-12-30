@@ -32,13 +32,39 @@ Currently, Plant Ontology (PO), Plant Experimental Conditions Ontology (PECO) an
 
 #### Add Species
 
+For adding species to the database it is necessary to create a fie following this template (information separated by tabulation):
+
+```bash
+#Species_name   Code    Source  Genome_Transcriptome_version    DOI     CDS_file        RNA_file
+Zea mays        Zma     Phytozome       Zmays_Zm_B73_REFERENCE_NAM_5_0_55       10.1126/science.abg5289 /path/to/Maize/Zma_cds.fa      /path/to/Maize/Zma_rnas.fa
+```
+
+Running the script:
+
+```bash
+./add_species.py --input_table /path/to/species_info.tsv --db_admin conekt_microbiome_admin --db_name conekt_microbiome_db
+```
+
+#### Add description associated to species sequences
+
+```bash
+./add_gene_descriptions.py --species_code Zma --gene_descriptions /path/to/Maize/Zma_cds_descriptions.txt --db_admin conekt_microbiome_admin --db_name conekt_microbiome_db
+```
+
+#### Add GO annotation for species
+
+```bash
+./add_go.py --species_code Zma --go_tsv /path/to/Maize/Zma_gos.tsv --annotation_source "GOs from InterProScan" --db_admin conekt_microbiome_admin --db_name conekt_microbiome_db
+```
+
+#### Add InterPro annotation for species
+
+```bash
+./add_interproscan.py --interproscan_tsv /path/to/Maize/Zma_interproscan.tsv --species_code Zma --db_admin conekt_microbiome_admin --db_name conekt_microbiome_db
+```
 
 
-
- * Add description associated to species sequences
- * Add GO annotation for species
- * Add InterPro annotation for species
- * Add CAZyme annotation for species
+#### Add CAZyme annotation for species
 
  * Add samples
 

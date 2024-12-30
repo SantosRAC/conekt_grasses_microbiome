@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import argparse
-import psutil
 import sys
 import gzip
 import operator
@@ -153,13 +152,12 @@ def add_literature(doi, engine):
             return literature.id
 
 
-def add_species(code, name, engine, data_type='genome',
+def add_species(code, name, engine,
             color="#C7C7C7", highlight="#DEDEDE", description=None,
             source=None, literature_id=None, genome_version=None):
 
         new_species = Species(code=code,
                               name=name,
-                              data_type=data_type,
                               color=color,
                               highlight=highlight,
                               description=description,

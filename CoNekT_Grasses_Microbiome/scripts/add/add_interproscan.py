@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import argparse
-import psutil
 
 from sqlalchemy import create_engine
 from sqlalchemy.ext.automap import automap_base
@@ -48,7 +47,6 @@ class InterproDomainParser:
                 if len(parts) > 11:
                     gene = parts[0]
                     domain = {"id": parts[11],
-                              "ipr_source_db": parts[3],
                               "start": int(parts[6]),
                               "stop": int(parts[7])}
 
@@ -58,16 +56,6 @@ class InterproDomainParser:
                     if domain not in self.annotation[gene]:
                         self.annotation[gene].append(domain)
 
-
-def print_memory_usage():
-    # Get memory usage statistics
-    memory = psutil.virtual_memory()
-
-    # Print memory usage
-    print(f"Total Memory: {memory.total / (1024.0 ** 3):.2f} GB")
-    print(f"Available Memory: {memory.available / (1024.0 ** 3):.2f} GB")
-    print(f"Used Memory: {memory.used / (1024.0 ** 3):.2f} GB")
-    print(f"Memory Usage Percentage: {memory.percent}%\n")
 
 def add_interpro_from_interproscan(filename, species_code, engine):
         """
@@ -122,7 +110,6 @@ def add_interpro_from_interproscan(filename, species_code, engine):
 
                         new_domain = {"sequence_id": current_sequence.id,
                                       "interpro_id": current_domain.id,
-                                      "ipr_source_db": domain["ipr_source_db"],
                                       "start": domain["start"],
                                       "stop": domain["stop"]}
 
@@ -139,11 +126,9 @@ def add_interpro_from_interproscan(filename, species_code, engine):
 
             if len(new_domains) > 400:
                 session.commit()
-                print_memory_usage()
                 new_domains = []
 
         session.commit()
-        print_memory_usage()
 
 interproscan_tsv = args.interproscan_file
 sps_code = args.species_code
