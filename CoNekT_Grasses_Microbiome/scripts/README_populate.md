@@ -8,6 +8,7 @@ There are currently two categories of scripts in the pipeline, reflecting the or
 
 #### Add Taxonomy
 
+
 Currently, SILVA, GreenGenes and GTDB databases can be added to CoNekT Grasses Microbiome as shown here:
 
 ```bash
@@ -16,13 +17,15 @@ Currently, SILVA, GreenGenes and GTDB databases can be added to CoNekT Grasses M
 
 #### Add Functional Data
 
-Currenrly, InterPro, Gene Ontology and CAZymes databases can be added to CoNekT Grasses Microbiome as shown here:
+
+Currently, InterPro, Gene Ontology and CAZymes databases can be added to CoNekT Grasses Microbiome as shown here:
 
 ```bash
 ./add_functional_data.py --interpro_xml /path/to/FunctionalData/interpro.xml --gene_ontology_obo /path/to/FunctionalData/go.obo --cazyme /path/to/FunctionalData/CAZyDB.07302020.fam-activities.txt --db_admin conekt_microbiome_admin --db_name conekt_microbiome_db
 ```
 
 #### Add Ontology
+
 
 Currently, Plant Ontology (PO), Plant Experimental Conditions Ontology (PECO) and Environment Ontology (ENVO) can be added to CoNekT Grasses Microbiome as shown here:
 
@@ -31,6 +34,7 @@ Currently, Plant Ontology (PO), Plant Experimental Conditions Ontology (PECO) an
 ```
 
 #### Add Species
+
 
 For adding species to the database it is necessary to create a fie following this template (information separated by tabulation):
 
@@ -47,11 +51,13 @@ Running the script:
 
 #### Add description associated to species sequences
 
+
 ```bash
 ./add_gene_descriptions.py --species_code Zma --gene_descriptions /path/to/Maize/Zma_cds_descriptions.txt --db_admin conekt_microbiome_admin --db_name conekt_microbiome_db
 ```
 
 #### Add GO annotation for species
+
 
 ```bash
 ./add_go.py --species_code Zma --go_tsv /path/to/Maize/Zma_gos.tsv --annotation_source "GOs from InterProScan" --db_admin conekt_microbiome_admin --db_name conekt_microbiome_db
@@ -59,14 +65,35 @@ Running the script:
 
 #### Add InterPro annotation for species
 
+
 ```bash
 ./add_interproscan.py --interproscan_tsv /path/to/Maize/Zma_interproscan.tsv --species_code Zma --db_admin conekt_microbiome_admin --db_name conekt_microbiome_db
 ```
 
-
 #### Add CAZyme annotation for species
 
- * Add samples
+
+
+#### Add samples for species
+
+
+```bash
+./add_samples.py --species_code Zma --sample_annotation /path/to/Maize/Zma_sample_annotation.txt --db_admin conekt_microbiome_admin --db_name conekt_microbiome_db
+```
+
+### Build scripts
+
+#### Build study
+
+
+Before adding expression and abundance data, it is necessary to create a study.
+
+```bash
+./create_study.py --species_code Zma --study_name "Integration of Maize Microbiome and Transcriptome in leaves" --study_description "Integration of Maize Microbiome and Transcriptome in leaves to understand the role of microbiome in plant transcriptome" --study_type expression_metataxonomics --krona_file /home/santosrac/Repositories/conekt_grasses_microbiome/CoNekT_Grasses_Microbiome/tests/data/microbiome_data/otus/text.krona.html --db_admin conekt_microbiome_admin --db_name conekt_microbiome_db
+```
+
+
+
 
  * Add OTUs for species
  * Add OTU Classification (GTDB is mandatory; additional classification is optional)
@@ -78,8 +105,5 @@ Running the script:
  * Add cross-correlations to study
  * Add GO enrichment to cross-correlated genes in a study
 
-### Build
-
- * Create study
  * Compute microbiome specificity for study
  
