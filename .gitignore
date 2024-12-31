@@ -4,7 +4,7 @@ CoNekT_Grasses_Microbiome/migrations
 CoNekT_Grasses_Microbiome/docs/build
 CoNekT_Grasses_Microbiome/config.py
 CoNekT_Grasses_Microbiome/config_metataxonomics.py
-CoNekT_Grasses_Microbiome/scripts/nextflow_pipeline/data
+CoNekT_Grasses_Microbiome/scripts/mariadb_credentials.txt
 
 tmp
 bin
