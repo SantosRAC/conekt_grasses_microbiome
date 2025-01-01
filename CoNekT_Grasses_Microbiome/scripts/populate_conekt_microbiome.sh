@@ -97,3 +97,7 @@ $SCRIPTS_DIR/build/create_study.py --db_admin $DB_ADMIN\
     --clustering_reference_db greengenes\
     --clustering_reference_db_release 13_5\
      --fasta_file /home/santosrac/Projects/UGA_RACS/CoNekT_Grasses_Microbiome/datasets/Maize/rep_set_conekt.fna
+
+ # Populate CoNekT Microbiome with OTU classification
+
+ 

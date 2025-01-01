@@ -89,7 +89,28 @@ Running the script:
 
 #### Add OTU Classification (GTDB is mandatory)
 
+Scripts are still under development.
 
+
+#### Add OTU Profiles to Study
+
+Warning: Before adding abundance data, it is necessary to create a study.
+
+Scripts are still under development.
+
+
+#### Add Expression Profiles to Study
+
+Warning: Before adding expression data, it is necessary to create a study.
+
+Scripts are still under development.
+
+
+#### Add Cross-Correlations to Study
+
+Warning: Before adding cross-correlation data, it is necessary to create a study.
+
+Scripts are still under development.
 
 
 ### Build scripts
@@ -106,14 +127,7 @@ Before adding expression and abundance data, it is necessary to create a study.
 
 
 
-
- * Add OTU profiles
-
- * Add expression profiles
-
  * Add PCA to study
- * Add cross-correlations to study
  * Add GO enrichment to cross-correlated genes in a study
-
  * Compute microbiome specificity for study
  
