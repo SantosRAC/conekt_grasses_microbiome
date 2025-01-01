@@ -82,3 +82,18 @@ $SCRIPTS_DIR/build/create_study.py --db_admin $DB_ADMIN\
     --study_description "Integration of Maize Microbiome and Transcriptome in leaves to understand the role of microbiome in plant transcriptome"\
     --study_type expression_metataxonomics\
     --krona_file /home/santosrac/Repositories/conekt_grasses_microbiome/CoNekT_Grasses_Microbiome/tests/data/microbiome_data/otus/text.krona.html
+
+ # Populate CoNekT Microbiome with OTUs
+ $SCRIPTS_DIR/add/add_otus.py --db_admin $DB_ADMIN\
+    --db_name $DB_NAME\
+    --db_password $DB_PASSWORD\
+    --literature_doi "10.1094/PBIOMES-02-18-0008-R"\
+    --amplicon_marker 16S\
+    --primer_pair "515F-1401R"\
+    --method_description "Brief description of the method used to generate OTUs"\
+    --clustering_method open_reference\
+    --clustering_algorithm qiime1\
+    --clustering_threshold 0.97\
+    --clustering_reference_db greengenes\
+    --clustering_reference_db_release 13_5\
+     --fasta_file /home/santosrac/Projects/UGA_RACS/CoNekT_Grasses_Microbiome/datasets/Maize/rep_set_conekt.fna

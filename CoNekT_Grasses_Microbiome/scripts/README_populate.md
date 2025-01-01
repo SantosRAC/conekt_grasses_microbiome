@@ -81,6 +81,17 @@ Running the script:
 ./add_samples.py --species_code Zma --sample_annotation /path/to/Maize/Zma_sample_annotation.txt --db_admin conekt_microbiome_admin --db_name conekt_microbiome_db
 ```
 
+#### Add OTUs
+
+```bash
+ ./add_otus.py --literature_doi "10.1094/PBIOMES-02-18-0008-R" --amplicon_marker 16S --primer_pair "515F-1401R" --method_description "Brief description of the method used to generate OTUs" --clustering_method open_reference --clustering_algorithm qiime1 --clustering_threshold 0.97 --clustering_reference_db greengenes --clustering_reference_db_release 13_5 --db_admin conekt_microbiome_admin --db_name conekt_microbiome_db --fasta_file /path/to/Maize/rep_set_conekt.fna
+```
+
+#### Add OTU Classification (GTDB is mandatory)
+
+
+
+
 ### Build scripts
 
 #### Build study
@@ -95,8 +106,7 @@ Before adding expression and abundance data, it is necessary to create a study.
 
 
 
- * Add OTUs for species
- * Add OTU Classification (GTDB is mandatory; additional classification is optional)
+
  * Add OTU profiles
 
  * Add expression profiles
