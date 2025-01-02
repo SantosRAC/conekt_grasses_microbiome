@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if microbiome_network %}
+        Microbiome Association graph
+    {% endif %}
+{% endblock %}
+
+{% block container %}
+</div> <!--close the container in base.html-->
+<div id="full_width">
+            <div style="padding-left:15px;padding-right:15">
+            {% if microbiome_network %}
+            <h1>Microbiome Association graph (i.e., co-occurrence network)</h1>
+            {% endif %}
+            </div>
+            <div class="clearfix">
+                    <div class="pull-right">
+                        <button id="cy-reset" class="btn btn-default"><i class="fa fa-arrows-h fa-rotate-45" data-toggle="tooltip" title="Reset View"></i></button>
+                            <div class="input-group" style="width:200px;display: inline-table;vertical-align: middle;">
+                            <input type="text" class="form-control" placeholder="Search Nodes" id="cy-search-term">
+                            <span class="input-group-btn">
+                                <button class="btn btn-primary" type="button" id="cy-search" search-url="#"><i class="fa fa-search" id="search_logo"></i><i class="fa fa-spinner fa-pulse" style="display:none" id="search_spinner"aria-hidden="true"></i></button>
+                            </span>
+                            </div>
+                        <div class="btn-group" role="group" aria-label="Layout buttons">
+                            <div class="dropdown btn-group" role="group">
+                                <button class="btn btn-default dropdown-toggle" type="button"  data-toggle="dropdown"><i class="fa fa-circle" aria-hidden="true" data-toggle="tooltip" title="Node Options"></i> <span class="caret"></span></button>
+                                <ul class="dropdown-menu dropdown-menu-right cy-option-menu">
+                                    <li class="dropdown-header">Nodes show</li>
+                                    {% if microbiome_network %}
+                                    <li><a href="#" class="cy-node-color" attr="microbe_color">Microbe</a></li>
+                                    {% endif %}
+                                    <div style="display:none">
+                                        <li><a href="#" class="cy-node-shape" attr="shape">Default</a></li>
+                                    </div>
+                                </ul>
+                            </div>
+                            <div class="dropdown btn-group" role="group">
+                                <button class="btn btn-default dropdown-toggle" type="button"  data-toggle="dropdown"><i class="fa fa-cog" aria-hidden="true" data-toggle="tooltip" title="Other Options"></i> <span class="caret"></span></button>
+                                <ul class="dropdown-menu dropdown-menu-right" style="width:200px">
+                                    <li class="dropdown-header">Layout</li>
+                                    <li><a href="#" class="cy-layout" layout="breadthfirst">Breadthfirst</a></li>
+                                    <li><a href="#" class="cy-layout" layout="circle">Circle</a></li>
+                                    <li><a href="#" class="cy-layout" layout="concentric">Concentric</a></li>
+                                    <li><a href="#" class="cy-layout" layout="cose">Cose</a></li>
+                                    <li><a href="#" class="cy-layout" layout="grid">Grid</a></li>
+                                    <li><a href="#" class="cy-layout" layout="random">Random</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="dropdown btn-group" role="group">
+                                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-download" aria-hidden="true" data-toggle="tooltip" title="Export"></i> <span class="caret"></span></button>
+                                <ul class="dropdown-menu dropdown-menu-right">
+                                    <li class="dropdown-header">Export</li>
+                                    <li><a data-toggle="modal"  data-target="#data_modal" style="cursor:pointer">Data</a></li>
+                                    <li><a data-toggle="modal"  data-target="#image_modal" style="cursor:pointer">Image</a></li>
+                                </ul>
+                        </div>
+                    </div>
+                </div>
+
+            {% if microbiome_network %}
+            <div id="cy" cycss="{{ url_for('static', filename='js/cytoscape.cycss') }}"></div>
+            {% endif %}
+
+    <hr />
+    <div class="text-center">
+        <div id="legend" url="{{ url_for('static', filename='svg/legend.svg') }}"></div>
+    </div>
+
+</div>
+<div class="modal" id="data_modal" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel">
+    <div class="modal-dialog" role="document" style="width:1000px;height:800px;">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h4 class="modal-title" id="dataModalLabel"><strong>Export Data</strong></h4>
+            </div>
+            <div class="modal-body" syle="width:700px;min-height:200px">
+                <button class="btn btn-primary" id="cy-download-xgmml">XGMML</button> <span class="text-muted">(compatible with <a href="http://www.cytoscape.org/">Cytoscape</a>)</span>
+                <hr />
+                <h3>Other formats, compatible with <a href="http://js.cytoscape.org/">Cytoscape.js</a></h3>
+                <button class="btn btn-default" id="cy-download-json">JSON</button> <span class="text-muted">(network only)</span> <br/><br/>
+                <button class="btn btn-default" id="cy-download-jsoncy">JSON</button> <span class="text-muted">(network + colors/shapes)</span> <br/><br/>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+      </div>
+</div>
+
+<div class="modal" id="image_modal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel">
+    <div class="modal-dialog" role="document" style="width:1000px;height:800px;">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h4 class="modal-title" id="imageModalLabel"><strong>Export Image</strong></h4>
+            </div>
+            <div class="modal-body" style="width:700px;min-height:200px">
+                <table>
+                    <tbody>
+                    <tr>
+                        <td class="col-md-3"><strong>Image with Legend</strong></td>
+                        <td class="col-md-9"><button class="btn btn-primary" id="cy-download-svg-with-legend">SVG</button> <button class="btn btn-primary"  id="cy-download-png-with-legend">PNG</button></td>
+                    </tr>
+                    <tr><td colspan="2"><br /></td></tr>
+                    <tr><td colspan="2">Other Options</td></tr>
+                    <tr><td colspan="2"><hr /></td></tr>
+                    <tr>
+                        <td class="col-md-3"><strong>Image</strong></td>
+                        <td class="col-md-9"><button class="btn btn-default" id="cy-download-svg">SVG</button> <button class="btn btn-default" id="cy-download-img-lowres">PNG</button></td>
+                    </tr>
+                    <tr><td><br /></td></tr>
+                    <tr>
+                        <td class="col-md-3"><strong>Legend</strong></td>
+                        <td class="col-md-9"><button class="btn btn-default" id="cy-download-svg-legend">SVG</button> <button class="btn btn-default"  id="cy-download-png-legend">PNG</button></td>
+                    </tr>
+                    <tr><td><br /></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+      </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script src="{{ url_for('static', filename='js/bootstrap-slider.min.js') }}"></script>
+<script>
+$( document ).ready(function() {
+                $('#footer').hide(2000);
+                $('[data-toggle="tooltip"]').tooltip();
+});
+</script>
+{% if graph_data %}
+<script>
+$(function(){
+    graph_data = {{ graph_data }};
+});
+</script>
+{% endif %}
+<script src="{{ url_for('static', filename='js/pablo.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/planet_svg_legend.js') }}"></script>
+<script src="{{ url_for('static', filename='js/cytoscape.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/cytoscape-qtip.js') }}"></script>
+<script src="{{ url_for('static', filename='js/planet_graph.js') }}"></script>
+
+<script>
+$(document).ready(function () {
+    init_planet_loader('');
+});
+</script>
+
+{% endblock %}
