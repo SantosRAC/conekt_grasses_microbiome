@@ -19,7 +19,7 @@
         <div class="panel panel-primary">
             <div class="panel-heading"><strong>Options</strong></div>
             <div class="panel-body">
-                <form method="POST"  action="{{ url_for('custom_network.expression_microbiome_correlation') }}"  role="form">
+                <form method="POST"  action="{{ url_for('exp_micro_custom_network.expression_microbiome_correlation') }}"  role="form">
                     {{ form.csrf_token }}
                     <label>Species</label>
                     {{form.species_id(class_="form-control")}}<br/>

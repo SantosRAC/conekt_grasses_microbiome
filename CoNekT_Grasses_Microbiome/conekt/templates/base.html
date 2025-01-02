@@ -55,7 +55,7 @@
                             <ul class="dropdown-menu">
                                 <li class="dropdown-header">Operational Taxonomic Unit (OTU) Profiles</li>
                                 <li><a href="{{ url_for('otus_profile.find_specific_profiles')}}">Find specific OTUs in a study</a></li>
-                                <li><a href="#">Draw co-occurrence network</a></li>
+                                <li><a href="{{ url_for('micro_custom_network.cooccurrence_network') }}">Draw co-occurrence network</a></li>
                             </ul>
                         </li>
                         <li>
@@ -63,7 +63,7 @@
                             <ul class="dropdown-menu">
                                 <li class="dropdown-header">Analyze Microbiome - Transcriptome Correlations</li>
                                 <li><a href="{{ url_for('search.search_correlated_profiles') }}">Find Correlations</a></li>
-                                <li><a href="{{ url_for('custom_network.expression_microbiome_correlation') }}">Draw cross-correlation network</a></li>
+                                <li><a href="{{ url_for('exp_micro_custom_network.expression_microbiome_correlation') }}">Draw cross-correlation network</a></li>
                                 <li><a href="{{ url_for('search.search_correlated_profiles_study_groups') }}">Compare Correlations Among Groups in a Study</a></li>
                             </ul>
                         </li>

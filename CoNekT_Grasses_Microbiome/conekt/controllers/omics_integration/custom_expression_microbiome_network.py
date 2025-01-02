@@ -9,10 +9,10 @@ from conekt.helpers.cytoscape import CytoscapeHelper
 from conekt.models.sequences import Sequence
 from conekt.models.microbiome.operational_taxonomic_unit import OperationalTaxonomicUnit
 
-custom_network = Blueprint('custom_network', __name__)
+exp_micro_custom_network = Blueprint('exp_micro_custom_network', __name__)
 
 
-@custom_network.route('/', methods=['GET', 'POST'])
+@exp_micro_custom_network.route('/', methods=['GET', 'POST'])
 def expression_microbiome_correlation():
     """
     Custom network tool, accepts a species, a study, a method and a list of probes and plots the network
