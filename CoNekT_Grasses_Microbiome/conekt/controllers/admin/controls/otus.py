@@ -236,17 +236,22 @@ def add_otu_associations():
 
     if request.method == 'POST' and form.validate():
 
-        otu_associations_file = request.files[form.otu_association_file.name].read()
         species_id = request.form.get('species_id')
         study_id = request.form.get('study_id')
+        sample_group = request.form.get('sample_group')
+        description = request.form.get('description')
+        tool = request.form.get('tool')
+        method = request.form.get('method')
+        otu_association_file = request.files[form.otu_association_file.name].read()
 
         # Add OTU associations file
         fd_otu_associations_file, temp_otu_associations_file_path = mkstemp()
 
         with open(temp_otu_associations_file_path, 'wb') as otu_associations_file_writer:
-            otu_associations_file_writer.write(otu_associations_file)
+            otu_associations_file_writer.write(otu_association_file)
 
-        MicroAssociation.add_otu_associations()
+        MicroAssociation.add_otu_associations(study_id, sample_group, description,
+                             tool, method, temp_otu_associations_file_path)
 
         os.close(fd_otu_associations_file)
         os.remove(temp_otu_associations_file_path)
@@ -256,6 +261,7 @@ def add_otu_associations():
         return redirect(url_for('admin.index'))
     else:
         if not form.validate():
+            print(str(form.errors))
             flash('Unable to validate data, potentially missing fields', 'danger')
             return redirect(url_for('admin.index'))
         else:

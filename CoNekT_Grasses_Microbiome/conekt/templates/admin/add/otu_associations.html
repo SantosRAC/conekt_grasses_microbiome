@@ -5,7 +5,7 @@
 <h1>Add OTU Associations for a Species and Study</h1>
 <div class="row">
     <div class="col-lg-8 col-md-8 col-sm-6 col-xs-12">
-        <form method="POST"  action="{{ url_for('admin_controls.add_otu_profiles') }}"  role="form" enctype="multipart/form-data">
+        <form method="POST"  action="{{ url_for('admin_controls.add_otu_associations') }}"  role="form" enctype="multipart/form-data">
             {{ form.csrf_token }}
             <label>Select a grass species</label>
             <div class="form-group">
@@ -16,6 +16,26 @@
             <div class="form-group">
                 {{ form.study_id.label }}
                 {{ form.study_id(class_="form-control") }}
+            </div>
+
+            <div class="form-group">
+                {{ form.sample_group.label }}
+                {{ form.sample_group(class_="form-control") }}
+            </div>
+
+            <div class="form-group">
+                {{ form.description.label }}
+                {{ form.description(class_="form-control") }}
+            </div>
+
+            <div class="form-group">
+                {{ form.tool.label }}
+                {{ form.tool(class_="form-control") }}
+            </div>
+
+            <div class="form-group">
+                {{ form.method.label }}
+                {{ form.method(class_="form-control") }}
             </div>
 
             <div class="form-group">
@@ -47,6 +67,7 @@
 <script>
     let species_select = document.getElementById('species_id');
     let study_id_select = document.getElementById('study_id');
+    let sample_group_select = document.getElementById('sample_group');
 
     species_select.onchange = function() {
         species_id = species_select.value;
@@ -55,6 +76,8 @@
                 response.json().then(function(data) {
                     
                     let optionHTML = '';
+
+                    optionHTML += '<option value="' + 0 + '">' + 'Select Study First' + '</option>';
                    
                     for (let study of data.studies) {
                         optionHTML += '<option value="' + study.id + '">' + study.name + '</option>';
@@ -65,6 +88,28 @@
             })
         })
     }
+
+    study_id_select.onchange = function() {
+        study_id = study_id_select.value;
+        
+        fetch("{{ url_for('study.get_sample_group_names', study_id='study_id') }}".replace('study_id', study_id)).then(function(response) {
+            response.json().then(function(data) {
+                
+                let optionHTML = '';
+                
+                optionHTML += '<option value="' + 0 + '">' + 'Select Group First' + '</option>';
+                optionHTML += '<option value="' + 'whole study' + '">' + 'Whole Study' + '</option>';
+
+                for (let group_info of data.sample_group_names) {
+                    optionHTML += '<option value="' + group_info.group_name + '">' + group_info.group_name + " (" + group_info.group_type + ")" + '</option>';
+                }
+    
+                sample_group_select.innerHTML = optionHTML;
+    
+            })
+        })
+    }
+
     $(function() {
         $("#otu_association_file").change(function() {
             $('#otu-association-file-selector-text').html($(this).val().replace(/^.*\\/, '') + ' selected');$('#otu-association-file-button').toggleClass('btn-default btn-success');
