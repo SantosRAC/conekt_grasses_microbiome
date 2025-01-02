@@ -110,9 +110,11 @@ def configure_blueprints(app):
     from conekt.controllers.profile_comparison import profile_comparison
     from conekt.controllers.microbiome.otu_profiles import otus_profile
     from conekt.controllers.microbiome.otus import otu
+    from conekt.controllers.microbiome.custom_microbiome_network import micro_custom_network
     from conekt.controllers.omics_integration.profile_correlations import profile_correlations
     from conekt.controllers.literature import literature
-    from conekt.controllers.omics_integration.custom_expression_microbiome_network import custom_network
+    from conekt.controllers.omics_integration.custom_expression_microbiome_network import exp_micro_custom_network
+
 
     LOGIN_ENABLED = app.config['LOGIN_ENABLED']
     BLAST_ENABLED = app.config['BLAST_ENABLED']
@@ -136,7 +138,8 @@ def configure_blueprints(app):
     app.register_blueprint(cazyme, url_prefix='/cazyme')
     app.register_blueprint(family, url_prefix='/family')
     app.register_blueprint(expression_profile, url_prefix='/profile')
-    app.register_blueprint(custom_network, url_prefix='/custom_network')
+    app.register_blueprint(exp_micro_custom_network, url_prefix='/exp_micro_custom_network')
+    app.register_blueprint(micro_custom_network, url_prefix='/micro_custom_network')
     app.register_blueprint(search, url_prefix='/search')
     # TODO: add URL after configuring Solr as the main search engine
     app.register_blueprint(help, url_prefix='/help')
