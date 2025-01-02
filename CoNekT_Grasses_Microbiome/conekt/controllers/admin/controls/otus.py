@@ -10,12 +10,14 @@ from werkzeug.utils import redirect
 from conekt.forms.admin.add_otus import AddOTUSForm
 from conekt.forms.admin.add_otu_classification import AddOTUClassificationForm
 from conekt.forms.admin.add_otu_profiles import AddOTUProfilesForm
+from conekt.forms.admin.add_otu_associations import AddOTUAssociationsForm
 
 from conekt.models.microbiome.operational_taxonomic_unit import OperationalTaxonomicUnit
 from conekt.models.seq_run import SeqRun
 from conekt.models.microbiome.otu_profiles import OTUProfile
 from conekt.models.relationships_microbiome.otu_classification import\
                     OTUClassificationGG, OTUClassificationGTDB
+from conekt.models.microbiome.otu_associations import MicroAssociation
 
 
 @admin_controls.route('/add/otus', methods=['POST'])
@@ -221,3 +223,40 @@ def add_otu_classification():
         else:
             abort(405)
 
+@admin_controls.route('/add/otu_associations', methods=['POST'])
+@admin_required
+def add_otu_associations():
+    """
+    Add OTU associations file
+
+    :return: Redirect to admin panel interface
+    """
+
+    form = AddOTUAssociationsForm(request.form)
+
+    if request.method == 'POST' and form.validate():
+
+        otu_associations_file = request.files[form.otu_association_file.name].read()
+        species_id = request.form.get('species_id')
+        study_id = request.form.get('study_id')
+
+        # Add OTU associations file
+        fd_otu_associations_file, temp_otu_associations_file_path = mkstemp()
+
+        with open(temp_otu_associations_file_path, 'wb') as otu_associations_file_writer:
+            otu_associations_file_writer.write(otu_associations_file)
+
+        MicroAssociation.add_otu_associations()
+
+        os.close(fd_otu_associations_file)
+        os.remove(temp_otu_associations_file_path)
+
+        flash('Successfully added microbiome associations', 'success')
+
+        return redirect(url_for('admin.index'))
+    else:
+        if not form.validate():
+            flash('Unable to validate data, potentially missing fields', 'danger')
+            return redirect(url_for('admin.index'))
+        else:
+            abort(405)
