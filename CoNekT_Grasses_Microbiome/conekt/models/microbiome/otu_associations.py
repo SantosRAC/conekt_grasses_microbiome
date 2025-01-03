@@ -106,11 +106,11 @@ class MicroAssociation(db.Model):
         return new_association_pairs
     
     @staticmethod
-    def create_custom_network():
+    def create_custom_network(association_method_id, otu_probes):
         """
         Return a network dict for a certain set of probes, for a certain study, group and method
 
-        :param method_id: network method to extract information from
+        :param association_method_id: association method to extract information from
         :param otu_probes: list of probe/otu sequence names
         :return: network dict
         """
@@ -127,32 +127,43 @@ class MicroAssociation(db.Model):
                     "node_type": "otu",
                     "depth": 0}
 
-            valid_otu_nodes.append(s.original_id)
             otu_nodes.append(otu_node)
+            valid_otu_nodes.append(s.original_id)
         
         for s in otu_sequences:
-            source = str(s.id) + "_otu"
-            microbiome_associations = MicroAssociation.query.filter_by(micro_association_method_id=cor_method_id,
-                                                                                     otu_probe=s.original_id).all()
+            microbiome_associations = MicroAssociation.query.filter((MicroAssociation.otu_probe1 == s.original_id) | (MicroAssociation.otu_probe2 == s.original_id),
+                MicroAssociation.otu_association_method_id == association_method_id
+            ).all()
             for cor_result in microbiome_associations:
-                gene_profile = ExpressionProfile.query.filter_by(id=cor_result.expression_profile_id).first()
-                if gene_profile.probe not in valid_gene_nodes:
-                    gene_node = {"id": str(gene_profile.sequence_id) + "_gene",
-                    "name": str(gene_profile.probe),
-                    "node_type": "gene",
+
+                # Create nodes if they do not exist
+                otu1_profile = OTUProfile.query.filter_by(id=cor_result.metatax_profile1_id).first()
+                otu2_profile = OTUProfile.query.filter_by(id=cor_result.metatax_profile2_id).first()
+                if otu1_profile.probe not in valid_otu_nodes:
+                    otu_node = {"id": str(otu1_profile.otu_id) + "_otu",
+                    "name": str(otu1_profile.probe),
+                    "node_type": "otu",
                     "depth": 0}
-                    gene_nodes.append(gene_node)
-                    valid_gene_nodes.append(str(gene_profile.probe))
-                has_edge = [ed for ed in edges if (ed["source"]==source and ed["target"]==str(gene_profile.sequence_id) + "_gene") or\
-                    (ed["source"]==str(gene_profile.sequence_id) + "_gene" and ed["target"]==source)]
+                    otu_nodes.append(otu_node)
+                    valid_otu_nodes.append(str(otu1_profile.probe))
+                if otu2_profile.probe not in valid_otu_nodes:
+                    otu_node = {"id": str(otu2_profile.otu_id) + "_otu",
+                    "name": str(otu2_profile.probe),
+                    "node_type": "otu",
+                    "depth": 0}
+                    otu_nodes.append(otu_node)
+                    valid_otu_nodes.append(str(otu2_profile.probe))
+
+                has_edge = [ed for ed in edges if (ed["source"]==str(otu1_profile.otu_id) + "_otu" and ed["target"]==str(otu2_profile.otu_id) + "_otu") or\
+                    (ed["source"]==str(otu2_profile.otu_id) + "_otu" and ed["target"]==str(otu1_profile.otu_id) + "_otu")]
                 if not has_edge:
-                    edges.append({"source": source,
-                                "target": str(gene_profile.sequence_id) + "_gene",
-                                "source_name": s.original_id,
-                                "target_name": gene_profile.probe,
+                    edges.append({"source": str(otu1_profile.otu_id) + "_otu",
+                                "target": str(otu2_profile.otu_id) + "_otu",
+                                "source_name": otu1_profile.probe,
+                                "target_name": otu2_profile.probe,
                                 "depth": 0,
-                                "link_cc": cor_result.corr_coef,
-                                "edge_type": "correlation",
-                                "correlation_method": cor_result.method.stat_method})
+                                "link_cc": cor_result.association_value,
+                                "edge_type": "association",
+                                "correlation_method": cor_result.otu_association_method_id})
 
         return {"nodes": otu_nodes, "edges": edges}

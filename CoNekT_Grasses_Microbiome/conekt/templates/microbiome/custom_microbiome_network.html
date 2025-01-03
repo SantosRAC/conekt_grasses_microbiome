@@ -43,6 +43,7 @@
                 <ul>
                     <li>Select the <strong>species</strong> first. This will enable a list of studies for this species in next selector.</li>
                     <li>Next select a <strong>study</strong>. Note that studies are formed by combinations of runs from different literature sources.</li>
+                    <li>Next select a <strong>sample group</strong> available for that particular study.</li>
                     <li>Next select a <strong>method</strong>. Methods can be SparCC or Spiec-Easi (whichever is available), to associate OTUs in a study.</li>
                     <li>Next enter a list of <strong>OTU IDs</strong>.</li>
                     <li>Click <strong>Draw network</strong></li>
@@ -56,7 +57,8 @@
 {% block extrajs %}
 <script>
     let species_select = document.getElementById('species_id');
-    let study_select = document.getElementById('study_id');
+    let study_id_select = document.getElementById('study_id');
+    let sample_group_select = document.getElementById('sample_group');
     let method_select = document.getElementById('method_id');
     
     species_select.onchange = function() {
@@ -73,12 +75,54 @@
                     optionHTML += '<option value="' + study.id + '">' + study.name + '</option>';
                 }
     
-                study_select.innerHTML = optionHTML;
+                study_id_select.innerHTML = optionHTML;
     
             })
         })
     }
 
+    study_id_select.onchange = function() {
+        study_id = study_id_select.value;
+        
+        fetch("{{ url_for('study.get_sample_group_names', study_id='study_id') }}".replace('study_id', study_id)).then(function(response) {
+            response.json().then(function(data) {
+                
+                let optionHTML = '';
+                
+                optionHTML += '<option value="' + 0 + '">' + 'Select Group First' + '</option>';
+                optionHTML += '<option value="' + 'whole study' + '">' + 'Whole Study' + '</option>';
+
+                for (let group_info of data.sample_group_names) {
+                    optionHTML += '<option value="' + group_info.group_name + '">' + group_info.group_name + " (" + group_info.group_type + ")" + '</option>';
+                }
+    
+                sample_group_select.innerHTML = optionHTML;
+    
+            })
+        })
+    }
+
+    sample_group_select.onchange = function() {
+        sample_group = sample_group_select.value;
+
+        console.log(sample_group, study_id);
+        
+        fetch("{{ url_for('micro_custom_network.sample_group_methods', study_id='study_id', sample_group_selection='sample_group_selection') }}".replace('study_id', study_id).replace('sample_group_selection', sample_group)).then(function(response) {
+            response.json().then(function(data) {
+                
+                let optionHTML = '';
+                
+                optionHTML += '<option value="' + 0 + '">' + 'Select Method First' + '</option>';
+
+                for (let association_method of data.association_methods) {
+                    optionHTML += '<option value="' + association_method.id + '">' + association_method.tool_name + " (" + association_method.method + ")" + '</option>';
+                }
+    
+                method_select.innerHTML = optionHTML;
+    
+            })
+        })
+    }
 
 </script>
 {% endblock %}

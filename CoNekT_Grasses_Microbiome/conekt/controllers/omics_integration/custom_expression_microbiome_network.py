@@ -47,7 +47,7 @@ def expression_microbiome_correlation():
         network_cytoscape = CytoscapeHelper.parse_network(expression_microbiome_network)
 
         return render_template("omics_integration/expression_microbiome_graph.html",
-                               expression_microbiome_network=expression_microbiome_network,
+                               microbiome_network=microbiome_network,
                                graph_data=Markup(json.dumps(network_cytoscape)))
 
     else:
