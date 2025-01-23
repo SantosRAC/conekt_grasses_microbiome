@@ -1,65 +1,163 @@
 # Setting up mod_wsgi with Apache
 
+Important: This configuration is for local development only and may have security vulnerabilities. It should not be used in a production environment.
+Please refer to Apache documentation for hardening your web server.
+
 ## Installing Apache2 and initial setup
 
 Installing Apache2:
+
 
 ```bash
 sudo apt install apache2
 ```
 
-Common XXXXXX:
+Common Apache commands:
 
 ```bash
-service apache2 status
-service apache2 start # this could be used to start Apache2 if necessary (sudo may be necessary)
-service apache2 stop # used to stop Apache2
+sudo service apache2 status       # Check the status of Apache2
+sudo sudo service apache2 start   # this could be used to start Apache2 if necessary (sudo may be necessary)
+sudo service apache2 stop         # used to stop 
+sudo service apache2 reload       # used to reload Apache2
 ```
 
-Copy `conekt.template.wsgi` to conekt.wsgi and add the correct paths. 
+You may have to use:
+```bash
+sudo systemctl <command> apache2 #instead of "service"
+```
+
+Installing mod_wsgi for Python 3 that make the connection between Apache2 and wsgi:
+
+```bash
+sudo apt install libapache2-mod-wsgi-py3
+```
+
+Activate the module:
+```bash
+sudo a2enmod wsgi
+sudo service apache2 restart
+```
+---
+
+## Configuring the WSGI file
+
+Copy `conekt.template.wsgi` to `conekt.wsgi` and replace the placeholders with the correct paths.
 
     WSGI_PATH = 'location of your app' (e.g., `/path/to/CoNekT_Grasses_Microbiome`)
     WSGI_ENV = 'location of activate_this.py, in the bin folder of the virtual environment' (e.g., `/path/to/CoNekT_Grasses_Microbiome/bin/activate_this.py`)
 
 `virtualenv` will automatically create the `activate_this.py` file inside the `/bin` folder.
 
+Example app.template.wsgi:
+``` python
 
-The default apache2 user is called `www-data`.
+#!/usr/bin/env python3
+import sys
+
+# WSGI configuration
+#
+# WSGI_PATH = location of the app, should be the same as the base directory of the config file
+# WSGI_ENV  = location of the activate_this.py script in the desired virtual environment
+
+WSGI_PATH = 'location_of_your_app'  # e.g., /path/to/your_app
+WSGI_ENV = 'path_to_activate_this.py'  # e.g., /path/to/venv/bin/activate_this.py
+
+# Add the application path to the system path
+sys.path.insert(0, WSGI_PATH)
+
+# Activate the virtual environment
+with open(WSGI_ENV) as f:
+    exec(f.read(), {'_file_': WSGI_ENV})
+
+# Import and initialize the Flask app
+from your_app import create_app
+application = create_app()
+
+# Remenmber to replace:
+
+# location_of_your_app with the directory containing your Flask app.
+
+# path_to_activate_this.py with the path to activate_this.py in your virtual environment.
+
+# your_app with the name of your Python module that contains the Flask app.
+
+```
+
+---
+
+Apache configuration
 
 A `.conf` file must be created in the sites-available (usually here: `/etc/apache2/sites-available/`).
 
-VirtualHost
+1. Create a .conf file in /etc/apache2/sites-available/. For example:
 
- * mods-available (wsgi.load loads the module from a particular environment - e.g., conekt_grasses)
- * mods-enabled (symbolic links to files in mods-available)
+```bash
+sudo nano /etc/apache2/sites-available/your_app.conf
+```
+2. Example your_app.conf:
 
-Configure apache, example below can be added to the default VirtualHost. A valid user (non-admin), usually www-data, is required for this:
+```
+<VirtualHost *:80>
+    ServerName yourdomain.com
+    ServerAlias www.yourdomain.com
 
-    ServerName paged.unicamp.br
-    ServerAlias www.paged.unicamp.br
-    LogLevel debug
-    #Include conf-available/serve-cgi-bin.conf
-
+    # Static files configuration
     # This part is optional, but will improve speed
     Alias /conekt/static /path/to/conekt/static
 
-    <Directory /path/to/conekt/static>
+    <Directory /path/to/your_app/static>
         Require all granted
+        Allow from all
     </Directory>
-	
-	# Set up WSGI
-	WSGIDaemonProcess application user=www-data group=www-data threads=5
-	WSGIScriptAlias /conekt /path/to/conekt.wsgi
 
-	<Location /conekt>
-        WSGIProcessGroup application
-	    WSGIApplicationGroup %{GLOBAL}
-	    Require all granted
-	</Location>
+    # WSGI configuration
+    WSGIDaemonProcess your_app user=www-data group=www-data threads=5 python-path=/path/to/your_app python-home=/path/to/venv
+    WSGIProcessGroup your_app
+    WSGIScriptAlias / /path/to/your_app/app.wsgi
 
-    ServerAdmin test_paged_unicamp@gmail.com
-    DocumentRoot /path/to/conekt/static/
+    <Directory /path/to/your_app>
+        <Files app.wsgi>
+            Require all granted
+            Allow from all
+        </Files>
+    </Directory>
+
+    ServerAdmin your_email@domain.com
+    # DocumentRoot for your application
+    DocumentRoot /path/to/your_app
+
+    # Log files
+    LogLevel debug
     ErrorLog /Directory/apache_log/paged_error.log
     CustomLog /Directory/apache_log/paged_access.log combined
 
-    
+</VirtualHost>
+```
+
+Replace:
+
+/path/to/your_app with the directory of your Flask application.
+
+/path/to/venv with the path to your virtual environment.
+
+
+The default apache2 user is called `www-data`. Please ensure that it has complete access to your app content.
+
+3. Enable the site and reload Apache:
+
+```bash
+sudo a2ensite your_app.conf
+sudo systemctl reload apache2
+```
+
+---
+
+### Testing the setup
+
+Access your application at http://yourdomain.com. If there are issues, check Apache's error logs:
+
+```bash
+sudo tail -f /Directory/apache_log/paged_error.log
+```
+
+---
