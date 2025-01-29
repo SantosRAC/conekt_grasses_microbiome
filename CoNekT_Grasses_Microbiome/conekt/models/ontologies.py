@@ -53,15 +53,4 @@ class EnvironmentOntology(db.Model):
                 db.session.add(envo_ontology) 
                 db.session.commit()    
     
-    @staticmethod
-    def add_sample_envo_association(sample_id, envo_term):
-
-        sample = Sample.query.get(sample_id)
-        envo = EnvironmentOntology.query.filter_by(envo_term=envo_term).first()
-        species_id = sample.species_id
-
-        association = {'sample_id': sample.id,
-                       'envo_id': envo.id,
-                       'species_id': species_id}
     
-        db.session.execute(SampleENVOAssociation.__table__.insert(), association)
