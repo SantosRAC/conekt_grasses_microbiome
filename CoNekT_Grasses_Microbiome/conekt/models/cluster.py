@@ -25,7 +25,7 @@ class Cluster(db.Model):
         """
         cluster_count = 0
 
-        # read the genomes file
+        # read the cluster file
         with open(clusters_file, 'r') as file:
             # get rid of the header
             _ = file.readline()

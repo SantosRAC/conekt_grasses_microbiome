@@ -12,7 +12,7 @@ from conekt.models.geocode_utils import geocode_location
 # Create arguments
 parser = argparse.ArgumentParser(description='Add genomes data to the database')
 parser.add_argument('--genome', type=str, metavar='genome.txt',
-                    dest='genome_file',
+                    dest='genomes_file',
                     help='The genomes information file',
                     required=True)
 parser.add_argument('--db_admin', type=str, metavar='DB admin',
