@@ -13,14 +13,14 @@ CoNekT Grasses Microbiome is under development in a collaboration between [LabBC
 Virtual env must be installed:
 
 ```bash
-sudo apt install python3.10-venv python3.10-dev
+sudo apt install python3.8-venv python3.8-dev
 pip3 install virtualenv
 ```
 
 Creating and activating
 
 ```bash
-virtualenv --python=python3.10 CoNekT_Grasses_Microbiome
+virtualenv --python=python3.8 CoNekT_Grasses_Microbiome
 # virtualenv creates a .gitignore file we want to delete, since it ignores all changes in repository
 rm CoNekT_Grasses_Microbiome/.gitignore
 source CoNekT_Grasses_Microbiome/bin/activate
