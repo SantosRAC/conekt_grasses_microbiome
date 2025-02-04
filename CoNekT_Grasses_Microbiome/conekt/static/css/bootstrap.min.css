@@ -129,3 +129,41 @@
     }
 }
 
+.table-scroll-container {
+    position: relative;
+    max-height: 600px; /* Ajuste conforme necessário */
+    overflow-y: auto;
+}
+
+.sticky-scroll-wrapper {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: white;
+    padding-bottom: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.top-scroll {
+    overflow-x: auto;
+    height: 17px;
+    margin-bottom: -17px; /* Compensa a altura */
+}
+
+.scroll-dummy {
+    height: 1px;
+}
+
+.bottom-scroll {
+    overflow-x: auto;
+}
+
+/* Esconder scrollbar inferior nativa */
+.bottom-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+/* Ajuste para alinhamento perfeito */
+.table-custom {
+    margin-top: -1px; /* Compensar o dummy */
+}

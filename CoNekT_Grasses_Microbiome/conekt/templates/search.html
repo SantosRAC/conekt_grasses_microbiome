@@ -39,7 +39,16 @@
         <h2>Search Results</h2>
 
         {% if results %}
-            <div class="table-responsive">
+        <div class="table-scroll-container">
+            <!-- Scrollbar fixa no topo -->
+            <div class="sticky-scroll-wrapper">
+            
+                <div class="top-scroll">
+                    <div class="scroll-dummy"></div>
+                </div>
+            </div>
+            <!-- Tabela com scroll inferior -->
+            <div class="table-responsive bottom-scroll">
                 <table class="table table-custom">
                     <thead>
                         <tr>
@@ -107,6 +116,51 @@
 
 {% block extrajs %}
 <script>
+   
+   document.addEventListener('DOMContentLoaded', () => {
+    const tableWrapper = document.querySelector('.bottom-scroll');
+    const topScroll = document.querySelector('.top-scroll');
+    const dummy = document.querySelector('.scroll-dummy');
+
+    if (tableWrapper && topScroll) {
+        // Atualizar largura do dummy
+        const updateDummy = () => {
+            dummy.style.width = `${tableWrapper.scrollWidth}px`;
+        };
+        
+        // Sincronização bidirecional
+        const syncScroll = () => {
+            topScroll.scrollLeft = tableWrapper.scrollLeft;
+        };
+
+        tableWrapper.addEventListener('scroll', syncScroll);
+
+        topScroll.addEventListener('scroll', () => {
+            tableWrapper.scrollLeft = topScroll.scrollLeft;
+        });
+
+        // Observar mudanças na tabela
+        new ResizeObserver(updateDummy).observe(tableWrapper);
+        new MutationObserver(updateDummy).observe(tableWrapper, {
+            subtree: true,
+            childList: true
+        });
+
+        // Inicializar
+        updateDummy();
+        syncScroll();
+    }
+});
+
+// No JavaScript
+let scrollTimeout;
+const throttleSync = () => {
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(syncScroll, 50);
+};
+
+tableWrapper.addEventListener('scroll', throttleSync);
+topScroll.addEventListener('scroll', throttleSync);
 
     // Função para carregar as opções de Country no campo de busca
     async function loadCountries() {
@@ -175,6 +229,27 @@
         loadEnvoClasses();
         loadEnvoAnnotations();
     });
+
+    const addNavButtons = () => {
+    const nav = document.createElement('div');
+    nav.className = 'scroll-nav';
+    nav.innerHTML = `
+        <button class="scroll-left">&lt;</button>
+        <button class="scroll-right">&gt;</button>
+    `;
+    tableWrapper.parentNode.insertBefore(nav, tableWrapper);
+
+    // Lógica de navegação
+    const scrollStep = 200;
+    nav.querySelector('.scroll-left').addEventListener('click', () => {
+        tableWrapper.scrollLeft -= scrollStep;
+    });
+    nav.querySelector('.scroll-right').addEventListener('click', () => {
+        tableWrapper.scrollLeft += scrollStep;
+    });
+};
+
+if (tableWrapper) addNavButtons();
 </script>
 
 {% endblock %}

@@ -163,13 +163,13 @@ def configure_admin_panel(app):
         # Add views for External data
         admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Add External')
         admin.add_view(AddTaxonomyView(name='Taxonomy', endpoint='admin_add_taxonomy', url='add/taxonomy/', category='Add External'))
+        #admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Add External')
+        #admin.add_menu_item(MenuLink("Functional Annotation", class_name="disabled", url="#"), target_category='Add External')
+       # admin.add_view(AddFunctionalDataView(name='Functional Data',
+       #                                      endpoint='admin_add_functional_data',
+        #                                     url='add/functional_data/', category='Add External'))        
         admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Add External')
-        admin.add_menu_item(MenuLink("Functional Annotation", class_name="disabled", url="#"), target_category='Add External')
-        admin.add_view(AddFunctionalDataView(name='Functional Data',
-                                             endpoint='admin_add_functional_data',
-                                             url='add/functional_data/', category='Add External'))        
-        admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Add External')
-        admin.add_menu_item(MenuLink("Ontology", class_name="disabled", url="#"), target_category='Add External')
+        #admin.add_menu_item(MenuLink("Ontology", class_name="disabled", url="#"), target_category='Add External')
         admin.add_view(AddOntologyView(name='Ontology definitions',
                                                  endpoint='admin_add_ontology',
                                                  url='add/ontology/', category='Add External'))
@@ -183,16 +183,16 @@ def configure_admin_panel(app):
         admin.add_view(ControlsView(name='Controls', url='controls/'))
 
         # CRUD for various database tables
-        admin.add_view(NewsAdminView(News, db.session,
-                                     endpoint='admin_news',
-                                     url='news', category='Browse'))
-        admin.add_view(SpeciesAdminView(Species, db.session, url='species', category='Browse'))
-        
-        admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Browse')
-        admin.add_menu_item(MenuLink("Methods", class_name="disabled", url="#"), target_category='Browse')
+        #admin.add_view(NewsAdminView(News, db.session,
+        #                             endpoint='admin_news',
+        #                             url='news', category='Browse'))
+        #admin.add_view(SpeciesAdminView(Species, db.session, url='species', category='Browse'))
+        #
+       # admin.add_menu_item(MenuLink("------------", class_name="divider", url='#'), target_category='Browse')
+        #admin.add_menu_item(MenuLink("Methods", class_name="disabled", url="#"), target_category='Browse')
 
-        admin.add_view(GeneFamilyMethodAdminView(GeneFamilyMethod, db.session, url='families', category="Browse",
-                                                 name='Gene Families'))
+        #admin.add_view(GeneFamilyMethodAdminView(GeneFamilyMethod, db.session, url='families', category="Browse",
+        #                                         name='Gene Families'))
 
 
 
