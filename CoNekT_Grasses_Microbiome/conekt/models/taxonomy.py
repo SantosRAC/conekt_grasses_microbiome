@@ -10,7 +10,7 @@ class GTDBTaxon(db.Model):
     taxon_path: Taxon path  
     """
     __tablename__ = 'gtdb_taxonomy'
-    id = db.Column(db.String(30, collation=SQL_COLLATION), primary_key=True)
+    gtdb_id = db.Column(db.String(30, collation=SQL_COLLATION), primary_key=True)
     taxon_path = db.Column(db.String(255), default='')
     domain = db.Column(db.String(255), default='')
     phylum = db.Column(db.String(255), default='')
@@ -21,8 +21,8 @@ class GTDBTaxon(db.Model):
     species = db.Column(db.String(255), default='')
 
 
-    def __init__(self, id, taxon_path, domain, phylum, Class, order, family, genus, species):
-        self.id = id
+    def __init__(self, gtdb_id, taxon_path, domain, phylum, Class, order, family, genus, species):
+        self.gtdb_id = gtdb_id
         self.taxon_path = taxon_path
         self.domain = domain
         self.phylum = phylum
