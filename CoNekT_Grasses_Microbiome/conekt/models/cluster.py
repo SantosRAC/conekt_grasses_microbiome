@@ -8,7 +8,7 @@ SQL_COLLATION = 'NOCASE' if db.engine.name == 'sqlite' else ''
 class Cluster(db.Model):
     __tablename__ = 'cluster'
     id = db.Column(db.Integer, primary_key=True)
-    gtdb_id = db.Column(db.String(255), db.ForeignKey('gtdb_taxonomy.id'))
+    gtdb_id = db.Column(db.String(255), db.ForeignKey('gtdb_taxonomy.gtdb_id'))
 
     def __init__(self, id, gtdb_id):
         self.id = id

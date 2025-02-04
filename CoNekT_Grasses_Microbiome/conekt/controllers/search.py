@@ -41,7 +41,7 @@ def search():
             NCBI.ncbi_accession,
             Cluster.id.label('cluster_id')  # Incluir o cluster_id
         ).outerjoin(Cluster, Genome.cluster_id == Cluster.id) \
-         .outerjoin(GTDBTaxon, Cluster.gtdb_id == GTDBTaxon.id) \
+         .outerjoin(GTDBTaxon, Cluster.gtdb_id == GTDBTaxon.gtdb_id) \
          .outerjoin(GenomesQuality, Genome.genome_id == GenomesQuality.genome_id) \
          .outerjoin(Geographic, Genome.genome_id == Geographic.genome_id) \
          .outerjoin(GenomeENVO, Genome.genome_id == GenomeENVO.genome_id) \

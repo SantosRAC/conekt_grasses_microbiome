@@ -24,7 +24,7 @@ def screen():
     genomes_with_coordinates = (db.session.query(Genome, Geographic, GTDBTaxon)
                                 .join(Geographic, Geographic.genome_id == Genome.genome_id)
                                 .join(Cluster, Cluster.id == Genome.cluster_id)  # Juntar Cluster com Genome
-                                .join(GTDBTaxon, GTDBTaxon.id == Cluster.gtdb_id)  # Juntar GTDBTaxon com Cluster
+                                .join(GTDBTaxon, GTDBTaxon.gtdb_id == Cluster.gtdb_id)  # Juntar GTDBTaxon com Cluster
                                 .filter(Geographic.lat.isnot(None), Geographic.lon.isnot(None))
                                 .all())
 

@@ -34,7 +34,7 @@ def search_taxonomy():
                     getattr(GTDBTaxon, level),
                     func.count(func.distinct(Genome.genome_id)).label('count')
                 )
-                .join(Cluster, Cluster.gtdb_id == GTDBTaxon.id)
+                .join(Cluster, Cluster.gtdb_id == GTDBTaxon.gtdb_id)
                 .join(Genome, Genome.cluster_id == Cluster.id)
                 .filter(func.lower(getattr(GTDBTaxon, level)).like(f"%{query}%"))
                 .group_by(getattr(GTDBTaxon, level))
@@ -78,7 +78,7 @@ def get_genome_counts(level):
                 getattr(GTDBTaxon, level),  # Get the column corresponding to the taxonomic level
                 func.count(func.distinct(Genome.genome_id)).label('count')
             )
-            .join(Cluster, Cluster.gtdb_id == GTDBTaxon.id)
+            .join(Cluster, Cluster.gtdb_id == GTDBTaxon.gtdb_id)
             .join(Genome, Genome.cluster_id == Cluster.id)
             .group_by(getattr(GTDBTaxon, level))
         )
@@ -108,7 +108,7 @@ def get_genome_counts(level):
                     func.count(func.distinct(Genome.genome_id)).label('count'),
                     Cluster.id.label('cluster_id')  # Capture the cluster_id
                 )
-                .join(Cluster, Cluster.gtdb_id == GTDBTaxon.id)
+                .join(Cluster, Cluster.gtdb_id == GTDBTaxon.gtdb_id)
                 .join(Genome, Genome.cluster_id == Cluster.id)
                 .filter(getattr(GTDBTaxon, get_parent_level('species')) == parent)  # Filter by parent genus
                 .group_by(getattr(GTDBTaxon, level), Cluster.id)
@@ -149,7 +149,7 @@ def show_genomes(cluster_id):
         # Fetch the species name and taxon path
         species_info = (
             db.session.query(GTDBTaxon.species, GTDBTaxon.taxon_path)
-            .join(Cluster, Cluster.gtdb_id == GTDBTaxon.id)
+            .join(Cluster, Cluster.gtdb_id == GTDBTaxon.gtdb_id)
             .filter(Cluster.id == cluster_id)
             .first()
         )
