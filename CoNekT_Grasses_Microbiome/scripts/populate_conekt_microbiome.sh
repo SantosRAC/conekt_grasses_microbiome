@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-BASE_DIR=/home/santosrac/Repositories/conekt_grasses_microbiome
+BASE_DIR=/home/renato/repositories/conekt_grasses_microbiome
 SCRIPTS_DIR=$BASE_DIR/CoNekT_Grasses_Microbiome/scripts
 SPECIES_ARRAY=( Zma )
 DATA_DIR=/home/renato/projects/uga_cena/conekt_grasses_microbiome
@@ -99,5 +99,8 @@ $SCRIPTS_DIR/build/create_study.py --db_admin $DB_ADMIN\
      --fasta_file $DATA_DIR/datasets/maize/rep_set_conekt.fna
 
  # Populate CoNekT Microbiome with OTU classification
-
+ # Populate CoNekT Microbiome with sequencing runs
+ # Populate CoNekT Microbiome with co-occurrence networks
+ # Populate CoNekT Microbiome with cross-correlation networks
+ # Run specificity analysis
  
