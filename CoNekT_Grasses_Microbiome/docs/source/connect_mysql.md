@@ -13,6 +13,16 @@ cp config.template.py config.py
 
 Change settings in `config.py`. **Apart from configuring paths, also change the secret key and the admin password !**
 
+# Installing MySQL/MariaDB
+
+
+```bash
+sudo apt update
+sudo apt install mariadb-server
+```
+
+Digital Ocean has a nice tutorial to [install MariaDB on Ubuntu](https://www.digitalocean.com/community/tutorials/how-to-install-mariadb-on-ubuntu-22-04).
+
 
 # Setting up MySQL/MariaDB for CoNekT Grasses Microbiome
  
