@@ -1,10 +1,11 @@
-from conekt import db
+from conekt import db, whooshee
 
 
 import os
 
 SQL_COLLATION = 'NOCASE' if db.engine.name == 'sqlite' else ''
 
+@whooshee.register_model('id', 'envo_habitat', 'genome_id', 'envo_isolation_source')
 class GenomeENVO(db.Model):
     __tablename__ = 'genome_envo'
     id = db.Column(db.Integer, primary_key=True)

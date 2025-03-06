@@ -1,4 +1,4 @@
-from conekt import db
+from conekt import db, whooshee
 
 from conekt.models.sample import Sample
 from conekt.models.relationships.sample_envo import SampleENVOAssociation
@@ -7,7 +7,7 @@ import os
 
 SQL_COLLATION = 'NOCASE' if db.engine.name == 'sqlite' else ''
 
-
+@whooshee.register_model('id', 'envo_term', 'envo_class', 'envo_annotation')
 class EnvironmentOntology(db.Model):
     __tablename__ = 'environment_ontology'
     id = db.Column(db.Integer, primary_key=True)

@@ -41,7 +41,6 @@
         <hr>
 
         <h2>Search Results</h2>
-        {{ results }}
 
         {% if results %}
             <div class="table-responsive">
@@ -66,11 +65,15 @@
                                 <td>{{ genome.genome_id }}</td>
                                 <td>{{ genome.genome_type }}</td>
                                 
-                                <!-- Taxon Path as a clickable link -->
+                                <!-- Taxon Path as a clickable link, only if cluster_id exists -->
                                 <td>
-                                    <a href="{{ url_for('taxonomy_explorer.show_genomes', cluster_id=genome.cluster_id) }}">
+                                    {% if genome.cluster_id %}
+                                        <a href="{{ url_for('taxonomy_explorer.show_genomes', cluster_id=genome.cluster_id) }}">
+                                            {{ genome.taxon_path or 'N/A' }}
+                                        </a>
+                                    {% else %}
                                         {{ genome.taxon_path or 'N/A' }}
-                                    </a>
+                                    {% endif %}
                                 </td>
                                 
                                 <td>{{ genome.quality or 'N/A' }}</td>

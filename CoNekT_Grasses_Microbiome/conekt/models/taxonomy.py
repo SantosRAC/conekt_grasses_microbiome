@@ -1,8 +1,8 @@
-from conekt import db
+from conekt import db, whooshee
 
 SQL_COLLATION = 'NOCASE' if db.engine.name == 'sqlite' else ''
 
-
+@whooshee.register_model('id', 'taxon_path', 'domain', 'phylum', 'Class', 'order', 'family', 'genus', 'species')
 class GTDBTaxon(db.Model):
     """Table for GTDB taxonomy.
 
