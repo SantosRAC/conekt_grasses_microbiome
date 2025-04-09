@@ -30,8 +30,8 @@ class AddOTUClassificationForm(FlaskForm):
     otu_classification_method_gg = SelectField('OTU classifier (to assign GG taxonomy IDs)', choices=[('uclust', 'uclust'),
                                                     ('qiime2_classify-sklearn', 'qiime2_classify-sklearn'),
                                                     ('other', 'Other')])
-    classifier_version_gg = StringField('Classifier version (assign GG taxonomy IDs)', [InputRequired()])
-    release_gg = StringField('Reference Database release', [InputRequired()])
+    classifier_version_gg = StringField('Classifier version (assign GG taxonomy IDs)')
+    release_gg = StringField('Reference Database release')
     
     gg_otu_classification_file = FileField('GG OTU Classification File')
 
