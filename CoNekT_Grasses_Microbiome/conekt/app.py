@@ -45,6 +45,10 @@ def create_app(config):
         configure_hooks(app)
 
         db.create_all()
+        
+        # Rebuild Whooshee index on startup
+        from conekt.extensions import rebuild_whooshee_index
+        rebuild_whooshee_index()
 
     return app
 

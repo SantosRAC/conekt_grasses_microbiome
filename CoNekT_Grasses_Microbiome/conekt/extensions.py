@@ -19,6 +19,15 @@ __all__ = ['db', 'login_manager', 'cache', 'htmlmin',
 
 db = SQLAlchemy()
 
+def rebuild_whooshee_index():
+    """
+    Rebuilds the Whooshee search index for all registered models
+    """
+    try:
+        whooshee.reindex()
+        print("Whooshee index rebuilt successfully")
+    except Exception as e:
+        print(f"Error rebuilding Whooshee index: {str(e)}")
 
 def admin_required(fn):
     """
@@ -59,3 +68,11 @@ compress = Compress()
 migrate = Migrate()
 whooshee = Whooshee()
 csrf = CSRFProtect()
+
+# Add event listeners for SQLAlchemy to rebuild index on data changes
+@event.listens_for(db.session, 'after_commit')
+def receive_after_commit(session):
+    """
+    Rebuild Whooshee index after database changes
+    """
+    rebuild_whooshee_index()
