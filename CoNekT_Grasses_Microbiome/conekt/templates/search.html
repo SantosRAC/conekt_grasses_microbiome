@@ -11,12 +11,12 @@
                 <!-- Campo de busca para Taxonomy -->
                 <div class="form-group col-md-3">
                     {{ form.taxonomy.label }}
-                    {{ form.taxonomy(class_="form-control") }}
+                    {{ form.taxonomy(class_="form-control", id="taxonomyInput", autocomplete="off") }}
                 </div>
 
                 <div class="form-group col-md-3">
                     {{ form.country.label }}
-                    {{ form.country(class_="form-control") }}
+                    {{ form.country(class_="form-control", id="countryInput", autocomplete="off") }}
                 </div>
 
                 <div class="form-group col-md-3">
@@ -148,28 +148,55 @@
 {% endblock %}
 
 {% block extrajs %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
 <script>
+    // Função para carregar as opções de Taxonomy no campo de busca
+    async function setupTaxonomyAutocomplete() {
+        try {
+            const response = await fetch('{{ url_for("search.get_taxonomy_options") }}');
+            if (!response.ok) {
+                console.error('Network response was not ok', response.status);
+                return;
+            }
+
+            const taxonomyOptions = await response.json();
+            const allOptions = new Set();
+            
+            // Combine all taxonomic levels into a single list
+            Object.values(taxonomyOptions).forEach(level => {
+                level.forEach(option => allOptions.add(option));
+            });
+
+            // Setup jQuery UI autocomplete
+            $('#taxonomyInput').autocomplete({
+                source: Array.from(allOptions),
+                minLength: 2,
+                delay: 300
+            });
+        } catch (error) {
+            console.error('Error loading taxonomy options:', error);
+        }
+    }
+
     // Função para carregar as opções de Country no campo de busca
-    async function loadCountries() {
+    async function setupCountryAutocomplete() {
         try {
             const response = await fetch('{{ url_for("search.get_country") }}');
-            console.log("Fetching countries, response status:", response.status);
-
             if (!response.ok) {
                 console.error('Network response was not ok', response.status);
                 return;
             }
 
             const countries = await response.json();
-            console.log('Countries received:', countries);
 
-            const dataList = document.getElementById('countryList');
-            dataList.innerHTML = '';
-
-            countries.forEach(function(item) {
-                const option = document.createElement('option');
-                option.value = item;
-                dataList.appendChild(option);
+            // Setup jQuery UI autocomplete
+            $('#countryInput').autocomplete({
+                source: countries,
+                minLength: 2,
+                delay: 300
             });
         } catch (error) {
             console.error('Error loading countries:', error);
@@ -212,7 +239,8 @@
 
     // Chamar as funções para carregar as opções quando a página carregar
     document.addEventListener('DOMContentLoaded', function() {
-        loadCountries();
+        setupTaxonomyAutocomplete();
+        setupCountryAutocomplete();
         loadEnvoClasses();
         loadEnvoAnnotations();
     });

@@ -152,6 +152,30 @@ def search():
 
     return render_template('search.html', results=results, form=form)
 
+# Rota para buscar opções de taxonomia (para preenchimento automático)
+@search_page.route('/get_taxonomy_options')
+def get_taxonomy_options():
+    # Buscar valores únicos para cada nível taxonômico
+    domain_options = db.session.query(GTDBTaxon.domain).distinct().all()
+    phylum_options = db.session.query(GTDBTaxon.phylum).distinct().all()
+    class_options = db.session.query(GTDBTaxon.Class).distinct().all()
+    order_options = db.session.query(GTDBTaxon.order).distinct().all()
+    family_options = db.session.query(GTDBTaxon.family).distinct().all()
+    genus_options = db.session.query(GTDBTaxon.genus).distinct().all()
+    species_options = db.session.query(GTDBTaxon.species).distinct().all()
+
+    # Converter os resultados em listas de strings, removendo valores nulos
+    taxonomy_options = {
+        'domain': [opt[0] for opt in domain_options if opt[0]],
+        'phylum': [opt[0] for opt in phylum_options if opt[0]],
+        'class': [opt[0] for opt in class_options if opt[0]],
+        'order': [opt[0] for opt in order_options if opt[0]],
+        'family': [opt[0] for opt in family_options if opt[0]],
+        'genus': [opt[0] for opt in genus_options if opt[0]],
+        'species': [opt[0] for opt in species_options if opt[0]]
+    }
+
+    return jsonify(taxonomy_options)
 
 # Rota para buscar country (para preenchimento automático)
 @search_page.route('/get_country')
