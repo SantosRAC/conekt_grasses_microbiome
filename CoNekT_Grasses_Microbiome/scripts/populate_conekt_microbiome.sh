@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 
-BASE_DIR=/home/renato/repositories/conekt_grasses_microbiome
+BASE_DIR=/home/santosrac/Repositories/conekt_grasses_microbiome
 SCRIPTS_DIR=$BASE_DIR/CoNekT_Grasses_Microbiome/scripts
 SPECIES_ARRAY=( Zma )
-DATA_DIR=/home/renato/projects/uga_cena/conekt_grasses_microbiome
-#SPECIES_TABLE=$DATA_DIR/Species/species_info.tsv
+DATA_DIR=/home/santosrac/Projects/USP/CENA/CoNekTGrassesMicrobiome/v0.1
 
 #Database credentials for CoNekT Grasses from file
 #Expected variables: DB_ADMIN, DB_NAME and DB_PASSWORD
